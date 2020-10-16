@@ -12,7 +12,7 @@ client.on("ready", () => {
     console.log(`[WBF] Logged in as ${client.user.tag}!`)
 })
 
-const modules = require("./modules/index.js")
+require("./modules/index.js")
 
 console.log(`[WBF] Bot version ${process.env.appVersion}`.magenta.bold)
 
@@ -20,5 +20,6 @@ const token = process.env.discordToken
 if (token) client.login(token)
 else
     console.error(
-        "The token was not provided in the environment file! Can't continue! :(".red
+
+        "[WBF] The token was not provided in the environment file! Can't continue! :(".red
     )
