@@ -86,6 +86,12 @@ client.on("message", message => {
                 }
                 warnedUsers[warnUser.id].warns.push(warnData)
                 saveData()
+                console.log(titleCard + ` Successfully warned ${warnUser.username}!`.green)
+                message.reply(`Sucessfully warned ${warnUser.username}!`)
+
+                firstMentionedUser.edit({
+                    roles: ['766789460821934111']
+                })
             }
         }
     }
