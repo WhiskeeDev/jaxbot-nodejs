@@ -19,6 +19,6 @@
   },
   "nodemonConfig": {
     "legacyWatch": true,
-    "ext": "js,env"
+    "ext": "js,env,json"
   }
 }

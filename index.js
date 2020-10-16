@@ -5,13 +5,16 @@ const Discord = require("discord.js")
 const client = new Discord.Client()
 process.discordClient = client
 
+// Just going to throw a couple of clearing lines at the start, helps different a nodemon restart
+console.log("\n\n\n")
+
 client.on("ready", () => {
-    console.log(`Logged in as ${client.user.tag}!`)
+    console.log(`[WBF] Logged in as ${client.user.tag}!`)
 })
 
 const modules = require("./modules/index.js")
 
-console.log(`Bot version ${process.env.appVersion}`.magenta.bold)
+console.log(`[WBF] Bot version ${process.env.appVersion}`.magenta.bold)
 
 const token = process.env.discordToken
 if (token) client.login(token)
