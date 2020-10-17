@@ -26,6 +26,10 @@ function logEvent (guild, message, embedDetails) {
         loggingChannel = guild.channels.cache.find(ch => ch.id === config.channelID)
     }
     loggingChannel.send(message, embed)
+        .catch(err => {
+            console.error(titleCard + "Unable to log event, most likely couldn't find the channel.".red)
+            console.error(err)
+        })
 }
 
 if (config.log.deletedMessages) {
@@ -46,24 +50,69 @@ if (config.log.deletedMessages) {
 }
 
 client.on("voiceStateUpdate", (oldState, newState) => {
-    const channelChanged = oldState.channelID !== newState.channelID
+    let eventType = null
 
-    let disconnected = false
-    if (channelChanged && !newState.channelID) disconnected = true
+    if (!oldState.channelID) eventType = 1
+    else if (oldState.channelID && !newState.channelID) eventType = 2
+    else if (oldState.channelID !== newState.channelID) eventType = 3
+    else if (!oldState.streaming && newState.streaming) eventType = 4
+    else if (oldState.streaming && !newState.streaming) eventType = 5
 
-    const shouldLogVoiceConnect = (!disconnected && config.log.voiceConnect)
-    const shouldLogVoiceDisconnect = (disconnected && config.log.voiceDisconnect)
+    /**
+     * Table of event types
+     * 
+     *  0   -   No Event
+     *  1   -   voiceChannelJoin
+     *  2   -   voiceChannelDisconnect
+     *  3   -   voiceChannelSwitched
+     *  4   -   voiceChannelStreamStart
+     *  5   -   voiceChannelStreamStop
+     */
 
-    let embed = {
-        description: oldState.channel ? `:outbox_tray: <@${oldState.member.user.id}> left voice channel \`${oldState.channel.name}\`` : null,
-        color: 0xff0000,
-        author: oldState.member.user
+    let embedData = {
+        color: 0x4d3799,
+        author: oldState.member?oldState.member.user:newState.member.user
     }
 
-    if (!disconnected) {
-        embed.description = `:inbox_tray: <@${newState.member.user.id}> joined voice channel \`${newState.channel.name}\``
-        embed.color = 0x00ff00
-    }
-    if (shouldLogVoiceConnect || shouldLogVoiceDisconnect) logEvent(oldState.guild, null, embed)
+    let emojis = null
+    let action = null
+    let channels = null
+    let isLoggableEvent = false
 
+    switch (eventType) {
+        case 1:
+            emojis = ":speaker: :inbox_tray:"
+            action = "Joined"
+            channels = `\`${newState.channel.name}\``
+            isLoggableEvent = config.log.voiceChannelJoin
+            break;
+        case 2:
+            emojis = ":speaker: :outbox_tray:"
+            action = "Left"
+            channels = `\`${oldState.channel.name}\``
+            isLoggableEvent = config.log.voiceChannelDisconnect
+            break;
+        case 3:
+            emojis = ":speaker: :twisted_rightwards_arrows:"
+            action = "Switched"
+            channels = `\`${oldState.channel.name}\` -> \`${newState.channel.name}\``
+            isLoggableEvent = config.log.voiceChannelSwitch
+            break;
+        case 4:
+            emojis = ":satellite: :arrow_forward:"
+            action = "Started stream in"
+            channels = `\`${newState.channel.name}\``
+            isLoggableEvent = config.log.voiceChannelStreamStart
+            break;
+        case 5:
+            emojis = ":satellite: :stop_button:"
+            action = "Stopped stream in"
+            channels = `\`${newState.channel ? newState.channel.name : oldState.channel.name}\``
+            isLoggableEvent = config.log.voiceChannelStreamStop
+            break;
+            
+    }
+
+    embedData.description = `${emojis} <@${oldState.member.user.id}> ${action} voice channel ${channels}`
+    if (isLoggableEvent) logEvent(oldState.guild || newState.guild, null, embedData)
 })
