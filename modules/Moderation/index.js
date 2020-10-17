@@ -1,17 +1,29 @@
 const { MessageEmbed } = require('discord.js')
 const Command = require("../Command.js")
 const fs = require('fs')
-const { DateTime } = require("luxon");
+const config = JSON.parse(fs.readFileSync('./config/moderation.json'))
+const { DateTime } = require("luxon")
 
 const client = process.discordClient
-const staff = JSON.parse(fs.readFileSync('./data/users.json')).staff
-var moderationData = JSON.parse(fs.readFileSync('./data/moderation.json'))
+const staff = JSON.parse(fs.readFileSync('./data/users.dat')).staff
+var moderationData = JSON.parse(fs.readFileSync('./data/moderation.dat'))
 var warnedUsers = moderationData.warnedUsers
 
 // title card is used for both console and embeds
 const titleCard = "[Moderation]"
 
 const availableCommands = ['warn', 'warnlist']
+
+function writeLog (message) {
+    const outputMessage = `${titleCard} ${message}`
+    console.log(outputMessage)
+    if (config.writeLogToFile) {
+        fs.writeFileSync('./logs/' + DateTime.local().toISODate() + '.log', outputMessage + "\n", {
+            flag: 'a'
+        })
+    }
+}
+
 
 function saveData () {
     moderationData = {
@@ -72,7 +84,6 @@ client.on("message", message => {
             }
 
             if (staffMember && warnUser) {
-                console.log(titleCard + ` ${staffMember.tag} is warning ${warnUser.tag} for: "${reason}"`.yellow)
                 const warnData = {
                     date: command.message.createdTimestamp,
                     reason: reason,
@@ -87,6 +98,7 @@ client.on("message", message => {
                 warnedUsers[warnUser.id].warns.push(warnData)
                 saveData()
                 console.log(titleCard + ` Successfully warned ${warnUser.username}!`.green)
+                writeLog(`${staffMember.tag} warned ${warnUser.tag} for: "${reason}"`.yellow)
                 message.reply(`Sucessfully warned ${warnUser.username}!`)
 
                 firstMentionedUser.edit({

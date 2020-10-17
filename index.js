@@ -1,9 +1,19 @@
 require("./init.js")
 
-const colors = require("colors")
+const fs = require('fs')
+const colors = require('colors')
 const Discord = require("discord.js")
 const client = new Discord.Client()
 process.discordClient = client
+
+const necessaryDirectories = [
+    'logs', 'config', 'data'
+]
+
+necessaryDirectories.forEach(d => {
+    const path = `./${d}`
+    if (!fs.existsSync(path)) fs.mkdirSync(path)
+})
 
 // Just going to throw a couple of clearing lines at the start, helps different a nodemon restart
 console.log("\n\n\n")

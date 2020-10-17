@@ -1,6 +1,7 @@
 const { MessageEmbed } = require('discord.js')
 const fs = require('fs')
 const config = JSON.parse(fs.readFileSync('./config/logger.json'))
+const { DateTime } = require("luxon")
 
 const client = process.discordClient
 
@@ -14,8 +15,17 @@ if (!config.channelID) {
 
 let loggingChannel = null
 
+function writeLog(message) {
+    const outputMessage = `${titleCard} ${message}`
+    console.log(outputMessage)
+    if (config.writeLogToFile) {
+        fs.writeFileSync('./logs/' + DateTime.local().toISODate() + '.log',outputMessage + "\n",{
+            flag: 'a'
+        })
+    }
+}
+
 function logEvent (guild, message, embedDetails) {
-    console.log(titleCard + " " + embedDetails.description)
     const embed = new MessageEmbed()
     embed
         .setTimestamp()
@@ -36,7 +46,6 @@ if (config.log.deletedMessages) {
 
     client.on("messageDelete", message => {
         if (message.author.bot) return false
-
         logEvent(message.guild, null, {
             description: `:no_entry: <@${message.author.id}> Deleted their message.
             
@@ -45,6 +54,7 @@ if (config.log.deletedMessages) {
             color: 0xff0000,
             author: message.author
         })
+        writeLog(`${message.author.tag} Deleted their message. Original Message: ${message.content}`.red)
     })
 
 }
@@ -114,5 +124,8 @@ client.on("voiceStateUpdate", (oldState, newState) => {
     }
 
     embedData.description = `${emojis} <@${oldState.member.user.id}> ${action} voice channel ${channels}`
-    if (isLoggableEvent) logEvent(oldState.guild || newState.guild, null, embedData)
+    if (isLoggableEvent) {
+        logEvent(oldState.guild || newState.guild, null, embedData)
+        writeLog(`${oldState.member.user.tag} ${action} voice channel ${channels}`.magenta)
+    }
 })
