@@ -16,10 +16,12 @@ if (!config.channelID) {
 let loggingChannel = null
 
 function writeLog(message) {
-    const outputMessage = `${titleCard} ${message}`
+    const curDateTime = DateTime.local()
+    const time = curDateTime.toLocaleString(DateTime.TIME_24_WITH_SECONDS)
+    const outputMessage = `[${time}] ${titleCard} ${message}`
     console.log(outputMessage)
     if (config.writeLogToFile) {
-        fs.writeFileSync('./logs/' + DateTime.local().toISODate() + '.log',outputMessage + "\n",{
+        fs.writeFileSync('./logs/' + curDateTime.toISODate() + '.log',outputMessage + "\n",{
             flag: 'a'
         })
     }
