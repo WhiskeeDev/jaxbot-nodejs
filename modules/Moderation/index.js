@@ -27,7 +27,14 @@ function writeLog (message) {
 }
 
 
-function saveData () {
+function saveWarn (newWarnData) {
+    if (!warnedUsers[newWarnData.user.id]) {
+        warnedUsers[newWarnData.user.id] = {
+            tag: newWarnData.user.tag,
+            warns: []
+        }
+    }
+    warnedUsers[newWarnData.user.id].warns.push(newWarnData.data)
     moderationData = {
         ...moderationData,
         warnedUsers
@@ -37,7 +44,6 @@ function saveData () {
 
 client.on("message", message => {
     if (message.author.bot) return
-
     const command = new Command(message)
 
     if (availableCommands.some(c => command.formattedText.startsWith(c))) {
@@ -86,20 +92,14 @@ client.on("message", message => {
             }
 
             if (staffMember && warnUser) {
-                const warnData = {
-                    date: command.message.createdTimestamp,
-                    reason: reason,
-                    staff: staffMember.id
-                }
-                if (!warnedUsers[warnUser.id]) {
-                    warnedUsers[warnUser.id] = {
-                        tag: warnUser.tag,
-                        warns: []
+                saveWarn({
+                    user: warnUser,
+                    data: {
+                        date: command.message.createdTimestamp,
+                        reason: reason,
+                        staff: staffMember.id
                     }
-                }
-                warnedUsers[warnUser.id].warns.push(warnData)
-                saveData()
-                console.log(titleCard + ` Successfully warned ${warnUser.username}!`.green)
+                })
                 writeLog(`${staffMember.tag} warned ${warnUser.tag} for: "${reason}"`.yellow)
                 message.reply(`Sucessfully warned ${warnUser.username}!`)
 
@@ -110,7 +110,11 @@ client.on("message", message => {
 })
 
 client.on("guildMemberAdd", member => {
-    writeLog(`${member.user.tag} Joined the server"`.rainbow)
+    writeLog(`${member.user.tag} Joined the server!`.rainbow)
+    const usersWarnProfile = warnedUsers[member.user.id]
 
-    console.log(warnedUsers)
+    if (usersWarnProfile && usersWarnProfile.warns.length) {
+        if (config.warnsRoleID) member.roles.add(config.warnsRoleID)
+        writeLog(`Gave ${member.user.tag} the warns role because they already have warns`.red)
+    }
 })
