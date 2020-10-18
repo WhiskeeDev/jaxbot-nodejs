@@ -129,7 +129,7 @@ client.on("ready", async () => {
         const members = guild.members.cache
         usersToCheck.forEach(u => {
             const guildMember = members.get(u)
-            if (guildMember && !guildMember.role.cache.get(config.warnsRoleID)) {
+            if (guildMember && !guildMember.roles.cache.get(config.warnsRoleID)) {
                 guildMember.roles.add(config.warnsRoleID)
                 writeLog(`Gave ${guildMember.user.tag} the 'warns' role because they already have warns`.red)
             }
