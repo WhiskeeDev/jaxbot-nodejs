@@ -32,7 +32,7 @@ function saveData () {
         ...moderationData,
         warnedUsers
     }
-    fs.writeFileSync('./data/moderation.json', JSON.stringify(moderationData, null, 2))
+    fs.writeFileSync('./data/moderation.dat', JSON.stringify(moderationData, null, 2))
 }
 
 client.on("message", message => {
@@ -103,10 +103,14 @@ client.on("message", message => {
                 writeLog(`${staffMember.tag} warned ${warnUser.tag} for: "${reason}"`.yellow)
                 message.reply(`Sucessfully warned ${warnUser.username}!`)
 
-                firstMentionedUser.edit({
-                    roles: ['766789460821934111']
-                })
+                if (config.warnsRoleID) firstMentionedUser.roles.add(config.warnsRoleID)
             }
         }
     }
+})
+
+client.on("guildMemberAdd", member => {
+    writeLog(`${member.user.tag} Joined the server"`.rainbow)
+
+    console.log(warnedUsers)
 })
