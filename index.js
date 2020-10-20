@@ -15,9 +15,6 @@ necessaryDirectories.forEach(d => {
     if (!fs.existsSync(path)) fs.mkdirSync(path)
 })
 
-// Just going to throw a couple of clearing lines at the start, helps different a nodemon restart
-console.log("\n\n\n")
-
 client.on("ready", () => {
     console.log(`[WBF] Logged in as ${client.user.tag}!`)
 })

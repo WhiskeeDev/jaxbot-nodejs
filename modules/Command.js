@@ -1,3 +1,6 @@
+const fs = require('fs')
+const moderationConfig = JSON.parse(fs.readFileSync('./config/moderation.json'))
+
 module.exports = class Command {
     constructor(message) {
 
@@ -7,6 +10,14 @@ module.exports = class Command {
         this.formattedText = message.content.slice(5).toLowerCase()
         this.params = message.content.slice(5).split(' ').slice(1)
 
+        this.isStaff = false
+
+        if (moderationConfig.staffRoles && moderationConfig.staffRoles.length) {
+            if (moderationConfig.staffRoles.some(id => this.message.member.roles.cache.has(id))) {
+                this.isStaff = true
+            }
+        }
+
         const ChatAuthorName = `${message.author.tag}`
         var ChatAuthorLocation = ''
         if (message.channel.type === 'text') {
@@ -15,17 +26,19 @@ module.exports = class Command {
             ChatAuthorLocation = ' | DM'
         }
 
+
+
         console.log(`[ ${ChatAuthorName}${ChatAuthorLocation} ]: ${message.content}`.cyan)
 
-        this.replyToMessage = (reply) => {
+        this.reply = (reply, direct = true) => {
             const author = `${message.author.tag}`
+            if (direct) {
             console.log(`[${BotLogName}]: @${author}, ${reply}`.yellow)
             message.reply(reply)
-        }
-
-        this.sendMessageToChannel = (newMessage) => {
-            console.log(`[${BotLogName}]: ${newMessage}`.yellow)
-            message.channel.send(newMessage)
+            } else {
+                console.log(`[${BotLogName}]: ${newMessage}`.yellow)
+                message.channel.send(newMessage)
+            }
         }
 
     }

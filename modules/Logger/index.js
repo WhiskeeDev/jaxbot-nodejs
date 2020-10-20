@@ -1,7 +1,6 @@
-const { MessageEmbed } = require('discord.js')
+const { MessageEmbed, Message } = require('discord.js')
 const fs = require('fs')
 const config = JSON.parse(fs.readFileSync('./config/logger.json'))
-const { DateTime } = require("luxon")
 
 const client = process.discordClient
 
@@ -15,26 +14,9 @@ if (!config.channelID) {
 
 let loggingChannel = null
 
-function writeLog(message) {
-    const curDateTime = DateTime.local()
-    const time = curDateTime.toLocaleString(DateTime.TIME_24_WITH_SECONDS)
-    const outputMessage = `[${time}] ${titleCard} ${message}`
-    console.log(outputMessage)
-    if (config.writeLogToFile) {
-        fs.writeFileSync('./logs/' + curDateTime.toISODate() + '.log',outputMessage + "\n",{
-            flag: 'a'
-        })
-    }
-}
-
-function logEvent (guild, message, embedDetails) {
-    const embed = new MessageEmbed()
-    embed
-        .setTimestamp()
-        .setDescription(embedDetails.description)
-        .setColor(embedDetails.color)
-        .setAuthor(embedDetails.author.tag, embedDetails.author.avatarURL())
+async function logToChannel(message, embed) {
     if (!loggingChannel) {
+        const guild = await client.guilds.fetch(process.env.guildID)
         loggingChannel = guild.channels.cache.find(ch => ch.id === config.channelID)
     }
     loggingChannel.send(message, embed)
@@ -44,19 +26,39 @@ function logEvent (guild, message, embedDetails) {
         })
 }
 
+
+function logEvent (message, embedDetails) {
+    const embed = new MessageEmbed()
+    embed
+        .setTimestamp()
+        .setDescription(embedDetails.description)
+        .setColor(embedDetails.color)
+        .setAuthor(embedDetails.author.tag, embedDetails.author.avatarURL())
+    logToChannel(message, embed)
+}
+
 if (config.log.deletedMessages) {
 
     client.on("messageDelete", message => {
         if (message.author.bot) return false
-        logEvent(message.guild, null, {
+        console.log(JSON.stringify(message, null, 2))
+        const attachments = message.attachments.array()
+        const hasAttachments = (attachments && attachments.length)
+        logEvent(null, {
             description: `:no_entry: <@${message.author.id}> Deleted their message.
             
             **Original Message**
-            ${message.content}`,
+            ${message.content}
+            
+            **Has Attachment(s)**
+            ${hasAttachments ? 'Yes (see below)' : 'No'}`,
             color: 0xff0000,
             author: message.author
         })
-        writeLog(`${message.author.tag} Deleted their message. Original Message: ${message.content}`.red)
+        if (hasAttachments) {
+            logToChannel(null, attachments)
+        }
+        console.log(`${message.author.tag} Deleted their message. Original Message: ${message.content}`.red)
     })
 
 }
@@ -128,6 +130,6 @@ client.on("voiceStateUpdate", (oldState, newState) => {
     embedData.description = `${emojis} <@${oldState.member.user.id}> ${action} voice channel ${channels}`
     if (isLoggableEvent) {
         logEvent(oldState.guild || newState.guild, null, embedData)
-        writeLog(`${oldState.member.user.tag} ${action} voice channel ${channels}`.magenta)
+        console.log(`${oldState.member.user.tag} ${action} voice channel ${channels}`.magenta)
     }
 })
