@@ -19,7 +19,7 @@ client.on("ready", () => {
     console.log(`[WBF] Logged in as ${client.user.tag}!`)
 })
 
-require("./modules/index.js")
+const modules = require("./modules/index.js")
 
 console.log(`[WBF] Bot version ${process.env.appVersion}`.magenta.bold)
 

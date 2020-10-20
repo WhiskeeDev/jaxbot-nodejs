@@ -36,8 +36,8 @@ module.exports = class Command {
             console.log(`[${BotLogName}]: @${author}, ${reply}`.yellow)
             message.reply(reply)
             } else {
-                console.log(`[${BotLogName}]: ${newMessage}`.yellow)
-                message.channel.send(newMessage)
+                console.log(`[${BotLogName}]: ${reply}`.yellow)
+                message.channel.send(reply)
             }
         }
 

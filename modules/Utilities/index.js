@@ -62,3 +62,7 @@ client.on("message", async message => {
     }
   }
 })
+
+module.exports = {
+  availableCommands
+}

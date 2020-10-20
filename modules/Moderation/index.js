@@ -2,7 +2,7 @@ const { MessageEmbed } = require('discord.js')
 const Command = require("../Command.js")
 const fs = require('fs')
 const config = JSON.parse(fs.readFileSync('./config/moderation.json'))
-const { DateTime } = require("luxon")
+const { DateTime, __esModule } = require("luxon")
 
 const client = process.discordClient
 const staff = JSON.parse(fs.readFileSync('./data/users.dat')).staff
@@ -12,7 +12,7 @@ var warnedUsers = moderationData.warnedUsers
 // title card is used for both console and embeds
 const titleCard = "[Moderation]"
 
-const availableCommands = ['warn', 'warnlist']
+const availableCommands = ['warn', 'warns']
 
 function saveWarn (newWarnData) {
     if (!warnedUsers[newWarnData.user.id]) {
@@ -41,7 +41,7 @@ client.on("message", message => {
         }
 
         if (command.formattedText.startsWith('warns')) {
-            const firstMentionedUser = command.message.mentions.members.first()
+            const firstMentionedUser = command.message.mentions.members.first() || command.message.member
             const warnedUser = firstMentionedUser ? firstMentionedUser.user : null
             if (!warnedUser) {
                 command.reply("Yo, I need to know who you want me to check for warns!\nGive me a name by tagging them. i.e. `@" + command.author.tag + "`")
@@ -109,6 +109,7 @@ client.on("guildMemberAdd", member => {
 })
 
 client.on("ready", async () => {
+
     if (!config.warnsRoleID) return false
     const usersToCheck = Object.keys(warnedUsers)
     const guild = await client.guilds.fetch(process.env.guildID)
@@ -124,3 +125,7 @@ client.on("ready", async () => {
         })
     }
 })
+
+module.exports = {
+    availableCommands
+}
