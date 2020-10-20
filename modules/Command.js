@@ -8,7 +8,7 @@ module.exports = class Command {
         this.message = message
         this.author = message.author
         this.formattedText = message.content.slice(5).toLowerCase()
-        this.params = message.content.slice(5).split(' ').slice(1)
+        this.params = message.content.slice(5).split(' ').slice(1) || []
 
         this.isStaff = false
 
