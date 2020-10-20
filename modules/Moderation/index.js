@@ -53,7 +53,7 @@ client.on("message", message => {
             }
             const warnsArray = warnedUsers[warnedUser.id] ? warnedUsers[warnedUser.id].warns : []
             if (warnsArray.length < 1) {
-                command.reply(warnedUser.id === command.author.id ? 'You' : warnedUser.username + " has no warns! Yey for them!")
+                command.reply(((warnedUser.id === command.author.id) ? 'You' : warnedUser.username) + " has no warns! Yey for them!")
                 return
             }
             const embed = new MessageEmbed()
