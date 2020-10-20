@@ -28,7 +28,7 @@ module.exports = class Command {
 
 
 
-        console.log(`[ ${ChatAuthorName}${ChatAuthorLocation} ]: ${message.content}`.cyan)
+        // console.log(`[ ${ChatAuthorName}${ChatAuthorLocation} ]: ${message.content}`.cyan)
 
         this.reply = (reply, direct = true) => {
             const author = `${message.author.tag}`

@@ -4,7 +4,7 @@ const { DateTime } = require("luxon")
 require("dotenv").config()
 process.env.appVersion = require("./package.json").version
 
-var originalLog = console.log
+const originalLog = console.log
 
 console.log = function () {
   const curDateTime = DateTime.local()
