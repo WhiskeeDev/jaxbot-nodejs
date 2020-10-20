@@ -129,7 +129,7 @@ client.on("voiceStateUpdate", (oldState, newState) => {
 
     embedData.description = `${emojis} <@${oldState.member.user.id}> ${action} voice channel ${channels}`
     if (isLoggableEvent) {
-        logEvent(oldState.guild || newState.guild, null, embedData)
+        logEvent(null, embedData)
         console.log(`${oldState.member.user.tag} ${action} voice channel ${channels}`.magenta)
     }
 })
