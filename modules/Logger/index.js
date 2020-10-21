@@ -47,7 +47,6 @@ if (config.log.deletedMessages) {
 
     client.on("messageDelete", message => {
         if (message.author.bot) return false
-        console.log(JSON.stringify(message, null, 2))
         const attachments = message.attachments.array()
         const hasAttachments = (attachments && attachments.length)
         logEvent(null, {
@@ -67,6 +66,25 @@ if (config.log.deletedMessages) {
         console.log(`${message.author.tag} Deleted their message. Original Message: ${message.content}`.red)
     })
 
+}
+
+if (config.log.updatedMessages) {
+
+    client.on("messageUpdate", (oldMessage, newMessage) => {
+        if (oldMessage.author.bot || newMessage.author.bot) return false
+        logEvent(null, {
+            description: `:no_entry: <@${message.author.id}>' Message was updated.
+            
+            **Original Message**
+            ${oldMessage.content}
+            
+            **New Message**
+            ${newMessage.content}`,
+            color: 0xffff00,
+            author: oldMessage.author
+        })
+        console.log(`${oldMessage.author.tag}'s Message was updated. Original Message: \`${oldMessage.content}\` -> \`${newMessage.content}\``.red)
+    })
 }
 
 client.on("voiceStateUpdate", (oldState, newState) => {
