@@ -24,7 +24,7 @@ client.on("message", async message => {
         return
       }
 
-      command.reply("Sorry matey, Whiskee couldn't finish this command (at 1am atleast) so it ain't working rn.")
+      command.reply("Sorry matey, Whiskee couldn't finish this command (at 1am at least) so it ain't working rn.")
 
       // if (amountParam !== '*') {
       //   amountParam = Number(amountParam) + 1

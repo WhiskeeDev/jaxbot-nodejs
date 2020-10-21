@@ -19,7 +19,6 @@ fs.readdir('./modules', { withFileTypes: true }, (err, items) => {
     modules.forEach(m => {
         if (m.availableCommands) availableCommands = availableCommands.concat(m.availableCommands)
     })
-    console.log(JSON.stringify(availableCommands, null, 2))
     console.log(`[WML] Loaded ${modules.length}/${potentialModules.length} module(s)`.yellow)
 })
 
