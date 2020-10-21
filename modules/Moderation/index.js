@@ -115,13 +115,16 @@ client.on("guildMemberAdd", member => {
 client.on("ready", async () => {
 
     if (!config.warnsRoleID) return false
-    const usersWithWarns = warnedUsers.filter(u => u.warns ? u.warns.length : false)
-    const usersToCheck = Object.keys(usersWithWarns)
+    const warnedUsersKeys = Object.keys(warnedUsers)
+    const usersWithWarns = []
+    warnedUsersKeys.forEach(k => {
+        if (warnedUsers[k].warns) usersWithWarns.push(warnedUsers[k])
+    })
     const guild = await client.guilds.fetch(process.env.guildID)
 
     if (guild) {
         const members = guild.members.cache
-        usersToCheck.forEach(u => {
+        usersWithWarns.forEach(u => {
             const guildMember = members.get(u)
             if (guildMember && !guildMember.roles.cache.get(config.warnsRoleID)) {
                 guildMember.roles.add(config.warnsRoleID)
