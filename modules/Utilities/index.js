@@ -12,7 +12,7 @@ client.on("message", async message => {
 
   if (availableCommands.some(c => command.formattedText.startsWith(c))) {
     if (!command.isStaff) {
-      command.reply("Fool! You thought you could trick me? THE ALIGHTY WSKY BOT? **YOU HAVE NO POWER HERE, PEASANT!**\n\n(a.k.a you ain't staff, no command 4 u)")
+      command.reply("Fool! You thought you could trick me? THE ALMIGHTY WSKY BOT? **YOU HAVE NO POWER HERE, PEASANT!**\n\n(a.k.a you ain't staff, no command 4 u)")
       console.error(titleCard + ` ${command.author.tag} tried to run a staff command with permission.`.red)
       return
     }

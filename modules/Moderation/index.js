@@ -38,7 +38,7 @@ client.on("message", message => {
         if (command.formattedText.startsWith('warns') && !command.params.length) makeExceptionToNonStaff = true
 
         if (!command.isStaff && !makeExceptionToNonStaff) {
-            command.reply("Fool! You thought you could trick me? THE ALIGHTY WSKY BOT? **YOU HAVE NO POWER HERE, PEASANT!**\n\n(a.k.a you ain't staff, no command 4 u)")
+            command.reply("Fool! You thought you could trick me? THE ALMIGHTY WSKY BOT? **YOU HAVE NO POWER HERE, PEASANT!**\n\n(a.k.a you ain't staff, no command 4 u)")
             console.error(titleCard + ` ${command.author.tag} tried to run a staff command with permission.`.red)
             return
         }
