@@ -39,6 +39,7 @@ function logEvent (message, embedDetails) {
 }
 
 client.on("message", message => {
+    if (message.author.bot) return false
     const command = new Command(message)
     console.log(`[ ${command.chatAuthorName}${command.chatAuthorLocation} ]: ${command.message.content}`.cyan)
 })
