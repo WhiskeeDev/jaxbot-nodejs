@@ -115,7 +115,8 @@ client.on("guildMemberAdd", member => {
 client.on("ready", async () => {
 
     if (!config.warnsRoleID) return false
-    const usersToCheck = Object.keys(warnedUsers)
+    const usersWithWarns = warnedUsers.filter(u => u.warns ? u.warns.length : false)
+    const usersToCheck = Object.keys(usersWithWarns)
     const guild = await client.guilds.fetch(process.env.guildID)
 
     if (guild) {
