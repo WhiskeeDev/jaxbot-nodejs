@@ -18,17 +18,13 @@ module.exports = class Command {
             }
         }
 
-        const ChatAuthorName = `${message.author.tag}`
-        var ChatAuthorLocation = ''
+        this.chatAuthorName = `${message.author.tag}`
+        this.chatAuthorLocation = ''
         if (message.channel.type === 'text') {
-            ChatAuthorLocation = ` | ${message.channel.guild.name} (${message.channel.name})`
+            this.chatAuthorLocation = ` | ${message.channel.guild.name} (${message.channel.name})`
         } else if (message.channel.type === 'dm') {
-            ChatAuthorLocation = ' | DM'
+            this.chatAuthorLocation = ' | DM'
         }
-
-
-
-        // console.log(`[ ${ChatAuthorName}${ChatAuthorLocation} ]: ${message.content}`.cyan)
 
         this.reply = (reply, direct = true) => {
             const author = `${message.author.tag}`

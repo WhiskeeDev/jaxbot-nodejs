@@ -1,5 +1,6 @@
 const { MessageEmbed } = require('discord.js')
 const fs = require('fs')
+const Command = require('../Command')
 const config = JSON.parse(fs.readFileSync('./config/logger.json'))
 
 const client = process.discordClient
@@ -36,6 +37,11 @@ function logEvent (message, embedDetails) {
         .setAuthor(embedDetails.author.tag, embedDetails.author.avatarURL())
     logToChannel(message, embed)
 }
+
+client.on("message", message => {
+    const command = new Command(message)
+    console.log(`[ ${command.chatAuthorName}${command.chatAuthorLocation} ]: ${command.message.content}`.cyan)
+})
 
 if (config.log.deletedMessages) {
 
