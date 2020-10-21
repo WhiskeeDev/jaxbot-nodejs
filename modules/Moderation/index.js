@@ -2,10 +2,9 @@ const { MessageEmbed } = require('discord.js')
 const Command = require("../Command.js")
 const fs = require('fs')
 const config = JSON.parse(fs.readFileSync('./config/moderation.json'))
-const { DateTime, __esModule } = require("luxon")
+const { DateTime } = require("luxon")
 
 const client = process.discordClient
-const staff = JSON.parse(fs.readFileSync('./data/users.dat')).staff
 var moderationData = JSON.parse(fs.readFileSync('./data/moderation.dat'))
 var warnedUsers = moderationData.warnedUsers
 
