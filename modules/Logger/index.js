@@ -74,7 +74,7 @@ if (config.log.updatedMessages) {
     client.on("messageUpdate", (oldMessage, newMessage) => {
         if (oldMessage.author.bot || newMessage.author.bot) return false
         logEvent(null, {
-            description: `:no_entry: <@${message.author.id}>' Message was updated.
+            description: `:no_entry: <@${oldMessage.author.tag}>'s Message was updated.
             
             **Original Message**
             ${oldMessage.content}
