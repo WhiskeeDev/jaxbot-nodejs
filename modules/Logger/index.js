@@ -15,7 +15,7 @@ if (!config.channelID) {
 
 let loggingChannel = null
 
-async function logToChannel(message, embed) {
+async function logToChannel (message, embed) {
     if (!loggingChannel) {
         const guild = await client.guilds.fetch(process.env.guildID)
         loggingChannel = guild.channels.cache.find(ch => ch.id === config.channelID)
@@ -34,7 +34,7 @@ function logEvent (message, embedDetails) {
         .setTimestamp()
         .setDescription(embedDetails.description)
         .setColor(embedDetails.color)
-        .setAuthor(embedDetails.author.tag, embedDetails.author.avatarURL())
+        .setAuthor(embedDetails.author.tag + (embedDetails.channelName ? " | #" + embedDetails.channelName : ''), embedDetails.author.avatarURL())
     logToChannel(message, embed)
 }
 
@@ -51,7 +51,7 @@ if (config.log.deletedMessages) {
         const attachments = message.attachments.array()
         const hasAttachments = (attachments && attachments.length)
         logEvent(null, {
-            description: `:no_entry: <@${message.author.id}> Deleted their message.
+            description: `:no_entry: <@${message.author.id}>'s message was deleted.
             
             **Original Message**
             ${message.content}
@@ -59,12 +59,13 @@ if (config.log.deletedMessages) {
             **Has Attachment(s)**
             ${hasAttachments ? 'Yes (see below)' : 'No'}`,
             color: 0xff0000,
-            author: message.author
+            author: message.author,
+            channelName: message.channel.name
         })
         if (hasAttachments) {
             logToChannel(null, attachments)
         }
-        console.log(`${message.author.tag} Deleted their message. Original Message: ${message.content}`.red)
+        console.log(`${message.author.tag}'s message was deleted. Original Message: ${message.content}`.red)
     })
 
 }
@@ -74,17 +75,21 @@ if (config.log.updatedMessages) {
     client.on("messageUpdate", (oldMessage, newMessage) => {
         if (oldMessage.author.bot || newMessage.author.bot) return false
         logEvent(null, {
-            description: `:no_entry: <@${oldMessage.author.tag}>'s Message was updated.
+            description: `:no_entry: <@${oldMessage.author.id}>'s Message was updated.
             
             **Original Message**
             ${oldMessage.content}
             
             **New Message**
-            ${newMessage.content}`,
+            ${newMessage.content}
+            
+            **Link**
+            ${newMessage.url}`,
             color: 0xffff00,
-            author: oldMessage.author
+            author: oldMessage.author,
+            channelName: newMessage.channel.name
         })
-        console.log(`${oldMessage.author.tag}'s Message was updated. Original Message: \`${oldMessage.content}\` -> \`${newMessage.content}\``.red)
+        console.log(`${oldMessage.author.tag}'s Message was updated. Original Message: \`${oldMessage.content}\` -> \`${newMessage.content}\``.yellow)
     })
 }
 
@@ -110,7 +115,7 @@ client.on("voiceStateUpdate", (oldState, newState) => {
 
     let embedData = {
         color: 0x4d3799,
-        author: oldState.member?oldState.member.user:newState.member.user
+        author: oldState.member ? oldState.member.user : newState.member.user
     }
 
     let emojis = null
@@ -149,7 +154,6 @@ client.on("voiceStateUpdate", (oldState, newState) => {
             channels = `\`${newState.channel ? newState.channel.name : oldState.channel.name}\``
             isLoggableEvent = config.log.voiceChannelStreamStop
             break;
-            
     }
 
     embedData.description = `${emojis} <@${oldState.member.user.id}> ${action} voice channel ${channels}`
