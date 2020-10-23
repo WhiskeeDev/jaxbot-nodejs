@@ -34,7 +34,9 @@ function logEvent (message, embedDetails) {
     .setTimestamp()
     .setDescription(embedDetails.description)
     .setColor(embedDetails.color)
-    .setAuthor(embedDetails.author.tag + (embedDetails.channelName ? ' | #' + embedDetails.channelName : ''), embedDetails.author.avatarURL())
+  if (embedDetails.author) {
+    embed.setAuthor(embedDetails.author.tag + (embedDetails.channelName ? ' | #' + embedDetails.channelName : ''), embedDetails.author.avatarURL())
+  }
   logToChannel(message, embed)
 }
 
@@ -43,6 +45,15 @@ client.on('message', message => {
   const command = new Command(message)
   console.log(`[ ${command.chatAuthorName}${command.chatAuthorLocation} ]: ${command.message.content}`.cyan)
 })
+
+if (config.log.logBoot) {
+  client.on('ready', () => {
+    logEvent(null, {
+      description: ':robot: Wsky bot online! :clap:',
+      color: 0x00ff00
+    })
+  })
+}
 
 if (config.log.deletedMessages) {
 
