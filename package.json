@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "live": "nodemon index.js",
-    "update-live": "git fetch && git pull && npm run live"
+    "update-live": "git fetch && git pull && npm run live",
+    "lint": "eslint *.js --fix"
   },
   "author": "Whiskee",
   "authorEmail": "dev@whiskee.me",
@@ -16,6 +17,7 @@
     "luxon": "^1.25.0"
   },
   "devDependencies": {
+    "eslint": "^7.11.0",
     "nodemon": "^2.0.4"
   },
   "nodemonConfig": {

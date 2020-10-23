@@ -6,10 +6,10 @@ const config = JSON.parse(fs.readFileSync('./config/logger.json'))
 const client = process.discordClient
 
 // title card is used for both console and embeds
-const titleCard = "[Logger]"
+const titleCard = '[Logger]'
 
 if (!config.channelID) {
-    console.warn(titleCard + " Can't record anything if we don't have a channel ID!".red)
+    console.warn(titleCard + ' Can\'t record anything if we don\'t have a channel ID!'.red)
     return
 }
 
@@ -22,7 +22,7 @@ async function logToChannel (message, embed) {
     }
     loggingChannel.send(message, embed)
         .catch(err => {
-            console.error(titleCard + "Unable to log event, most likely couldn't find the channel.".red)
+            console.error(titleCard + 'Unable to log event, most likely couldn\'t find the channel.'.red)
             console.error(err)
         })
 }
@@ -34,11 +34,11 @@ function logEvent (message, embedDetails) {
         .setTimestamp()
         .setDescription(embedDetails.description)
         .setColor(embedDetails.color)
-        .setAuthor(embedDetails.author.tag + (embedDetails.channelName ? " | #" + embedDetails.channelName : ''), embedDetails.author.avatarURL())
+        .setAuthor(embedDetails.author.tag + (embedDetails.channelName ? ' | #' + embedDetails.channelName : ''), embedDetails.author.avatarURL())
     logToChannel(message, embed)
 }
 
-client.on("message", message => {
+client.on('message', message => {
     if (message.author.bot) return false
     const command = new Command(message)
     console.log(`[ ${command.chatAuthorName}${command.chatAuthorLocation} ]: ${command.message.content}`.cyan)
@@ -46,7 +46,7 @@ client.on("message", message => {
 
 if (config.log.deletedMessages) {
 
-    client.on("messageDelete", message => {
+    client.on('messageDelete', message => {
         if (message.author.bot) return false
         const attachments = message.attachments.array()
         const hasAttachments = (attachments && attachments.length)
@@ -72,7 +72,7 @@ if (config.log.deletedMessages) {
 
 if (config.log.updatedMessages) {
 
-    client.on("messageUpdate", (oldMessage, newMessage) => {
+    client.on('messageUpdate', (oldMessage, newMessage) => {
         if (oldMessage.author.bot || newMessage.author.bot) return false
         logEvent(null, {
             description: `:no_entry: <@${oldMessage.author.id}>'s Message was updated.
@@ -93,7 +93,7 @@ if (config.log.updatedMessages) {
     })
 }
 
-client.on("voiceStateUpdate", (oldState, newState) => {
+client.on('voiceStateUpdate', (oldState, newState) => {
     let eventType = null
 
     if (!oldState.channelID) eventType = 1
@@ -125,35 +125,35 @@ client.on("voiceStateUpdate", (oldState, newState) => {
 
     switch (eventType) {
         case 1:
-            emojis = ":speaker: :inbox_tray:"
-            action = "Joined"
+            emojis = ':speaker: :inbox_tray:'
+            action = 'Joined'
             channels = `\`${newState.channel.name}\``
             isLoggableEvent = config.log.voiceChannelJoin
-            break;
+            break
         case 2:
-            emojis = ":speaker: :outbox_tray:"
-            action = "Left"
+            emojis = ':speaker: :outbox_tray:'
+            action = 'Left'
             channels = `\`${oldState.channel.name}\``
             isLoggableEvent = config.log.voiceChannelDisconnect
-            break;
+            break
         case 3:
-            emojis = ":speaker: :twisted_rightwards_arrows:"
-            action = "Switched"
+            emojis = ':speaker: :twisted_rightwards_arrows:'
+            action = 'Switched'
             channels = `\`${oldState.channel.name}\` -> \`${newState.channel.name}\``
             isLoggableEvent = config.log.voiceChannelSwitch
-            break;
+            break
         case 4:
-            emojis = ":satellite: :arrow_forward:"
-            action = "Started stream in"
+            emojis = ':satellite: :arrow_forward:'
+            action = 'Started stream in'
             channels = `\`${newState.channel.name}\``
             isLoggableEvent = config.log.voiceChannelStreamStart
-            break;
+            break
         case 5:
-            emojis = ":satellite: :stop_button:"
-            action = "Stopped stream in"
+            emojis = ':satellite: :stop_button:'
+            action = 'Stopped stream in'
             channels = `\`${newState.channel ? newState.channel.name : oldState.channel.name}\``
             isLoggableEvent = config.log.voiceChannelStreamStop
-            break;
+            break
     }
 
     embedData.description = `${emojis} <@${oldState.member.user.id}> ${action} voice channel ${channels}`

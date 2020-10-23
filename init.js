@@ -1,8 +1,8 @@
 const fs = require('fs')
-const { DateTime } = require("luxon")
+const { DateTime } = require('luxon')
 
-require("dotenv").config()
-process.env.appVersion = require("./package.json").version
+require('dotenv').config()
+process.env.appVersion = require('./package.json').version
 
 const originalLog = console.log
 
@@ -13,7 +13,7 @@ console.log = function () {
   for (var i = 0; i < arguments.length; i++) {
     outputMessage = outputMessage + arguments[0] + (i ? '\n' : '')
   }
-  fs.writeFileSync('./logs/' + curDateTime.toISODate() + '.log', outputMessage + "\n", {
+  fs.writeFileSync('./logs/' + curDateTime.toISODate() + '.log', outputMessage + '\n', {
     flag: 'a'
   })
   originalLog(outputMessage)
