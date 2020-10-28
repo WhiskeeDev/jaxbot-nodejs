@@ -5,6 +5,15 @@ const config = JSON.parse(fs.readFileSync('./config/logger.json'))
 
 const client = process.discordClient
 
+const colours = {
+    negative: 'EF476F',
+    warning: 'FFD166',
+    positive: '06D6A0',
+    primary: '118AB2',
+    secondary: '073B4C'
+}
+
+
 // title card is used for both console and embeds
 const titleCard = '[Logger]'
 
@@ -50,7 +59,7 @@ if (config.log.logBoot) {
   client.on('ready', () => {
     logEvent(null, {
       description: ':robot: Wsky bot online! :clap:',
-      color: 0x00ff00
+      color: colours.positive
     })
   })
 }
@@ -69,7 +78,7 @@ if (config.log.deletedMessages) {
             
             **Has Attachment(s)**
             ${hasAttachments ? 'Yes (see below)' : 'No'}`,
-      color: 0xff0000,
+      color: colours.negative,
       author: message.author,
       channelName: message.channel.name
     })
@@ -96,11 +105,22 @@ if (config.log.updatedMessages) {
             
             **Link**
             ${newMessage.url}`,
-      color: 0xffff00,
+      color: colours.warning,
       author: oldMessage.author,
       channelName: newMessage.channel.name
     })
     console.log(`${oldMessage.author.tag}'s Message was updated. Original Message: \`${oldMessage.content}\` -> \`${newMessage.content}\``.yellow)
+  })
+}
+
+if (config.log.memberJoin) {
+    client.on('guildMemberAdd', member => {
+    logEvent(null, {
+      description: `:new: <@${member.user.id}> Joined the server!`,
+        color: colours.primary,
+      author: member.user
+    })
+    console.log(`${member.user.tag} Joined the server!`.yellow)
   })
 }
 
@@ -125,7 +145,7 @@ client.on('voiceStateUpdate', (oldState, newState) => {
          */
 
   let embedData = {
-    color: 0x4d3799,
+      color: colours.secondary,
     author: oldState.member ? oldState.member.user : newState.member.user
   }
 
