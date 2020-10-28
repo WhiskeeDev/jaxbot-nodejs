@@ -6,11 +6,11 @@ const config = JSON.parse(fs.readFileSync('./config/logger.json'))
 const client = process.discordClient
 
 const colours = {
-    negative: 'EF476F',
-    warning: 'FFD166',
-    positive: '06D6A0',
-    primary: '118AB2',
-    secondary: '073B4C'
+    negative: '#EF476F',
+    warning: '#FFD166',
+    positive: '#06D6A0',
+    primary: '#118AB2',
+    secondary: '#073B4C'
 }
 
 
