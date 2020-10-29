@@ -26,7 +26,7 @@ let loggingChannel = null
 
 async function logToChannel (message, embed) {
   if (!loggingChannel) {
-    const guild = await client.guilds.fetch(process.env.guildID)
+    const guild = await client.guilds.fetch(process.env.guild_id)
     loggingChannel = guild.channels.cache.find(ch => ch.id === config.channelID)
   }
   loggingChannel.send(message, embed)

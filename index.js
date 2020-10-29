@@ -19,7 +19,7 @@ client.on('ready', () => {
 console.log(`[WBF] Bot version ${process.env.appVersion}`.magenta.bold)
 
 // Login to bot, if token is available and valid
-const token = process.env.discordToken
+const token = process.env.discord_token
 if (token) {
     client.login(token)
 } else {
