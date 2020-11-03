@@ -11,7 +11,7 @@ process.env.appVersion = require('./package.json').version
 // Check if the necessary Directories exist
 // and if not, create them.
 const necessaryDirectories = [
-  'logs', 'config', 'data'
+  'logs', 'config'
 ]
 necessaryDirectories.forEach(d => {
   const path = `./${d}`
