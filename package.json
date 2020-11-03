@@ -7,7 +7,7 @@
     "live": "nodemon index.js",
     "update-live": "git fetch && git pull && npm run live",
     "lint": "eslint *.js --fix",
-    "postinstall": "link-module-alias",
+    "postinstall": "link-module-alias"
   },
   // "_moduleAliases": {
   //   "~root": "/",
