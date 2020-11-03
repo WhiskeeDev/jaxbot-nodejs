@@ -1,8 +1,14 @@
 const { MessageEmbed } = require('discord.js')
 const Command = require('../Command.js')
-const fs = require('fs')
-const config = JSON.parse(fs.readFileSync('./config/moderation.json'))
 const { DateTime } = require('luxon')
+
+const { load } = require('~utils/config.js')
+const config = load('moderation', {
+    warnsRoleID: null,
+    staffRoles: [
+        null
+    ]
+})
 
 const client = process.discordClient
 // title card is used for both console and embeds

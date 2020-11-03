@@ -1,5 +1,5 @@
-const fs = require('fs')
-const moderationConfig = JSON.parse(fs.readFileSync('./config/moderation.json'))
+const { load } = require('~utils/config.js')
+const moderationConfig = load('moderation')
 
 module.exports = class Command {
     constructor(message) {

@@ -1,7 +1,20 @@
 const { MessageEmbed } = require('discord.js')
-const fs = require('fs')
 const Command = require('../Command')
-const config = JSON.parse(fs.readFileSync('./config/logger.json'))
+
+const { load } = require('~utils/config.js')
+const config = load('logger', {
+  channelID: null,
+  log: {
+    logBoot: true,
+    deletedMessages: true,
+    updatedMessages: true,
+    voiceChannelJoin: true,
+    voiceChannelDisconnect: true,
+    voiceChannelSwitch: true,
+    voiceChannelStreamStart: true,
+    voiceChannelStreamStop: true
+  }
+})
 
 const client = process.discordClient
 
