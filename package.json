@@ -6,14 +6,8 @@
   "scripts": {
     "live": "nodemon index.js",
     "update-live": "git fetch && git pull && npm run live",
-    "lint": "eslint *.js --fix",
-    "postinstall": "link-module-alias"
+    "lint": "eslint *.js --fix"
   },
-  // "_moduleAliases": {
-  //   "~root": "/",
-  //   "~utils": "utils",
-  //   "~modules": "modules"
-  // },
   "author": "Whiskee",
   "authorEmail": "dev@whiskee.me",
   "dependencies": {
@@ -27,7 +21,6 @@
   },
   "devDependencies": {
     "eslint": "^7.11.0",
-    "link-module-alias": "^1.2.0",
     "nodemon": "^2.0.4"
   },
   "nodemonConfig": {
