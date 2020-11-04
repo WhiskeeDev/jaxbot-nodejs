@@ -7,7 +7,7 @@ module.exports = {
   load: function (configName = null, defaultData = null) {
     if (!configName) return {}
     else {
-      const filePath = `./config/${configName}.yml`
+      const filePath = `${global.appRoot}/config/${configName}.yml`
       var yaml = null
       try {
         yaml = fs.readFileSync(filePath, 'utf8')
