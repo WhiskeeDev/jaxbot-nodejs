@@ -19,10 +19,8 @@ const availableCommands = ['warn', 'warns']
 async function saveWarn (newWarnData) {
     await process.database.models.User.findOrCreate({where: {id: newWarnData.user.id}, default: {
         id: newWarnData.user.id,
-        tag: newWarnData.tag
-    }}).then(async (user) => {
-        user.tag = newWarnData.tag
-        await user.save()
+        tag: newWarnData.tag || 'UNKNOWN'
+    }}).then(() => {
         return process.database.models.Warn.create({
             reason: newWarnData.data.reason,
             date: newWarnData.data.date,
