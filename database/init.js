@@ -4,7 +4,7 @@ const fs = require('fs')
 const env = process.env
 
 async function createDatabase () {
-  const sequelize = new Sequelize(env.database_name, env.database_user, env.database_pass, {
+  const sequelize = new Sequelize(env.database_name || 'tophat_discord_bot', env.database_user, env.database_pass, {
     host: env.database_host,
     dialect: 'mysql',
     logging: false
