@@ -19,7 +19,7 @@ const availableCommands = ['warn', 'warns']
 async function saveWarn (newWarnData) {
     await process.database.models.User.findOrCreate({where: {id: newWarnData.user.id}, default: {
         id: newWarnData.user.id,
-        tag: newWarnData.user.tag
+        tag: newWarnData.tag
     }}).then(() => {
         return process.database.models.Warn.create({
             reason: newWarnData.data.reason,
@@ -92,6 +92,7 @@ client.on('message', async message => {
                 console.log(`${staffMember.tag} warned ${warnUser.tag} for: "${reason}"`.yellow)
                 saveWarn({
                     user: warnUser,
+                    tag: warnUser.tag,
                     data: {
                         date: command.message.createdTimestamp,
                         reason: reason,
