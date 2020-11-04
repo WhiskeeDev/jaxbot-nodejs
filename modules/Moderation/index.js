@@ -19,13 +19,14 @@ const availableCommands = ['warn', 'warns']
 async function saveWarn (newWarnData) {
     await process.database.models.User.findOrCreate({where: {id: newWarnData.user.id}, default: {
         id: newWarnData.user.id,
-        Tag: newWarnData.user.tag
-    }})
-    return process.database.models.Warn.create({
-        reason: newWarnData.data.reason,
-        date: newWarnData.data.date,
-        staff: newWarnData.data.staff,
-        UserId: newWarnData.user.id
+        tag: newWarnData.user.tag
+    }}).then(() => {
+        return process.database.models.Warn.create({
+            reason: newWarnData.data.reason,
+            date: newWarnData.data.date,
+            staff: newWarnData.data.staff,
+            UserId: newWarnData.user.id
+        })
     })
 }
 
