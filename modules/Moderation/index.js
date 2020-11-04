@@ -96,6 +96,7 @@ client.on('message', async message => {
                     command.reply(`Sucessfully warned ${warnUser.username}!`)
                     if (config.warnsRoleID) firstMentionedUser.roles.add(config.warnsRoleID)
                 }).catch(error => {
+                    console.error(error)
                     command.reply(`Unable to warn ${warnUser.username}! Check console for errors...`)
                 })
             }
