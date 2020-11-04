@@ -28,6 +28,8 @@ client.on("message", async message => {
     if (message.author.bot) return
     const command = new Command(message)
 
+    if (!command.isAValidCommand) return
+
     if (command.formattedText.startsWith('help')) {
         if (!command.isStaff) return
         var commands = ""

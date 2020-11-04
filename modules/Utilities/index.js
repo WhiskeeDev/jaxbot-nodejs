@@ -10,6 +10,8 @@ client.on("message", async message => {
   if (message.author.bot) return
   const command = new Command(message)
 
+  if (!command.isAValidCommand) return
+
   if (availableCommands.some(c => command.formattedText.startsWith(c))) {
     if (!command.isStaff) {
       command.reply("Fool! You thought you could trick me? THE ALMIGHTY WSKY BOT? **YOU HAVE NO POWER HERE, PEASANT!**\n\n(a.k.a you ain't staff, no command 4 u)")

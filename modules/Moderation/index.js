@@ -29,6 +29,8 @@ client.on('message', async message => {
     if (message.author.bot) return
     const command = new Command(message)
 
+    if (!command.isAValidCommand) return
+
     if (availableCommands.some(c => command.formattedText.startsWith(c))) {
         var makeExceptionToNonStaff = false
 
