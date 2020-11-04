@@ -17,7 +17,7 @@ const titleCard = '[Moderation]'
 const availableCommands = ['warn', 'warns']
 
 async function saveWarn (newWarnData) {
-    process.env.database.models.User.findOrCreate({where: {id: newWarnData.user.id}, default: {
+    process.database.models.User.findOrCreate({where: {id: newWarnData.user.id}, default: {
         id: newWarnData.user.id,
         tag: newWarnData.user.tag
     }})
