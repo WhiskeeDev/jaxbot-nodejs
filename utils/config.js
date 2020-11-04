@@ -14,7 +14,7 @@ module.exports = {
       } catch (err) {
         console.log(`${titleCard} Attempted to load ${configName}.yml: ${err.message || 'No error message'}.`.red)
         if (err.code === 'ENOENT' && defaultData) {
-          fs.writeFileSync(filePath, YAML.stringify(defaultData))
+          fs.writeFileSync(filePath, YAML.stringify(defaultData || {}))
           yaml = defaultData || {}
         } else yaml = {}
       }
