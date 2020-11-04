@@ -1,7 +1,7 @@
 const { MessageEmbed } = require('discord.js')
 const Command = require('../Command')
 
-const { load } = require('~utils/config.js')
+const { load } = require(global.appRoot + '/utils/config.js')
 const config = load('logger', {
   channelID: null,
   log: {

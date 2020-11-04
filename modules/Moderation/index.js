@@ -2,7 +2,7 @@ const { MessageEmbed } = require('discord.js')
 const Command = require('../Command.js')
 const { DateTime } = require('luxon')
 
-const { load } = require('~utils/config.js')
+const { load } = require(global.appRoot + '/utils/config.js')
 const config = load('moderation', {
     warnsRoleID: null,
     staffRoles: [

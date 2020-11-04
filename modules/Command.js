@@ -1,4 +1,4 @@
-const { load } = require('~utils/config.js')
+const { load } = require(global.appRoot + '/utils/config.js')
 const moderationConfig = load('moderation')
 
 module.exports = class Command {
