@@ -11,9 +11,9 @@ async function createDatabase () {
     define: {
       charset: 'utf8mb4',
       dialectOptions: {
-        collate: 'utf8mb4_general_ci'
+        collate: 'utf8mb4_unicode_ci'
       },
-      collate: 'utf8mb4_general_ci'
+      collate: 'utf8mb4_unicode_ci'
     }
   })
 
