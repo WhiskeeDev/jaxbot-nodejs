@@ -7,7 +7,11 @@ async function createDatabase () {
   const sequelize = new Sequelize(env.database_name || 'tophat_discord_bot', env.database_user, env.database_pass, {
     host: env.database_host,
     dialect: 'mysql',
-    logging: false
+    logging: false,
+    define: {
+      charset: 'utf8',
+      collate: 'utf8_general_ci'
+    }
   })
 
   // Create User Model
