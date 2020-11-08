@@ -18,10 +18,12 @@ client.on('ready', () => {
 // Log current bot version (honestly pointless as no one ever updates the number)
 console.log(`[WBF] Bot version ${process.env.appVersion}`.magenta.bold)
 
+require('./safe2boot.js')
+
 // Login to bot, if token is available and valid
-const token = process.env.discordToken
+const token = process.env.discord_token
 if (token) {
-    client.login(token)
+  client.login(token)
 } else {
-    console.error('[WBF] The token was not provided in the environment file! Can\'t continue! :('.red)
+  console.error('[WBF] The token was not provided in the environment file! Can\'t continue! :('.red)
 }

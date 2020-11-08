@@ -5,8 +5,15 @@
   "main": "index.js",
   "scripts": {
     "live": "nodemon index.js",
-    "update-live": "git fetch && git pull && npm run live",
-    "lint": "eslint *.js --fix"
+    "update-live": "git fetch && git pull && npm install && npm run live",
+    "lint": "eslint *.js --fix",
+    "postinstall": "link-module-alias",
+    "preinstall": "command -v link-module-alias && link-module-alias clean || true"
+  },
+  "_moduleAliases": {
+    "~root": "/",
+    "~utils": "utils",
+    "~modules": "modules"
   },
   "author": "Whiskee",
   "authorEmail": "dev@whiskee.me",
@@ -15,11 +22,13 @@
     "discord.js": "^12.2.0",
     "dotenv": "^8.2.0",
     "luxon": "^1.25.0",
+    "mysql2": "^2.2.5",
     "sequelize": "^6.3.5",
-    "sqlite3": "^5.0.0"
+    "yaml": "^1.10.0"
   },
   "devDependencies": {
     "eslint": "^7.11.0",
+    "link-module-alias": "^1.2.0",
     "nodemon": "^2.0.4"
   },
   "nodemonConfig": {

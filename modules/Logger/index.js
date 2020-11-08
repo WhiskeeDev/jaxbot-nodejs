@@ -1,7 +1,20 @@
 const { MessageEmbed } = require('discord.js')
-const fs = require('fs')
 const Command = require('../Command')
-const config = JSON.parse(fs.readFileSync('./config/logger.json'))
+
+const { load } = require(global.appRoot + '/utils/config.js')
+const config = load('logger', {
+  channelID: null,
+  log: {
+    logBoot: true,
+    deletedMessages: true,
+    updatedMessages: true,
+    voiceChannelJoin: true,
+    voiceChannelDisconnect: true,
+    voiceChannelSwitch: true,
+    voiceChannelStreamStart: true,
+    voiceChannelStreamStop: true
+  }
+})
 
 const client = process.discordClient
 
@@ -26,7 +39,7 @@ let loggingChannel = null
 
 async function logToChannel (message, embed) {
   if (!loggingChannel) {
-    const guild = await client.guilds.fetch(process.env.guildID)
+    const guild = await client.guilds.fetch(process.env.guild_id)
     loggingChannel = guild.channels.cache.find(ch => ch.id === config.channelID)
   }
   loggingChannel.send(message, embed)

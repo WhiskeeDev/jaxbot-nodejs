@@ -1,36 +1,40 @@
 const { MessageEmbed } = require('discord.js')
 const Command = require('../Command.js')
-const fs = require('fs')
-const config = JSON.parse(fs.readFileSync('./config/moderation.json'))
 const { DateTime } = require('luxon')
 
-const client = process.discordClient
-var moderationData = JSON.parse(fs.readFileSync('./data/moderation.dat'))
-var warnedUsers = moderationData.warnedUsers
+const { load } = require(global.appRoot + '/utils/config.js')
+const config = load('moderation', {
+    warnsRoleID: null,
+    staffRoles: [
+        null
+    ]
+})
 
+const client = process.discordClient
 // title card is used for both console and embeds
 const titleCard = '[Moderation]'
 
 const availableCommands = ['warn', 'warns']
 
-function saveWarn (newWarnData) {
-    if (!warnedUsers[newWarnData.user.id]) {
-        warnedUsers[newWarnData.user.id] = {
-            tag: newWarnData.user.tag,
-            warns: []
-        }
-    }
-    warnedUsers[newWarnData.user.id].warns.push(newWarnData.data)
-    moderationData = {
-        ...moderationData,
-        warnedUsers
-    }
-    fs.writeFileSync('./data/moderation.dat', JSON.stringify(moderationData, null, 2))
+async function saveWarn (newWarnData) {
+    await process.database.models.User.findOrCreate({where: {id: newWarnData.user.id}, default: {
+        id: newWarnData.user.id,
+        tag: newWarnData.tag || 'UNKNOWN'
+    }}).then(() => {
+        return process.database.models.Warn.create({
+            reason: newWarnData.data.reason,
+            date: newWarnData.data.date,
+            staff: newWarnData.data.staff,
+            UserId: newWarnData.user.id
+        })
+    })
 }
 
-client.on('message', message => {
+client.on('message', async message => {
     if (message.author.bot) return
     const command = new Command(message)
+
+    if (!command.isAValidCommand) return
 
     if (availableCommands.some(c => command.formattedText.startsWith(c))) {
         var makeExceptionToNonStaff = false
@@ -50,21 +54,23 @@ client.on('message', message => {
                 command.reply('Yo, I need to know who you want me to check for warns!\nGive me a name by tagging them. i.e. `@' + command.author.tag + '`')
                 return
             }
-            const warnsArray = warnedUsers[warnedUser.id] ? warnedUsers[warnedUser.id].warns : []
-            if (warnsArray.length < 1) {
+            const warns = await process.database.models.Warn.findAll({
+                where: { UserId: warnedUser.id }
+            })
+            if (warns.length < 1) {
                 command.reply(((warnedUser.id === command.author.id) ? 'You have' : warnedUser.username + ' has') + ' no warns! Yey!')
                 return
             }
             const embed = new MessageEmbed()
             embed
                 .setAuthor(warnedUser.tag, warnedUser.avatarURL())
-                .setDescription(`Here is the first ${Math.min(8, warnsArray.length)} of ${warnsArray.length} warns`)
+                .setDescription(`Here is the first ${Math.min(8, warns.length)} of ${warns.length} warns`)
 
-            for (warnNum in warnsArray.slice(0, 8)) {
-                const warn = warnsArray[warnNum]
+            for (warnNum in warns.slice(0, 8)) {
+                const warn = warns[warnNum]
                 embed.addField('Reason', warn.reason, true)
                 embed.addField('Warned By', `<@${warn.staff}>`, true)
-                embed.addField('Date', warn.date ? DateTime.fromMillis(warn.date).toISODate() : 'NO DATE', true)
+                embed.addField('Date', warn.date ? DateTime.fromISO(warn.date.toISOString()).toISODate() : 'NO DATE', true)
             }
             command.reply(embed)
         } else if (command.formattedText.startsWith('warn')) {
@@ -83,18 +89,22 @@ client.on('message', message => {
             }
 
             if (staffMember && warnUser) {
+                console.log(`${staffMember.tag} warned ${warnUser.tag} for: "${reason}"`.yellow)
                 saveWarn({
                     user: warnUser,
+                    tag: warnUser.tag,
                     data: {
                         date: command.message.createdTimestamp,
                         reason: reason,
                         staff: staffMember.id
                     }
+                }).then(() => {
+                    command.reply(`Sucessfully warned ${warnUser.username}!`)
+                    if (config.warnsRoleID) firstMentionedUser.roles.add(config.warnsRoleID)
+                }).catch(error => {
+                    console.error(error)
+                    command.reply(`Unable to warn ${warnUser.username}! Check console for errors...`)
                 })
-                console.log(`${staffMember.tag} warned ${warnUser.tag} for: "${reason}"`.yellow)
-                command.reply(`Sucessfully warned ${warnUser.username}!`)
-
-                if (config.warnsRoleID) firstMentionedUser.roles.add(config.warnsRoleID)
             }
         }
     }
@@ -114,21 +124,24 @@ client.on('guildMemberAdd', member => {
 client.on('ready', async () => {
 
     if (!config.warnsRoleID) return false
-    const warnedUsersKeys = Object.keys(warnedUsers)
-    const usersWithWarns = []
-    warnedUsersKeys.forEach(k => {
-        if (warnedUsers[k].warns) usersWithWarns.push(warnedUsers[k])
+    var usersToWarn = []
+    const warns = await process.database.models.Warn.findAll()
+    Object.keys(warns).forEach(k => {
+        if (!usersToWarn.includes(warns[k].UserId)) usersToWarn.push(warns[k].UserId)
     })
-    const guild = await client.guilds.fetch(process.env.guildID)
-
+    const guild = await client.guilds.fetch(process.env.guild_id)
     if (guild) {
-        const members = guild.members.cache
-        usersWithWarns.forEach(u => {
-            const guildMember = members.get(u)
-            if (guildMember && !guildMember.roles.cache.get(config.warnsRoleID)) {
-                guildMember.roles.add(config.warnsRoleID)
-                console.log(`Gave ${guildMember.user.tag} the 'warns' role because they already have warns`.red)
-            }
+        guild.members.fetch().then(async members => {
+            console.error(members)
+            usersToWarn.forEach(async u => {
+                console.log(`giving warn role to ${u}`)
+                const guildMember = await members.get(u)
+                console.log(guildMember)
+                if (guildMember && !guildMember.roles.cache.get(config.warnsRoleID)) {
+                    guildMember.roles.add(config.warnsRoleID)
+                    console.log(`Gave ${guildMember.user.tag} the 'warns' role because they already have warns`.red)
+                }
+            })
         })
     }
 })

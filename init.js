@@ -1,3 +1,6 @@
+var path = require('path');
+global.appRoot = path.resolve(__dirname);
+
 const fs = require('fs')
 const { DateTime } = require('luxon')
 
@@ -11,7 +14,7 @@ process.env.appVersion = require('./package.json').version
 // Check if the necessary Directories exist
 // and if not, create them.
 const necessaryDirectories = [
-  'logs', 'config', 'data'
+  'logs', 'config'
 ]
 necessaryDirectories.forEach(d => {
   const path = `./${d}`
@@ -34,3 +37,6 @@ console.log = function () {
   })
   originalLog(outputMessage)
 }
+
+// Create sequelize instance
+require('./database/init.js')

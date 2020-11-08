@@ -1,5 +1,5 @@
-const fs = require('fs')
-const moderationConfig = JSON.parse(fs.readFileSync('./config/moderation.json'))
+const { load } = require(global.appRoot + '/utils/config.js')
+const moderationConfig = load('moderation')
 
 module.exports = class Command {
     constructor(message) {
@@ -7,8 +7,10 @@ module.exports = class Command {
         const BotLogName = "~BOT~"
         this.message = message
         this.author = message.author
-        this.formattedText = message.content.slice(5).toLowerCase()
-        this.params = message.content.slice(5).split(' ').slice(1) || []
+        this.formattedText = message.content.slice(process.env.prefix.length).toLowerCase()
+        this.params = message.content.slice(process.env.prefix.length).split(' ').slice(1) || []
+
+        this.isAValidCommand = (message.content.length > (process.env.prefix.length)) && message.content.startsWith(`${process.env.prefix}`)
 
         this.isStaff = false
 
