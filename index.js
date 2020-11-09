@@ -13,6 +13,13 @@ require('./modules/index.js')
 
 client.on('ready', () => {
   console.log(`[WBF] Logged in as ${client.user.tag}!`)
+  setTimeout(() => {
+    client.user.setActivity('You', { type: 'WATCHING' }).then(() => {
+      console.log('set activity')
+    }).catch(err => {
+      console.error('something went wrong', err)
+    })
+  }, 2000);
 })
 
 // Log current bot version (honestly pointless as no one ever updates the number)

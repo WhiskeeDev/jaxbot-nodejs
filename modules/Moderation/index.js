@@ -17,7 +17,7 @@ const titleCard = '[Moderation]'
 const availableCommands = ['warn', 'warns']
 
 async function saveWarn (newWarnData) {
-    await process.database.models.User.findOrCreate({where: {id: newWarnData.user.id}, default: {
+    await process.database.models.User.findOrCreate({where: {id: newWarnData.user.id}, defaults: {
         id: newWarnData.user.id,
         tag: newWarnData.tag || 'UNKNOWN'
     }}).then(() => {
@@ -132,7 +132,7 @@ client.on('ready', async () => {
     const guild = await client.guilds.fetch(process.env.guild_id)
     if (guild) {
         guild.members.fetch().then(async members => {
-            console.error(members)
+            // console.error(members)
             usersToWarn.forEach(async u => {
                 console.log(`giving warn role to ${u}`)
                 const guildMember = await members.get(u)

@@ -29,7 +29,7 @@ async function createDatabase () {
     },
     tag: {
       type: DataTypes.STRING,
-      allowNull: true
+      allowNull: false
     }
   }, {
     sequelize,
@@ -70,6 +70,11 @@ async function createDatabase () {
     description: {
       type: DataTypes.STRING,
       allowNull: true,
+    },
+    enabled: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   }, {
     sequelize,
@@ -82,7 +87,12 @@ async function createDatabase () {
     status: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: 0
+      defaultValue: -1
+    },
+    lastQuestion: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: -1
     },
     data: {
       type: DataTypes.STRING,
@@ -92,12 +102,28 @@ async function createDatabase () {
     sequelize,
     modelName: 'Application'
   })
+  // Create Application Question Model
+  class ApplicationQuestion extends Model { }
+  ApplicationQuestion.init({
+    order: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    question: {
+      type: DataTypes.STRING,
+      allowNull: false
+    }
+  }, {
+    sequelize,
+    modelName: 'ApplicationQuestion'
+  })
 
 
   // Create Relationships (Associations)
   User.hasMany(Warn)
   User.hasMany(Application)
   ApplicationType.hasMany(Application)
+  ApplicationType.hasMany(ApplicationQuestion)
 
   // Sync Database
   await sequelize.sync({ alter: true }).catch(error => {
