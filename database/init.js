@@ -56,9 +56,48 @@ async function createDatabase () {
     modelName: 'Warn'
   })
 
+  // Create Application Type Model
+  class ApplicationType extends Model { }
+  ApplicationType.init({
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    tag: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    }
+  }, {
+    sequelize,
+    modelName: 'ApplicationType'
+  })
+
+  // Create Application Model
+  class Application extends Model { }
+  Application.init({
+    status: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
+    },
+    data: {
+      type: DataTypes.STRING,
+      allowNull: true
+    }
+  }, {
+    sequelize,
+    modelName: 'Application'
+  })
+
 
   // Create Relationships (Associations)
   User.hasMany(Warn)
+  User.hasMany(Application)
+  ApplicationType.hasMany(Application)
 
   // Sync Database
   await sequelize.sync({ alter: true }).catch(error => {
