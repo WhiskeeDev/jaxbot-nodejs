@@ -14,7 +14,7 @@ module.exports = class Command {
 
         this.isStaff = false
 
-        if (moderationConfig.staffRoles && moderationConfig.staffRoles.length) {
+        if (message.channel.type !== 'dm' && moderationConfig.staffRoles && moderationConfig.staffRoles.length) {
             if (moderationConfig.staffRoles.some(id => this.message.member.roles.cache.has(id))) {
                 this.isStaff = true
             }
