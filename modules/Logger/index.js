@@ -83,6 +83,10 @@ if (config.log.deletedMessages) {
     if (message.author.bot) return false
     const attachments = message.attachments.array()
     const hasAttachments = (attachments && attachments.length)
+    attachments.forEach(a => {
+      a.attachment = a.proxyURL
+      a.url = a.proxyURL
+    })
     logEvent(null, {
       description: `:no_entry: <@${message.author.id}>'s message was deleted.
             
