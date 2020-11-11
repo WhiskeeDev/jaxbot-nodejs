@@ -21,4 +21,5 @@ necessaryEnvVars.forEach(envVar => {
 if (missingVars.length) {
   console.log(`${titleCard} One or more required environment variables are missing:`.red.bold)
   missingVars.forEach(v => console.log(` - ${v}`.red))
+  throw "Read above messages"
 }
