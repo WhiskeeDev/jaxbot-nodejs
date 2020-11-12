@@ -1,4 +1,5 @@
 const http = require("http")
+const titleCard = `[HTTP]`
 
 /**
  * All HTTP responses should use the JSend specification.
@@ -10,12 +11,14 @@ function convJson (json) {
 }
 
 function isHostValid(host) {
-  const hosts = process.env.valid_http_hosts.split(',')
+  const hosts = process.env.http_valid_hosts.split(',')
   var isValid = hosts.some(h => host.includes(h))
   return isValid
 }
 
 http.createServer((req, res) => {
+  console.log(`${titleCard} ${req.headers.host}:${req.url}`)
+
   // Check if the host is allowed
   const host = req.headers.host
   if (!isHostValid(host)) {
@@ -34,4 +37,4 @@ http.createServer((req, res) => {
     data: null
   }))
   res.end()
-}).listen(8080)
+}).listen(process.env.http_port || 80)
