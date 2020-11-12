@@ -2,9 +2,13 @@ const https = require("http")
 const titleCard = `[HTTP]`
 const fs = require('fs')
 
-const options = {
-  key: fs.readFileSync('./http/key.pem'),
-  cert: fs.readFileSync('./http/cert.pem')
+var options = {}
+
+if(process.env.ssl_key && process.env.ssl_cert) {
+  options = {
+    key: fs.readFileSync(process.env.ssl_key),
+    cert: fs.readFileSync(process.env.ssl_cert)
+  }
 }
 
 /**
