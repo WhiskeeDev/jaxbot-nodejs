@@ -6,8 +6,8 @@ var options = {}
 
 if(process.env.ssl_key && process.env.ssl_cert) {
   options = {
-    key: fs.readFileSync(process.env.ssl_key),
-    cert: fs.readFileSync(process.env.ssl_cert)
+    key: fs.readFileSync(process.env.ssl_key).toString(),
+    cert: fs.readFileSync(process.env.ssl_cert).toString()
   }
 }
 
