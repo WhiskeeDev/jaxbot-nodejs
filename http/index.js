@@ -1,4 +1,4 @@
-const https = require("http")
+const https = require("https")
 const titleCard = `[HTTP]`
 const fs = require('fs')
 
@@ -47,4 +47,4 @@ https.createServer(options, function (req, res) {
     data: null
   }))
   res.end()
-}).listen(process.env.http_port || 80)
+}).listen(process.env.http_port || 443)
