@@ -3,8 +3,8 @@ const titleCard = `[HTTP]`
 const fs = require('fs')
 
 const options = {
-  key: fs.readFileSync('http/key.pem'),
-  cert: fs.readFileSync('http/cert.pem')
+  key: fs.readFileSync('./http/key.pem'),
+  cert: fs.readFileSync('./http/cert.pem')
 }
 
 /**
