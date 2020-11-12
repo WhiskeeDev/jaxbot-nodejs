@@ -9,20 +9,29 @@ function convJson (json) {
   return JSON.stringify(json, null, 2)
 }
 
+function isHostValid(host) {
+  const hosts = process.env.valid_http_hosts.split(',')
+  var isValid = hosts.some(h => host.includes(h))
+  return isValid
+}
+
 http.createServer((req, res) => {
+  // Check if the host is allowed
   const host = req.headers.host
-  if (host.includes('localhost') || host.includes('127.0.0.1')) {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.write(convJson({
-      status: "success",
-      data: null
-    }))
-  } else {
+  if (!isHostValid(host)) {
     res.writeHead(401, { 'Content-Type': 'application/json' });
     res.write(convJson({
       status: "error",
-      message: "Responses are only valid to internal requests"
+      message: "Responses are not allowed to your host"
     }))
+    res.end()
+    return
   }
+
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.write(convJson({
+    status: "success",
+    data: null
+  }))
   res.end()
 }).listen(8080)
