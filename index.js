@@ -8,11 +8,10 @@ const Discord = require('discord.js')
 const client = new Discord.Client()
 process.discordClient = client
 
-// Load all enabled modules of the Bot
-require('./modules/index.js')
-
 client.on('ready', () => {
-  console.log(`[WBF] Logged in as ${client.user.tag}!`)
+  // Load all enabled modules of the Bot
+  require('./modules/index.js')
+  console.log(`[WBF] Logged in as ${client.user.tag}!`.bgGreen)
   if (process.env.bot_activity_type && process.env.bot_activity_text) {
     setTimeout(() => {
       client.user.setActivity(process.env.bot_activity_text, { type: process.env.bot_activity_type }).then(() => {
@@ -20,6 +19,7 @@ client.on('ready', () => {
       })
     }, 2000);
   }
+  require('./http/index.js')
 })
 
 // Log current bot version (honestly pointless as no one ever updates the number)
