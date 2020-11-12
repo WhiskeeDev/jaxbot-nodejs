@@ -106,4 +106,4 @@ dist
 .env
 config/
 data/
-.pem
+*.pem

@@ -1,5 +1,11 @@
-const http = require("http")
+const https = require("http")
 const titleCard = `[HTTP]`
+const fs = require('fs')
+
+const options = {
+  key: fs.readFileSync('http/key.pem'),
+  cert: fs.readFileSync('http/cert.pem')
+}
 
 /**
  * All HTTP responses should use the JSend specification.
@@ -16,7 +22,7 @@ function isHostValid(host) {
   return isValid
 }
 
-http.createServer((req, res) => {
+https.createServer(options, function (req, res) {
   console.log(`${titleCard} ${req.headers.host}:${req.url}`)
 
   // Check if the host is allowed
