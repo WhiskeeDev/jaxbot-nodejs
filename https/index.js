@@ -41,11 +41,11 @@ function isHostValid(host) {
 }
 
 https.createServer(options, async function (req, res) {
-  console.log(`${titleCard} ${req.headers.host}:${req.url}`)
 
   // Check if the host is allowed
   const host = req.headers.host
   const q = url.parse(req.url, true)
+  console.log(`${titleCard} ${req.headers.host}:${q.path}`)
   if (!isHostValid(host)) {
     res.writeHead(401, { 'Content-Type': 'application/json' });
     res.write(convJson({
