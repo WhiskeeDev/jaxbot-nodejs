@@ -63,6 +63,8 @@ https.createServer(options, async function (req, res) {
       status: "success",
       data: null
     }))
+    res.end()
+    return
   }
 
   const route = routes.find(r => r.routeName === q.path)
