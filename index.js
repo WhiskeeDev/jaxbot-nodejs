@@ -19,7 +19,7 @@ client.on('ready', () => {
       })
     }, 2000);
   }
-  require('./http/index.js')
+  require('./https/index.js')
 })
 
 // Log current bot version (honestly pointless as no one ever updates the number)

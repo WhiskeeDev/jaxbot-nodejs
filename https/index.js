@@ -1,6 +1,20 @@
 const https = require("https")
-const titleCard = `[HTTP]`
+const titleCard = `[HTTPS]`
 const fs = require('fs')
+const url = require('url');
+
+var routes = []
+
+var potentialRoutes = fs.readdirSync('./https/routes', { withFileTypes: true })
+
+potentialRoutes = potentialRoutes.filter(item => item.name.endsWith('.js'))
+potentialRoutes.forEach(item => {
+  const route = require(`./routes/${item.name}`).routes()
+  if (Array.isArray(route)) routes = routes.concat(route)
+  else routes.push(route)
+})
+
+console.error(routes)
 
 var options = {}
 
@@ -26,11 +40,12 @@ function isHostValid(host) {
   return isValid
 }
 
-https.createServer(options, function (req, res) {
+https.createServer(options, async function (req, res) {
   console.log(`${titleCard} ${req.headers.host}:${req.url}`)
 
   // Check if the host is allowed
   const host = req.headers.host
+  const q = url.parse(req.url, true)
   if (!isHostValid(host)) {
     res.writeHead(401, { 'Content-Type': 'application/json' });
     res.write(convJson({
@@ -42,9 +57,24 @@ https.createServer(options, function (req, res) {
   }
 
   res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.write(convJson({
-    status: "success",
-    data: null
-  }))
+
+  if (q.path === '/') {
+    res.write(convJson({
+      status: "success",
+      data: null
+    }))
+  }
+
+  const route = routes.find(r => r.routeName === q.path)
+  if (route) {
+    await route.method(req, res)
+  } else {
+    res.writeHead(404, { 'Content-Type': 'application/json' });
+    res.write(convJson({
+      status: "error",
+      message: "Route not found"
+    }))
+  }
+
   res.end()
 }).listen(process.env.http_port || 443)
