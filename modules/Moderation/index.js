@@ -128,7 +128,9 @@ process.database.models.Warn.findAll().then(async warns => {
     })
     const guild = await client.guilds.fetch(process.env.guild_id)
     if (guild) {
+        console.error(!!guild)
         guild.members.fetch().then(async members => {
+            console.error(members.length)
             usersToWarn.forEach(async u => {
                 const guildMember = await members.get(u)
                 if (guildMember && !guildMember.roles.cache.get(config.warnsRoleID)) {
