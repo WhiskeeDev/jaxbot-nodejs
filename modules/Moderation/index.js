@@ -115,6 +115,8 @@ client.on('guildMemberAdd', async member => {
     if (!config.warnsRoleID) return false
     const usersWarnProfile = process.database.models.Warn.count({ where: {UserId: member.user.id} })
 
+    console.error(`count = ${usersWarnProfile}`)
+
     if (usersWarnProfile) {
         member.roles.add(config.warnsRoleID)
         console.log(`${titleCard} Gave ${member.user.tag} the 'warns' role because they already have warns`.red)
