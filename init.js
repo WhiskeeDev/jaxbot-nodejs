@@ -37,6 +37,3 @@ console.log = function () {
   })
   originalLog(outputMessage)
 }
-
-// Create sequelize instance
-require('./database/init.js')

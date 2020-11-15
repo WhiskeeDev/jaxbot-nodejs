@@ -110,37 +110,50 @@ client.on('message', async message => {
     }
 })
 
-client.on('guildMemberAdd', member => {
+client.on('guildMemberAdd', async member => {
     console.log(`${member.user.tag} Joined the server!`.rainbow)
     if (!config.warnsRoleID) return false
-    const usersWarnProfile = warnedUsers[member.user.id]
+    const usersWarnProfile = process.database.models.Warn.count({ where: {UserId: member.user.id} })
 
-    if (usersWarnProfile && usersWarnProfile.warns.length) {
+    if (usersWarnProfile) {
         member.roles.add(config.warnsRoleID)
-        console.log(`Gave ${member.user.tag} the 'warns' role because they already have warns`.red)
+        console.log(`${titleCard} Gave ${member.user.tag} the 'warns' role because they already have warns`.red)
     }
 })
 
-client.on('ready', async () => {
-
-    if (!config.warnsRoleID) return false
-    var usersToWarn = []
-    const warns = await process.database.models.Warn.findAll()
+var usersToWarn = []
+process.database.models.Warn.findAll().then(async warns => {
     Object.keys(warns).forEach(k => {
         if (!usersToWarn.includes(warns[k].UserId)) usersToWarn.push(warns[k].UserId)
     })
     const guild = await client.guilds.fetch(process.env.guild_id)
     if (guild) {
         guild.members.fetch().then(async members => {
-            // console.error(members)
             usersToWarn.forEach(async u => {
-                console.log(`giving warn role to ${u}`)
                 const guildMember = await members.get(u)
-                console.log(guildMember)
                 if (guildMember && !guildMember.roles.cache.get(config.warnsRoleID)) {
                     guildMember.roles.add(config.warnsRoleID)
-                    console.log(`Gave ${guildMember.user.tag} the 'warns' role because they already have warns`.red)
+                    console.log(`${titleCard} Gave ${guildMember.user.tag} the 'warns' role because they already have warns`.red)
                 }
+            })
+
+            members.forEach(member => {
+                process.database.models.User.findOrCreate({
+                    where: { id: member.user.id },
+                    defaults: {
+                        id: member.user.id,
+                        tag: member.user.tag,
+                        avatar: member.user.avatar,
+                        bot: member.user.bot
+                    }
+                }).then(([user]) => {
+                    if (!user.isNewRecord) {
+                        user.tag = member.user.tag
+                        user.avatar = member.user.avatar
+                        user.bot = member.user.bot
+                        user.save()
+                    }
+                })
             })
         })
     }

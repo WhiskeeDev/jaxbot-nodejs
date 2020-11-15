@@ -2,8 +2,10 @@ const { Sequelize, DataTypes, Model } = require('sequelize')
 const colors = require('colors')
 const fs = require('fs')
 const env = process.env
+const titlecard = "[DB]"
 
 async function createDatabase () {
+  console.log(`${titlecard} Initalizing`)
   const sequelize = new Sequelize(env.database_name || 'tophat_discord_bot', env.database_user, env.database_pass, {
     host: env.database_host,
     dialect: 'mysql',
@@ -18,6 +20,9 @@ async function createDatabase () {
     }
   })
 
+  process.database = sequelize
+
+  console.log(`${titlecard} Creating 'User' Model`)
   // Create User Model
   class User extends Model { }
   User.init({
@@ -26,6 +31,14 @@ async function createDatabase () {
       unique: true,
       allowNull: false,
       primaryKey: true
+    },
+    avatar: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    bot: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     },
     tag: {
       type: DataTypes.STRING,
@@ -36,6 +49,7 @@ async function createDatabase () {
     modelName: 'User'
   })
 
+  console.log(`${titlecard} Creating 'Warn' Model`)
   // Create Warn Model
   class Warn extends Model { }
   Warn.init({
@@ -56,6 +70,7 @@ async function createDatabase () {
     modelName: 'Warn'
   })
 
+  console.log(`${titlecard} Creating 'ApplicationType' Model`)
   // Create Application Type Model
   class ApplicationType extends Model { }
   ApplicationType.init({
@@ -81,6 +96,7 @@ async function createDatabase () {
     modelName: 'ApplicationType'
   })
 
+  console.log(`${titlecard} Creating 'Application' Model`)
   // Create Application Model
   class Application extends Model { }
   Application.init({
@@ -102,6 +118,8 @@ async function createDatabase () {
     sequelize,
     modelName: 'Application'
   })
+
+  console.log(`${titlecard} Creating 'ApplicationQuestion' Model`)
   // Create Application Question Model
   class ApplicationQuestion extends Model { }
   ApplicationQuestion.init({
@@ -118,38 +136,24 @@ async function createDatabase () {
     modelName: 'ApplicationQuestion'
   })
 
-
+  console.log(`${titlecard} Creating Relationships`)
   // Create Relationships (Associations)
   User.hasMany(Warn)
   User.hasMany(Application)
   ApplicationType.hasMany(Application)
   ApplicationType.hasMany(ApplicationQuestion)
 
+  console.log(`${titlecard} Syncing Database`)
   // Sync Database
   await sequelize.sync({ alter: true }).catch(error => {
     console.error(error)
   })
 
+  console.log(`${titlecard} Done`)
   process.database = sequelize
-
-  const path = require('path').dirname(require.main.filename) + '/data/moderation.dat'
-
-  if (fs.existsSync(path)) {
-    console.log('[DATABASE] Found moderation.dat'.red)
-    const warnedUsers = JSON.parse(fs.readFileSync(path)).warnedUsers
-    const warnedKeys = Object.keys(warnedUsers)
-    warnedKeys.forEach(async userID => {
-      const warnedUser = warnedUsers[userID]
-      await User.findOrCreate({
-        where: { id: userID },
-        defaults: { id: userID, tag: warnedUser.tag }
-      })
-      warnedUser.warns.forEach(async warnData => {
-        const warn = Warn.create({ reason: warnData.reason, staff: warnData.staff, date: warnData.date, UserId: userID })
-      })
-    })
-    fs.renameSync(path, path + '.OLD')
-  }
 }
 
-createDatabase()
+module.exports = new Promise(async (resolve, reject) => {
+  await createDatabase()
+  resolve()
+})
