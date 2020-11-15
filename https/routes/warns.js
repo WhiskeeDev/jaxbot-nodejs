@@ -13,7 +13,6 @@ module.exports = {
             const warns = await process.database.models.Warn.findAll({ raw: true })
             warns.forEach(warn => {
               const user = users.find(u => u.id === warn.UserId)
-              console.error(user)
               warn.user = null
               if (user) {
                 warn.user = user
