@@ -48,6 +48,10 @@ async function createDatabase () {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     },
+    leftServer: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
   }, {
     sequelize,
     modelName: 'User'
