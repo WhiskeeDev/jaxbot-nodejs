@@ -123,8 +123,8 @@ client.on('guildMemberAdd', async member => {
 
 var usersToWarn = []
 process.database.models.Warn.findAll().then(async warns => {
-    Object.keys(warns).forEach(k => {
-        if (!usersToWarn.includes(warns[k].UserId)) usersToWarn.push(warns[k].UserId)
+    warns.forEach(warn => {
+        if (!usersToWarn.includes(warn.UserId)) usersToWarn.push(warn.UserId)
     })
     const guild = await client.guilds.fetch(process.env.guild_id)
     if (guild) {
