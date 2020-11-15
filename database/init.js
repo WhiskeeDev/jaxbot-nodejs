@@ -37,7 +37,7 @@ async function createDatabase () {
       allowNull: false
     },
     discriminator: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false
     },
     avatar: {
