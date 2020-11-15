@@ -69,11 +69,9 @@ client.on('message', message => {
 })
 
 if (config.log.logBoot) {
-  client.on('ready', () => {
-    logEvent(null, {
-      description: ':robot: Wsky bot online! :clap:',
-      color: colours.positive
-    })
+  logEvent(null, {
+    description: ':robot: Wsky bot online/rebooted! :clap:',
+    color: colours.positive
   })
 }
 
