@@ -14,8 +14,6 @@ potentialRoutes.forEach(item => {
   else routes.push(route)
 })
 
-console.error(routes)
-
 var options = {}
 
 if(process.env.ssl_key && process.env.ssl_cert) {
