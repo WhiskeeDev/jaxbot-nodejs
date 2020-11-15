@@ -131,35 +131,39 @@ process.database.models.Warn.findAll().then(async warns => {
         console.error(!!guild)
         const posMems = guild.members.cache
         console.error(posMems.array().length)
-        guild.members.fetch().then(async members => {
-            console.error(members.array().length)
-            usersToWarn.forEach(async u => {
-                const guildMember = await members.get(u)
-                if (guildMember && !guildMember.roles.cache.get(config.warnsRoleID)) {
-                    guildMember.roles.add(config.warnsRoleID)
-                    console.log(`${titleCard} Gave ${guildMember.user.tag} the 'warns' role because they already have warns`.red)
-                }
-            })
+        // guild.members.fetch({ limit: 1 }).then(async members => {
+        //     console.error(members.array().length)
+        //     usersToWarn.forEach(async u => {
+        //         const guildMember = await members.get(u)
+        //         if (guildMember && !guildMember.roles.cache.get(config.warnsRoleID)) {
+        //             guildMember.roles.add(config.warnsRoleID)
+        //             console.log(`${titleCard} Gave ${guildMember.user.tag} the 'warns' role because they already have warns`.red)
+        //         }
+        //     })
 
-            members.forEach(member => {
-                process.database.models.User.findOrCreate({
-                    where: { id: member.user.id },
-                    defaults: {
-                        id: member.user.id,
-                        tag: member.user.tag,
-                        avatar: member.user.avatar,
-                        bot: member.user.bot
-                    }
-                }).then(([user]) => {
-                    if (!user.isNewRecord) {
-                        user.tag = member.user.tag
-                        user.avatar = member.user.avatar
-                        user.bot = member.user.bot
-                        user.save()
-                    }
-                })
-            })
-        })
+        //     members.forEach(member => {
+        //         process.database.models.User.findOrCreate({
+        //             where: { id: member.user.id },
+        //             defaults: {
+        //                 id: member.user.id,
+        //                 tag: member.user.tag,
+        //                 avatar: member.user.avatar,
+        //                 bot: member.user.bot
+        //             }
+        //         }).then(([user]) => {
+        //             if (!user.isNewRecord) {
+        //                 user.tag = member.user.tag
+        //                 user.avatar = member.user.avatar
+        //                 user.bot = member.user.bot
+        //                 user.save()
+        //             }
+        //         })
+        //     })
+        // })
+        for (var i=0;i<50;i +=10) {
+            console.error(guild.members.cache.array().length)
+            await guild.members.fetch({ limit:10 })
+        }
     }
 })
 
