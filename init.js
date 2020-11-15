@@ -14,7 +14,7 @@ process.env.appVersion = require('./package.json').version
 // Check if the necessary Directories exist
 // and if not, create them.
 const necessaryDirectories = [
-  'logs', 'config'
+  'logs', 'config', 'logs/https'
 ]
 necessaryDirectories.forEach(d => {
   const path = `./${d}`
@@ -26,13 +26,15 @@ necessaryDirectories.forEach(d => {
 // Aswell as append it all to a .log file.
 const originalLog = console.log
 console.log = function () {
+  var useHttpsLogs = false
   const curDateTime = DateTime.local()
   const time = curDateTime.toLocaleString(DateTime.TIME_24_WITH_SECONDS)
   var outputMessage = `[${time}] `
+  if (arguments[0].startsWith('[HTTPS]')) useHttpsLogs = true
   for (var i = 0; i < arguments.length; i++) {
-    outputMessage = outputMessage + arguments[0] + (i ? '\n' : '')
+    outputMessage = outputMessage + arguments[i] + (i ? '\n' : '')
   }
-  fs.writeFileSync('./logs/' + curDateTime.toISODate() + '.log', outputMessage + '\n', {
+  fs.writeFileSync(`./logs${useHttpsLogs ? '/https/' : '/'}` + curDateTime.toISODate() + '.log', outputMessage + '\n', {
     flag: 'a'
   })
   originalLog(outputMessage)

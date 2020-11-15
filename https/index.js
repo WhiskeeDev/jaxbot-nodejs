@@ -41,9 +41,10 @@ function isHostValid(host) {
 https.createServer(options, async function (req, res) {
 
   // Check if the host is allowed
+  const sourceIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress
   const host = req.headers.host
   const q = url.parse(req.url, true)
-  console.log(`${titleCard} ${req.headers.host}:${q.path}`)
+  console.log(`${titleCard} ${sourceIp}:${q.path}`)
 
   res.setHeader('Access-Control-Allow-Origin', '*');
   if (!isHostValid(host)) {
@@ -56,9 +57,8 @@ https.createServer(options, async function (req, res) {
     return
   }
 
-  res.writeHead(200, { 'Content-Type': 'application/json' });
-
   if (q.path === '/') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.write(convJson({
       status: "success",
       data: null
@@ -69,6 +69,7 @@ https.createServer(options, async function (req, res) {
 
   const route = routes.find(r => r.routeName === q.path)
   if (route) {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     await route.method(req, res)
   } else {
     res.writeHead(404, { 'Content-Type': 'application/json' });
