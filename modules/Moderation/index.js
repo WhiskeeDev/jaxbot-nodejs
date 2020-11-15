@@ -162,7 +162,8 @@ process.database.models.Warn.findAll().then(async warns => {
         // })
         console.error(guild.members.cache.array().length)
         for (var i=0;i<=100;i +=10) {
-            guild.members.fetch({ limit:100 }).then(res => {
+            guild.members.fetch({ limit:10 }).then(res => {
+                console.error(res.map(u => u.id))
                 console.error(guild.members.cache.array().length)
             })
         }
