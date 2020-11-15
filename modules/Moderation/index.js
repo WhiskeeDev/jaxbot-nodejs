@@ -113,9 +113,7 @@ client.on('message', async message => {
 client.on('guildMemberAdd', async member => {
     console.log(`${member.user.tag} Joined the server!`.rainbow)
     if (!config.warnsRoleID) return false
-    const usersWarnProfile = process.database.models.Warn.count({ where: {UserId: member.user.id} })
-
-    console.error(`count = ${usersWarnProfile}`)
+    const usersWarnProfile = await process.database.models.Warn.count({ where: {UserId: member.user.id} })
 
     if (usersWarnProfile) {
         member.roles.add(config.warnsRoleID)
