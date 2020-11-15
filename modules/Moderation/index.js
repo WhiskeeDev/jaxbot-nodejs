@@ -144,13 +144,15 @@ process.database.models.Warn.findAll().then(async warns => {
                         id: member.user.id,
                         tag: member.user.tag,
                         avatar: member.user.avatar,
-                        bot: member.user.bot
+                        bot: member.user.bot,
+                        discriminator: member.user.discriminator
                     }
                 }).then(([user]) => {
                     if (!user.isNewRecord) {
                         user.tag = member.user.tag
                         user.avatar = member.user.avatar
                         user.bot = member.user.bot
+                        user.discriminator = member.user.discriminator
                         user.save()
                     }
                 })

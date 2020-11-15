@@ -32,6 +32,14 @@ async function createDatabase () {
       allowNull: false,
       primaryKey: true
     },
+    tag: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    discriminator: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
     avatar: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -40,10 +48,6 @@ async function createDatabase () {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     },
-    tag: {
-      type: DataTypes.STRING,
-      allowNull: false
-    }
   }, {
     sequelize,
     modelName: 'User'
