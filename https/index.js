@@ -47,7 +47,7 @@ https.createServer(options, async function (req, res) {
   const q = url.parse(req.url, true)
   console.log(`${titleCard} ${req.headers.host}:${q.path}`)
 
-  response.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin', '*');
   if (!isHostValid(host)) {
     res.writeHead(401, { 'Content-Type': 'application/json' });
     res.write(convJson({
