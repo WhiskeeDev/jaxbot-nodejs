@@ -58,6 +58,7 @@ https.createServer(options, async function (req, res) {
   console.log(`${titleCard} ${sourceIp}:${q.path}`)
 
   res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Headers', 'jax-client-token')
 
   const hostValidity = getRequestValidity(host, sourceIp)
 
