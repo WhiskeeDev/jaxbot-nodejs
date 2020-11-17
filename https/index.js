@@ -32,10 +32,19 @@ function convJson (json) {
   return JSON.stringify(json, null, 2)
 }
 
-function isHostValid(host) {
+function getHostValidity(host) {
   const hosts = process.env.http_valid_hosts.split(',')
+  const blockedIps = process.env.http_blocked_ips.split(',')
+
   var isValid = hosts.some(h => host.includes(h))
-  return isValid
+
+  if (!isValid) return 'unknownHost'
+
+  var isBlocked = blockedIps.some(h => host.includes(h))
+
+  if (isBlocked) return 'blockedIp'
+
+  return 'valid'
 }
 
 https.createServer(options, async function (req, res) {
@@ -44,14 +53,31 @@ https.createServer(options, async function (req, res) {
   const sourceIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress
   const host = req.headers.host
   const q = url.parse(req.url, true)
+
   console.log(`${titleCard} ${sourceIp}:${q.path}`)
 
   res.setHeader('Access-Control-Allow-Origin', '*')
-  if (!isHostValid(host)) {
+
+  const hostValidity = getHostValidity(host)
+
+  if (hostValidity !== 'valid') {
     res.writeHead(401, { 'Content-Type': 'application/json' })
+    var error = {
+      code: 'ERR-1000',
+      message: 'There was an unknown error, please contact WhiskeeDev#0001 on discord.'
+    }
+    switch (hostValidity) {
+    case 'unknownHost':
+      error.code = 'ERR-100'
+      error.message = 'You are not whitelisted to receive respones from this source.'
+      break
+    case 'blockedIp':
+      error.code = 'ERR-900'
+      break
+    }
     res.write(convJson({
       status: 'error',
-      message: 'Responses are not allowed to your host'
+      message: `[${error.code}] ${error.message}`
     }))
     res.end()
     return
