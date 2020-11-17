@@ -32,17 +32,18 @@ function convJson (json) {
   return JSON.stringify(json, null, 2)
 }
 
-function getHostValidity(host) {
-  const hosts = process.env.http_valid_hosts.split(',')
-  const blockedIps = process.env.http_blocked_ips.split(',')
+function getRequestValidity(requestHost, requestIp) {
+  // Get valid hosts and blocked IPs from environment vars
+  var validHosts = process.env.http_valid_hosts.split(',').filter(h => h !== '')
+  var blockedIps = process.env.http_blocked_ips.split(',').filter(i => i !== '')
 
-  var isValid = hosts.some(h => host.includes(h))
-
-  if (!isValid) return 'unknownHost'
-
-  var isBlocked = blockedIps.some(h => host.includes(h))
-
+  // Check if IP is blocked
+  var isBlocked = blockedIps.some(blockedIp => requestIp.includes(blockedIp))
   if (isBlocked) return 'blockedIp'
+
+  // Check if Host is allowed
+  var isValid = validHosts.some(validHost => requestHost.includes(validHost))
+  if (!isValid) return 'unknownHost'
 
   return 'valid'
 }
@@ -58,7 +59,7 @@ https.createServer(options, async function (req, res) {
 
   res.setHeader('Access-Control-Allow-Origin', '*')
 
-  const hostValidity = getHostValidity(host)
+  const hostValidity = getRequestValidity(host, sourceIp)
 
   if (hostValidity !== 'valid') {
     res.writeHead(401, { 'Content-Type': 'application/json' })
