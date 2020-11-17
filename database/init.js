@@ -144,6 +144,23 @@ async function createDatabase () {
     modelName: 'ApplicationQuestion'
   })
 
+  console.log(`${titlecard} Creating 'Client' Model`)
+  // Create Client Model for tokens
+  class Client extends Model { }
+  Client.init({
+    token: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    enabled: {
+      type: DataTypes.BOOLEAN,
+      default: true
+    }
+  }, {
+    sequelize,
+    modelName: 'Client'
+  })
+
   console.log(`${titlecard} Creating Relationships`)
   // Create Relationships (Associations)
   User.hasMany(Warn)
@@ -161,7 +178,7 @@ async function createDatabase () {
   process.database = sequelize
 }
 
-module.exports = new Promise(async (resolve, reject) => {
+module.exports = new Promise(async (resolve) => {
   await createDatabase()
   resolve()
 })
