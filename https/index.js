@@ -1,7 +1,7 @@
-const https = require("https")
-const titleCard = `[HTTPS]`
+const https = require('https')
+const titleCard = '[HTTPS]'
 const fs = require('fs')
-const url = require('url');
+const url = require('url')
 
 var routes = []
 
@@ -46,21 +46,21 @@ https.createServer(options, async function (req, res) {
   const q = url.parse(req.url, true)
   console.log(`${titleCard} ${sourceIp}:${q.path}`)
 
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin', '*')
   if (!isHostValid(host)) {
-    res.writeHead(401, { 'Content-Type': 'application/json' });
+    res.writeHead(401, { 'Content-Type': 'application/json' })
     res.write(convJson({
-      status: "error",
-      message: "Responses are not allowed to your host"
+      status: 'error',
+      message: 'Responses are not allowed to your host'
     }))
     res.end()
     return
   }
 
   if (q.path === '/') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.writeHead(200, { 'Content-Type': 'application/json' })
     res.write(convJson({
-      status: "success",
+      status: 'success',
       data: null
     }))
     res.end()
@@ -69,13 +69,13 @@ https.createServer(options, async function (req, res) {
 
   const route = routes.find(r => r.routeName === q.path)
   if (route) {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.writeHead(200, { 'Content-Type': 'application/json' })
     await route.method(req, res)
   } else {
-    res.writeHead(404, { 'Content-Type': 'application/json' });
+    res.writeHead(404, { 'Content-Type': 'application/json' })
     res.write(convJson({
-      status: "error",
-      message: "Route not found"
+      status: 'error',
+      message: 'Route not found'
     }))
   }
 

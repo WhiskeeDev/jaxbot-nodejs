@@ -27,7 +27,7 @@ module.exports = {
               }
             })
             res.write(convJson({
-              status: "success",
+              status: 'success',
               data: {
                 warns_total: warnsTotal,
                 warns_monthly: warnsMonthly,
@@ -37,7 +37,7 @@ module.exports = {
             }))
           } catch (err) {
             res.write(convJson({
-              status: "error",
+              status: 'error',
               message: `[${err.name || 'Unknown Error Name'}] ${err.message}`
             }))
           }

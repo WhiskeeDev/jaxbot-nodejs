@@ -2,7 +2,7 @@ const { Sequelize, DataTypes, Model } = require('sequelize')
 const colors = require('colors')
 const fs = require('fs')
 const env = process.env
-const titlecard = "[DB]"
+const titlecard = '[DB]'
 
 async function createDatabase () {
   console.log(`${titlecard} Initalizing`)

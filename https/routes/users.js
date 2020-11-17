@@ -11,14 +11,14 @@ module.exports = {
           try {
             const users = await process.database.models.User.findAll()
             res.write(convJson({
-              status: "success",
+              status: 'success',
               data: {
                 users
               }
             }))
           } catch (err) {
             res.write(convJson({
-              status: "error",
+              status: 'error',
               message: `[${err.name || 'Unknown Error Name'}] ${err.message}`
             }))
           }

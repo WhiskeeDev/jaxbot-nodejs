@@ -28,14 +28,14 @@ module.exports = {
               }
             })
             res.write(convJson({
-              status: "success",
+              status: 'success',
               data: {
                 applications
               }
             }))
           } catch (err) {
             res.write(convJson({
-              status: "error",
+              status: 'error',
               message: `[${err.name || 'Unknown Error Name'}] ${err.message}`
             }))
           }

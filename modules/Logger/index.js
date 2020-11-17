@@ -19,11 +19,11 @@ const config = load('logger', {
 const client = process.discordClient
 
 const colours = {
-    negative: '#EF476F',
-    warning: '#FFD166',
-    positive: '#06D6A0',
-    primary: '#118AB2',
-    secondary: '#073B4C'
+  negative: '#EF476F',
+  warning: '#FFD166',
+  positive: '#06D6A0',
+  primary: '#118AB2',
+  secondary: '#073B4C'
 }
 
 
@@ -87,10 +87,10 @@ if (config.log.deletedMessages) {
     })
     logEvent(null, {
       description: `:no_entry: <@${message.author.id}>'s message was deleted.
-            
+
             **Original Message**
             ${message.content}
-            
+
             **Has Attachment(s)**
             ${hasAttachments ? 'Yes (see below)' : 'No'}`,
       color: colours.negative,
@@ -111,13 +111,13 @@ if (config.log.updatedMessages) {
     if (oldMessage.author.bot || newMessage.author.bot) return false
     logEvent(null, {
       description: `:no_entry: <@${oldMessage.author.id}>'s Message was updated.
-            
+
             **Original Message**
             ${oldMessage.content}
-            
+
             **New Message**
             ${newMessage.content}
-            
+
             **Link**
             ${newMessage.url}`,
       color: colours.warning,
@@ -129,10 +129,10 @@ if (config.log.updatedMessages) {
 }
 
 if (config.log.memberJoin) {
-    client.on('guildMemberAdd', member => {
+  client.on('guildMemberAdd', member => {
     logEvent(null, {
       description: `:new: <@${member.user.id}> Joined the server!`,
-        color: colours.primary,
+      color: colours.primary,
       author: member.user
     })
     console.log(`${member.user.tag} Joined the server!`.yellow)
@@ -150,7 +150,7 @@ client.on('voiceStateUpdate', (oldState, newState) => {
 
   /**
          * Table of event types
-         * 
+         *
          *  0   -   No Event
          *  1   -   voiceChannelJoin
          *  2   -   voiceChannelDisconnect
@@ -160,7 +160,7 @@ client.on('voiceStateUpdate', (oldState, newState) => {
          */
 
   let embedData = {
-      color: colours.secondary,
+    color: colours.secondary,
     author: oldState.member ? oldState.member.user : newState.member.user
   }
 
@@ -170,36 +170,36 @@ client.on('voiceStateUpdate', (oldState, newState) => {
   let isLoggableEvent = false
 
   switch (eventType) {
-    case 1:
-      emojis = ':speaker: :inbox_tray:'
-      action = 'Joined'
-      channels = `\`${newState.channel.name}\``
-      isLoggableEvent = config.log.voiceChannelJoin
-      break
-    case 2:
-      emojis = ':speaker: :outbox_tray:'
-      action = 'Left'
-      channels = `\`${oldState.channel.name}\``
-      isLoggableEvent = config.log.voiceChannelDisconnect
-      break
-    case 3:
-      emojis = ':speaker: :twisted_rightwards_arrows:'
-      action = 'Switched'
-      channels = `\`${oldState.channel.name}\` -> \`${newState.channel.name}\``
-      isLoggableEvent = config.log.voiceChannelSwitch
-      break
-    case 4:
-      emojis = ':satellite: :arrow_forward:'
-      action = 'Started stream in'
-      channels = `\`${newState.channel.name}\``
-      isLoggableEvent = config.log.voiceChannelStreamStart
-      break
-    case 5:
-      emojis = ':satellite: :stop_button:'
-      action = 'Stopped stream in'
-      channels = `\`${newState.channel ? newState.channel.name : oldState.channel.name}\``
-      isLoggableEvent = config.log.voiceChannelStreamStop
-      break
+  case 1:
+    emojis = ':speaker: :inbox_tray:'
+    action = 'Joined'
+    channels = `\`${newState.channel.name}\``
+    isLoggableEvent = config.log.voiceChannelJoin
+    break
+  case 2:
+    emojis = ':speaker: :outbox_tray:'
+    action = 'Left'
+    channels = `\`${oldState.channel.name}\``
+    isLoggableEvent = config.log.voiceChannelDisconnect
+    break
+  case 3:
+    emojis = ':speaker: :twisted_rightwards_arrows:'
+    action = 'Switched'
+    channels = `\`${oldState.channel.name}\` -> \`${newState.channel.name}\``
+    isLoggableEvent = config.log.voiceChannelSwitch
+    break
+  case 4:
+    emojis = ':satellite: :arrow_forward:'
+    action = 'Started stream in'
+    channels = `\`${newState.channel.name}\``
+    isLoggableEvent = config.log.voiceChannelStreamStart
+    break
+  case 5:
+    emojis = ':satellite: :stop_button:'
+    action = 'Stopped stream in'
+    channels = `\`${newState.channel ? newState.channel.name : oldState.channel.name}\``
+    isLoggableEvent = config.log.voiceChannelStreamStop
+    break
   }
 
   embedData.description = `${emojis} <@${oldState.member.user.id}> ${action} voice channel ${channels}`

@@ -15,9 +15,9 @@ client.on('ready', () => {
   if (process.env.bot_activity_type && process.env.bot_activity_text) {
     setTimeout(() => {
       client.user.setActivity(process.env.bot_activity_text, { type: process.env.bot_activity_type }).then(() => {
-        console.log("[WBF] Set bot's current activity.")
+        console.log('[WBF] Set bot\'s current activity.')
       })
-    }, 2000);
+    }, 2000)
   }
   require('./https/index.js')
 })
@@ -28,7 +28,7 @@ console.log(`[WBF] Bot version ${process.env.appVersion}`.magenta.bold)
 require('./safe2boot.js')
 
 // Create sequelize instance
-require('./database/init.js').then(res => {
+require('./database/init.js').then(() => {
   // Login to bot, if token is available and valid
   const token = process.env.discord_token
   if (token) {
