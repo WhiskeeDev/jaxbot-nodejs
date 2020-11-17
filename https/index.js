@@ -48,6 +48,9 @@ async function isClientTokenValid(req) {
 }
 
 async function getRequestValidity(request) {
+  // Allow preflights
+  if (request.method === 'OPTIONS') return 'valid'
+
   const requestIp = request.headers['x-forwarded-for'] || request.connection.remoteAddress
   const requestHost = request.headers.host
 
