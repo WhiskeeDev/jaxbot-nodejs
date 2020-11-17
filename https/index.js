@@ -78,6 +78,8 @@ https.createServer(options, async function (req, res) {
 
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Headers', 'jax-client-token')
+  res.setHeader('Access-Control-Allow-Methods', 'GET')
+  res.setHeader('Access-Control-Max-Age', -1)
 
   const requestValidity = await getRequestValidity(req)
 
