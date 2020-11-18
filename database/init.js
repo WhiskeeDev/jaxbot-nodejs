@@ -1,6 +1,5 @@
 const { Sequelize, DataTypes, Model } = require('sequelize')
 const colors = require('colors')
-const fs = require('fs')
 const env = process.env
 const titlecard = '[DB]'
 

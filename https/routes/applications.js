@@ -9,7 +9,9 @@ module.exports = {
         routeName: '/applications',
         async method (req, res) {
           try {
-            const applications = await process.database.models.Application.findAll({raw:true})
+            const applications = await process.database.models.Application.findAll({ raw:true, order: [
+              ['createdAt', 'DESC']
+            ]})
             const applicationTypes = await process.database.models.ApplicationType.findAll()
             const users = await process.database.models.User.findAll()
             applications.forEach(app => {

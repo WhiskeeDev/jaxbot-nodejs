@@ -9,7 +9,12 @@ module.exports = {
         routeName: '/users',
         async method (req, res) {
           try {
-            const users = await process.database.models.User.findAll()
+            const users = await process.database.models.User.findAll({
+              order: [
+                ['leftServer', 'ASC'],
+                ['bot', 'ASC'],
+              ]
+            })
             res.write(convJson({
               status: 'success',
               data: {
