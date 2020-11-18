@@ -20,7 +20,12 @@ module.exports = {
                 }
               }
             })
-            const users = await process.database.models.User.count()
+            const usersTotal = await process.database.models.User.count()
+            const usersActive = await process.database.models.User.count({
+              where: {
+                leftServer: false
+              }
+            })
             const applications_pending = await process.database.models.Application.count({
               where: {
                 status: -1
@@ -29,9 +34,10 @@ module.exports = {
             res.write(convJson({
               status: 'success',
               data: {
-                warns_total: warnsTotal,
+                warns: warnsTotal,
                 warns_monthly: warnsMonthly,
-                users,
+                users: usersTotal,
+                users_active: usersActive,
                 applications_pending
               }
             }))
