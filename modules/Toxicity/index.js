@@ -4,7 +4,7 @@ const client = process.discordClient
 
 const titleCard = '[Toxicity] '
 
-toxicity.load(0.45).then(model => {
+toxicity.load(0.75).then(model => {
   client.on('message', message => {
     if (message.author.bot) return
     if (message.channel.type !== 'dm') return
