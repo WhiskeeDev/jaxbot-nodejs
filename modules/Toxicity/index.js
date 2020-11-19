@@ -11,8 +11,6 @@ toxicity.load(0.45).then(model => {
 
     model.classify(message.content).then(predicition => {
 
-      console.error(JSON.stringify(predicition, null, 2))
-
       var matches = []
       predicition.forEach(p => {
         if (p.results[0].match) {
