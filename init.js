@@ -14,7 +14,7 @@ process.env.appVersion = require('./package.json').version
 // Check if the necessary Directories exist
 // and if not, create them.
 const necessaryDirectories = [
-  'logs', 'config', 'logs/https'
+  'logs', 'config', 'logs/https', 'logs/toxicity'
 ]
 necessaryDirectories.forEach(d => {
   const path = `./${d}`
@@ -27,14 +27,16 @@ necessaryDirectories.forEach(d => {
 const originalLog = console.log
 console.log = function () {
   var useHttpsLogs = false
+  var useToxicityLogs = false
   const curDateTime = DateTime.local()
   const time = curDateTime.toLocaleString(DateTime.TIME_24_WITH_SECONDS)
   var outputMessage = `[${time}] `
   if (arguments[0].startsWith('[HTTPS]')) useHttpsLogs = true
+  if (arguments[0].startsWith('[Toxicity]')) useToxicityLogs = true
   for (var i = 0; i < arguments.length; i++) {
     outputMessage = outputMessage + arguments[i] + (i ? '\n' : '')
   }
-  fs.writeFileSync(`./logs${useHttpsLogs ? '/https/' : '/'}` + curDateTime.toISODate() + '.log', outputMessage + '\n', {
+  fs.writeFileSync(`./logs${useHttpsLogs ? '/https/' : useToxicityLogs ? '/toxicity/' : '/'}` + curDateTime.toISODate() + '.log', outputMessage + '\n', {
     flag: 'a'
   })
   originalLog(outputMessage)
