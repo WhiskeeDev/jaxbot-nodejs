@@ -57,7 +57,7 @@ function logEvent (message, embedDetails) {
     .setDescription(embedDetails.description)
     .setColor(embedDetails.color)
   if (embedDetails.author) {
-    embed.setAuthor(embedDetails.member.nickname || embedDetails.author.tag + (embedDetails.channelName ? ' | #' + embedDetails.channelName : ''), embedDetails.author.avatarURL())
+    embed.setAuthor(embedDetails.author.tag + (embedDetails.channelName ? ' | #' + embedDetails.channelName : ''), embedDetails.author.avatarURL())
   }
   logToChannel(message, embed)
 }
@@ -214,36 +214,36 @@ client.on('voiceStateUpdate', (oldState, newState) => {
   let isLoggableEvent = false
 
   switch (eventType) {
-  case 1:
-    emojis = ':speaker: :inbox_tray:'
-    action = 'Joined'
-    channels = `\`${newState.channel.name}\``
-    isLoggableEvent = config.log.voiceChannelJoin
-    break
-  case 2:
-    emojis = ':speaker: :outbox_tray:'
-    action = 'Left'
-    channels = `\`${oldState.channel.name}\``
-    isLoggableEvent = config.log.voiceChannelDisconnect
-    break
-  case 3:
-    emojis = ':speaker: :twisted_rightwards_arrows:'
-    action = 'Switched'
-    channels = `\`${oldState.channel.name}\` -> \`${newState.channel.name}\``
-    isLoggableEvent = config.log.voiceChannelSwitch
-    break
-  case 4:
-    emojis = ':satellite: :arrow_forward:'
-    action = 'Started stream in'
-    channels = `\`${newState.channel.name}\``
-    isLoggableEvent = config.log.voiceChannelStreamStart
-    break
-  case 5:
-    emojis = ':satellite: :stop_button:'
-    action = 'Stopped stream in'
-    channels = `\`${newState.channel ? newState.channel.name : oldState.channel.name}\``
-    isLoggableEvent = config.log.voiceChannelStreamStop
-    break
+    case 1:
+      emojis = ':speaker: :inbox_tray:'
+      action = 'Joined'
+      channels = `\`${newState.channel.name}\``
+      isLoggableEvent = config.log.voiceChannelJoin
+      break
+    case 2:
+      emojis = ':speaker: :outbox_tray:'
+      action = 'Left'
+      channels = `\`${oldState.channel.name}\``
+      isLoggableEvent = config.log.voiceChannelDisconnect
+      break
+    case 3:
+      emojis = ':speaker: :twisted_rightwards_arrows:'
+      action = 'Switched'
+      channels = `\`${oldState.channel.name}\` -> \`${newState.channel.name}\``
+      isLoggableEvent = config.log.voiceChannelSwitch
+      break
+    case 4:
+      emojis = ':satellite: :arrow_forward:'
+      action = 'Started stream in'
+      channels = `\`${newState.channel.name}\``
+      isLoggableEvent = config.log.voiceChannelStreamStart
+      break
+    case 5:
+      emojis = ':satellite: :stop_button:'
+      action = 'Stopped stream in'
+      channels = `\`${newState.channel ? newState.channel.name : oldState.channel.name}\``
+      isLoggableEvent = config.log.voiceChannelStreamStop
+      break
   }
 
   embedData.description = `${emojis} <@${oldState.member.user.id}> ${action} voice channel ${channels}`
