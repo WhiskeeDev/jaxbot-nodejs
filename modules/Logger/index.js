@@ -146,6 +146,10 @@ client.on('guildMemberAdd', member => {
       bot: member.user.bot,
       discriminator: member.user.discriminator
     }
+  }).then(([user]) => {
+    if (!user.isNewRecord) return
+    user.leftServer = false
+    user.save()
   })
 })
 
