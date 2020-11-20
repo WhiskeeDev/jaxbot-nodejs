@@ -20,9 +20,12 @@ module.exports = {
                 }
               }
             })
-            const usersTotal = await process.database.models.User.count()
+            const usersTotal = await process.database.models.User.count({
+              where: { bot: false }
+            })
             const usersActive = await process.database.models.User.count({
               where: {
+                bot: false,
                 leftServer: false
               }
             })

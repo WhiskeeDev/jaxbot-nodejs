@@ -10,6 +10,7 @@ module.exports = {
         async method (req, res) {
           try {
             const users = await process.database.models.User.findAll({
+              where: { bot: false },
               order: [
                 ['leftServer', 'ASC'],
                 ['bot', 'ASC'],
