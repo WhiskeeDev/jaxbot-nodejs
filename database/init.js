@@ -51,6 +51,14 @@ async function createDatabase () {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     },
+    vip: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    clanMember: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
   }, {
     sequelize,
     modelName: 'User'
