@@ -56,8 +56,8 @@ function logEvent (message, embedDetails) {
     .setTimestamp()
     .setDescription(embedDetails.description)
     .setColor(embedDetails.color)
-  if (embedDetails.author) {
-    embed.setAuthor(embedDetails.author.tag + (embedDetails.channelName ? ' | #' + embedDetails.channelName : ''), embedDetails.author.avatarURL())
+  if (embedDetails.member) {
+    embed.setAuthor(embedDetails.member.nickname || embedDetails.author.tag + (embedDetails.channelName ? ' | #' + embedDetails.channelName : ''), embedDetails.author.avatarURL())
   }
   logToChannel(message, embed)
 }
@@ -95,6 +95,7 @@ if (config.log.deletedMessages) {
             ${hasAttachments ? 'Yes (see below)' : 'No'}`,
       color: colours.negative,
       author: message.author,
+      member: message.member,
       channelName: message.channel.name
     })
     if (hasAttachments) {
@@ -122,6 +123,7 @@ if (config.log.updatedMessages) {
             ${newMessage.url}`,
       color: colours.warning,
       author: oldMessage.author,
+      member: oldMessage.member,
       channelName: newMessage.channel.name
     })
     console.log(`${oldMessage.member.nickname || oldMessage.author.tag}'s Message was updated. Original Message: \`${oldMessage.content}\` -> \`${newMessage.content}\``.yellow)
@@ -134,7 +136,8 @@ client.on('guildMemberAdd', member => {
     logEvent(null, {
       description: `:new: <@${member.user.id}> Joined the server!`,
       color: colours.primary,
-      author: member.user
+      author: member.user,
+      member: member
     })
   }
   process.database.models.User.findOrCreate({
@@ -160,7 +163,8 @@ client.on('guildMemberUpdate', (oldMember, newMember) => {
     logEvent(null, {
       description: `:new: <@${oldMember.user.id}> Updated their account`,
       color: colours.primary,
-      author: oldMember.user
+      author: oldMember.user,
+      member: oldMember
     })
   }
   process.database.models.User.findOrCreate({
