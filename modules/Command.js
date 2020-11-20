@@ -7,6 +7,7 @@ module.exports = class Command {
     const BotLogName = '~BOT~'
     this.message = message
     this.author = message.author
+    this.member = message.member
     this.formattedText = message.content.slice(process.env.prefix.length).toLowerCase()
     this.params = message.content.slice(process.env.prefix.length).split(' ').slice(1) || []
 
@@ -20,7 +21,7 @@ module.exports = class Command {
       }
     }
 
-    this.chatAuthorName = `${message.author.tag}`
+    this.chatAuthorName = `${message.member.nickname || message.author.tag}`
     this.chatAuthorLocation = ''
     if (message.channel.type === 'text') {
       this.chatAuthorLocation = ` | ${message.channel.guild.name} (${message.channel.name})`
@@ -29,7 +30,7 @@ module.exports = class Command {
     }
 
     this.reply = (reply, direct = true) => {
-      const author = `${message.author.tag}`
+      const author = `${message.member.nickname || message.author.tag}`
       if (direct) {
         console.log(`[${BotLogName}]: @${author}, ${reply}`.yellow)
         message.reply(reply)

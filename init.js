@@ -31,10 +31,14 @@ console.log = function () {
   const curDateTime = DateTime.local()
   const time = curDateTime.toLocaleString(DateTime.TIME_24_WITH_SECONDS)
   var outputMessage = `[${time}] `
-  if (arguments[0].startsWith('[HTTPS]')) useHttpsLogs = true
-  if (arguments[0].startsWith('[Toxicity]')) useToxicityLogs = true
+  if (arguments[0] instanceof String) {
+    if (arguments[0].startsWith('[HTTPS]')) useHttpsLogs = true
+    if (arguments[0].startsWith('[Toxicity]')) useToxicityLogs = true
+  }
   for (var i = 0; i < arguments.length; i++) {
-    outputMessage = outputMessage + arguments[i] + (i ? '\n' : '')
+    const shouldJsonParse = ((arguments[i] instanceof Object) || (arguments[i] instanceof Array))
+    const parsedText = shouldJsonParse ? JSON.stringify(arguments[i], null, 2) : arguments[i]
+    outputMessage = outputMessage + parsedText + (i ? '\n' : '')
   }
   fs.writeFileSync(`./logs${useHttpsLogs ? '/https/' : useToxicityLogs ? '/toxicity/' : '/'}` + curDateTime.toISODate() + '.log', outputMessage + '\n', {
     flag: 'a'

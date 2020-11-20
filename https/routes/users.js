@@ -13,6 +13,7 @@ module.exports = {
               order: [
                 ['leftServer', 'ASC'],
                 ['bot', 'ASC'],
+                ['createdAt', 'ASC'],
               ]
             })
             res.write(convJson({

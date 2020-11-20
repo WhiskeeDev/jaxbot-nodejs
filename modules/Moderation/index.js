@@ -43,7 +43,7 @@ client.on('message', async message => {
 
     if (!command.isStaff && !makeExceptionToNonStaff) {
       command.reply('Fool! You thought you could trick me? THE ALMIGHTY WSKY BOT? **YOU HAVE NO POWER HERE, PEASANT!**\n\n(a.k.a you ain\'t staff, no command 4 u)')
-      console.error(titleCard + ` ${command.author.tag} tried to run a staff command with permission.`.red)
+      console.error(titleCard + ` ${command.member.nickname || command.author.tag} tried to run a staff command with permission.`.red)
       return
     }
 
@@ -51,7 +51,7 @@ client.on('message', async message => {
       const firstMentionedUser = command.message.mentions.members.first() || command.message.member
       const warnedUser = firstMentionedUser ? firstMentionedUser.user : null
       if (!warnedUser) {
-        command.reply('Yo, I need to know who you want me to check for warns!\nGive me a name by tagging them. i.e. `@' + command.author.tag + '`')
+        command.reply('Yo, I need to know who you want me to check for warns!\nGive me a name by tagging them. i.e. `@' + command.member.nickname || command.author.tag + '`')
         return
       }
       const warns = await process.database.models.Warn.findAll({
@@ -66,7 +66,7 @@ client.on('message', async message => {
         .setAuthor(warnedUser.tag, warnedUser.avatarURL())
         .setDescription(`Here is the first ${Math.min(8, warns.length)} of ${warns.length} warns`)
 
-      for (warnNum in warns.slice(0, 8)) {
+      for (var warnNum in warns.slice(0, 8)) {
         const warn = warns[warnNum]
         embed.addField('Reason', warn.reason, true)
         embed.addField('Warned By', `<@${warn.staff}>`, true)
@@ -74,9 +74,9 @@ client.on('message', async message => {
       }
       command.reply(embed)
     } else if (command.formattedText.startsWith('warn')) {
-      const staffMember = command.author
+      const staffMember = command.member
       const firstMentionedUser = command.message.mentions.members.first()
-      const warnUser = firstMentionedUser ? firstMentionedUser.user : null
+      const warnUser = firstMentionedUser ? firstMentionedUser : null
       var reason = command.params[1] || 'No Reason'
 
       if (command.params.length < 1) {
@@ -88,22 +88,24 @@ client.on('message', async message => {
         reason = command.params.slice(1).join(' ')
       }
 
+      console.error(!!staffMember, !!warnUser)
+
       if (staffMember && warnUser) {
-        console.log(`${staffMember.tag} warned ${warnUser.tag} for: "${reason}"`.yellow)
+        console.log(`${staffMember.nickname || staffMember.user.tag} warned ${warnUser.nickname || warnUser.user.tag} for: "${reason}"`.yellow)
         saveWarn({
           user: warnUser,
-          tag: warnUser.tag,
+          tag: warnUser.nickname || warnUser.user.tag,
           data: {
             date: command.message.createdTimestamp,
             reason: reason,
-            staff: staffMember.id
+            staff: staffMember.user.id
           }
         }).then(() => {
-          command.reply(`Sucessfully warned ${warnUser.username}!`)
+          command.reply(`Sucessfully warned ${warnUser.nickname || warnUser.user.username}!`)
           if (config.warnsRoleID) firstMentionedUser.roles.add(config.warnsRoleID)
         }).catch(error => {
           console.error(error)
-          command.reply(`Unable to warn ${warnUser.username}! Check console for errors...`)
+          command.reply(`Unable to warn ${warnUser.nickname || warnUser.user.username}! Check console for errors...`)
         })
       }
     }
@@ -111,13 +113,12 @@ client.on('message', async message => {
 })
 
 client.on('guildMemberAdd', async member => {
-  console.log(`${member.user.tag} Joined the server!`.rainbow)
   if (!config.warnsRoleID) return false
   const usersWarnProfile = await process.database.models.Warn.count({ where: {UserId: member.user.id} })
 
   if (usersWarnProfile) {
     member.roles.add(config.warnsRoleID)
-    console.log(`${titleCard} Gave ${member.user.tag} the 'warns' role because they already have warns`.red)
+    console.log(`${titleCard} Gave ${member.nickname || member.user.tag} the 'warns' role because they already have warns`.red)
   }
 })
 
@@ -133,7 +134,7 @@ process.database.models.Warn.findAll().then(async warns => {
         const guildMember = await members.get(u)
         if (guildMember && !guildMember.roles.cache.get(config.warnsRoleID)) {
           guildMember.roles.add(config.warnsRoleID)
-          console.log(`${titleCard} Gave ${guildMember.user.tag} the 'warns' role because they already have warns`.red)
+          console.log(`${titleCard} Gave ${guildMember.nickname || guildMember.user.tag} the 'warns' role because they already have warns`.red)
         }
       })
 
@@ -142,14 +143,14 @@ process.database.models.Warn.findAll().then(async warns => {
           where: { id: member.user.id },
           defaults: {
             id: member.user.id,
-            tag: member.user.tag,
+            tag: member.nickname || member.user.tag,
             avatar: member.user.avatar,
             bot: member.user.bot,
             discriminator: member.user.discriminator
           }
         }).then(([user]) => {
           if (!user.isNewRecord) {
-            user.tag = member.user.tag
+            user.tag = member.nickname || member.user.tag
             user.avatar = member.user.avatar
             user.bot = member.user.bot
             user.discriminator = member.user.discriminator

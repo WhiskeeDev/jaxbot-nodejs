@@ -57,7 +57,7 @@ function logEvent (message, embedDetails) {
     .setDescription(embedDetails.description)
     .setColor(embedDetails.color)
   if (embedDetails.author) {
-    embed.setAuthor(embedDetails.author.tag + (embedDetails.channelName ? ' | #' + embedDetails.channelName : ''), embedDetails.author.avatarURL())
+    embed.setAuthor(embedDetails.member.nickname || embedDetails.author.tag + (embedDetails.channelName ? ' | #' + embedDetails.channelName : ''), embedDetails.author.avatarURL())
   }
   logToChannel(message, embed)
 }
@@ -100,7 +100,7 @@ if (config.log.deletedMessages) {
     if (hasAttachments) {
       logToChannel(null, attachments)
     }
-    console.log(`${message.author.tag}'s message was deleted. Original Message: ${message.content}`.red)
+    console.log(`${message.member.nickname || message.author.tag}'s message was deleted. Original Message: ${message.content}`.red)
   })
 
 }
@@ -124,20 +124,60 @@ if (config.log.updatedMessages) {
       author: oldMessage.author,
       channelName: newMessage.channel.name
     })
-    console.log(`${oldMessage.author.tag}'s Message was updated. Original Message: \`${oldMessage.content}\` -> \`${newMessage.content}\``.yellow)
+    console.log(`${oldMessage.member.nickname || oldMessage.author.tag}'s Message was updated. Original Message: \`${oldMessage.content}\` -> \`${newMessage.content}\``.yellow)
   })
 }
 
-if (config.log.memberJoin) {
-  client.on('guildMemberAdd', member => {
+client.on('guildMemberAdd', member => {
+  console.log(`${member.nickname || member.user.tag} Joined the server!`.yellow)
+  if (config.log.memberJoin) {
     logEvent(null, {
       description: `:new: <@${member.user.id}> Joined the server!`,
       color: colours.primary,
       author: member.user
     })
-    console.log(`${member.user.tag} Joined the server!`.yellow)
+  }
+  process.database.models.User.findOrCreate({
+    where: { id: member.user.id },
+    defaults: {
+      id: member.user.id,
+      tag: member.nickname || member.user.tag,
+      avatar: member.user.avatar,
+      bot: member.user.bot,
+      discriminator: member.user.discriminator
+    }
   })
-}
+})
+
+client.on('guildMemberUpdate', (oldMember, newMember) => {
+  console.log(`${oldMember.nickname || oldMember.user.tag} Updated their account.`.yellow)
+  console.log(`${oldMember.nickname || oldMember.user.tag} => ${newMember.nickname || newMember.user.tag}`)
+  if (config.log.memberUpdate) {
+    logEvent(null, {
+      description: `:new: <@${oldMember.user.id}> Updated their account`,
+      color: colours.primary,
+      author: oldMember.user
+    })
+  }
+  process.database.models.User.findOrCreate({
+    where: { id: oldMember.user.id },
+    defaults: {
+      id: newMember.user.id,
+      tag: newMember.nickname || newMember.user.tag,
+      avatar: newMember.user.avatar,
+      bot: newMember.user.bot,
+      discriminator: newMember.user.discriminator
+    }
+  }).then(([user]) => {
+    if (!user.isNewRecord) {
+      user.tag = newMember.nickname || newMember.user.tag
+      user.avatar = newMember.user.avatar
+      user.bot = newMember.user.bot
+      user.discriminator = newMember.user.discriminator
+      user.save()
+    }
+  })
+})
 
 client.on('voiceStateUpdate', (oldState, newState) => {
   let eventType = null
@@ -205,6 +245,6 @@ client.on('voiceStateUpdate', (oldState, newState) => {
   embedData.description = `${emojis} <@${oldState.member.user.id}> ${action} voice channel ${channels}`
   if (isLoggableEvent) {
     logEvent(null, embedData)
-    console.log(`${oldState.member.user.tag} ${action} voice channel ${channels}`.magenta)
+    console.log(`${oldState.member.nickname || oldState.member.user.tag} ${action} voice channel ${channels}`.magenta)
   }
 })
