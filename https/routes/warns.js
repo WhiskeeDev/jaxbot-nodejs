@@ -9,17 +9,9 @@ module.exports = {
         routeName: '/warns',
         async method (req, res) {
           try {
-            const users = await process.database.models.User.findAll()
-            const warns = await process.database.models.Warn.findAll({ raw: true, order: [
-              ['createdAt', 'DESC']
-            ] })
-            warns.forEach(warn => {
-              const user = users.find(u => u.id === warn.UserId)
-              warn.user = null
-              if (user) {
-                warn.user = user
-                delete warn.UserId
-              }
+            const warns = await process.database.models.Warn.findAll({
+              order: [['createdAt', 'DESC']],
+              include: process.database.models.User
             })
             res.write(convJson({
               status: 'success',

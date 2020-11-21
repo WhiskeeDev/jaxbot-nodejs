@@ -171,9 +171,16 @@ async function createDatabase () {
   console.log(`${titlecard} Creating Relationships`)
   // Create Relationships (Associations)
   User.hasMany(Warn)
+  Warn.belongsTo(User)
+
   User.hasMany(Application)
+  Application.belongsTo(User)
+
   ApplicationType.hasMany(Application)
+  Application.belongsTo(ApplicationType)
+
   ApplicationType.hasMany(ApplicationQuestion)
+  ApplicationQuestion.belongsTo(ApplicationType)
 
   console.log(`${titlecard} Syncing Database`)
   // Sync Database

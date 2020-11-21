@@ -113,7 +113,7 @@ https.createServer(options, async function (req, res) {
       error.code = 'ERR-900'
       break
     }
-    console.log(`${titleCard} [${error.code}] ${sourceIp}:${q.path}`.red)
+    console.log(`${titleCard} [${error.code}] ${sourceIp}:${q.pathname}`.red)
     res.write(convJson({
       status: 'error',
       message: `[${error.code}] ${error.message}`
@@ -122,9 +122,9 @@ https.createServer(options, async function (req, res) {
     return
   }
 
-  console.log(`${titleCard} ${sourceIp}:${q.path}`)
+  console.log(`${titleCard} ${sourceIp}:${q.pathname}`)
 
-  if (q.path === '/') {
+  if (q.pathname === '/') {
     res.writeHead(200, { 'Content-Type': 'application/json' })
     res.write(convJson({
       status: 'success',
@@ -134,7 +134,7 @@ https.createServer(options, async function (req, res) {
     return
   }
 
-  const route = routes.find(r => r.routeName === q.path)
+  const route = routes.find(r => r.routeName === q.pathname)
   if (route) {
     res.writeHead(200, { 'Content-Type': 'application/json' })
     await route.method(req, res)
