@@ -1,0 +1,6 @@
+- split the routeName by '/' and split q.pathname by '/'.
+- all splits starting with ':' are considered variables.
+- record the positions of variables.
+- compare the number of routeName.splits to the number q.pathname.splits.
+- compare the routeName.splits before variables to the q.pathname.splits.
+- if match, save variables using the positions from routeName.splits and take value from q.pathname.splits.

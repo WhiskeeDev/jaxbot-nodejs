@@ -51,9 +51,6 @@ async function getRequestValidity(request) {
   // Allow preflights
   if (request.method === 'OPTIONS') return 'valid'
 
-  console.error(request.headers)
-  console.error(request.connection.remoteAddress)
-
   const requestIp = request.headers['x-forwarded-for'] || request.connection.remoteAddress
   const requestHost = request.headers.host
 
@@ -66,12 +63,6 @@ async function getRequestValidity(request) {
   if (isBlocked) return 'blockedIp'
 
   // Check if Host is allowed
-
-  console.error({
-    validHosts,
-    requestHost
-  })
-
   const isValid = validHosts.some(validHost => requestHost.includes(validHost))
   if (!isValid) return 'unknownHost'
 
