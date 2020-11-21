@@ -51,7 +51,7 @@ async function getRequestValidity(request) {
   // Allow preflights
   if (request.method === 'OPTIONS') return 'valid'
 
-  console.error(request.header)
+  console.error(request.headers)
   console.error(request.connection.remoteAddress)
 
   const requestIp = request.headers['x-forwarded-for'] || request.connection.remoteAddress
