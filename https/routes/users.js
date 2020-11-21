@@ -30,6 +30,12 @@ module.exports = {
             }))
           }
         }
+      },
+      {
+        routeName: '/users/:id',
+        async method (req, res) {
+
+        }
       }
     ]
   }

@@ -5,6 +5,18 @@ All codes are prefixed with `ERR-` followed by a number, probably a better metho
 **Unwhitelisted IP/host**
 This IP/host was not added to the `http_valid_hosts` environment variable.
 
+## ERR-110
+**No Token was provided**
+no `jax-client-token` header was provided.
+
+## ERR-120
+**Invalid Token**
+The `jax-client-token` header was wrong.
+
+## ERR-130
+**Disabled Token**
+The `jax-client-token` provided has been disabled in the database.
+
 ## ERR-900
 **Blacklisted IP**
 I intentionally set this error number further away from whitelist messages to make it distinct, the idea is to maybe catch people out with this ;)
