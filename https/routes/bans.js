@@ -12,7 +12,7 @@ module.exports = {
             const bans = await process.database.models.Ban.findAll({
               order: [['createdAt', 'DESC']],
               include: [
-                process.database.models.User
+                process.database.models.User,
                 {
                   model: process.database.models.User,
                   as: 'BanStaff'
