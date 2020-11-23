@@ -1,4 +1,5 @@
-# tophat-bot
+# Jax Discord Bot
+Jax (also known as tophat-bot) is a discord bot designed for TopHat moderation and CRM. It uses a heavily modified version of the wsky bot framework (framework due to be updated with changes from Jax).
 
 ## Neccessary extensions
 Please make sure you are using extensions for the following when working on this bot:
