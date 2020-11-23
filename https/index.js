@@ -2,6 +2,7 @@ const https = require('https')
 const titleCard = '[HTTPS]'
 const fs = require('fs')
 const url = require('url')
+const fetch = require('node-fetch')
 
 var routes = []
 
@@ -32,9 +33,9 @@ function convJson (json) {
   return JSON.stringify(json, null, 2)
 }
 
-async function isClientTokenValid(req) {
+async function getClientTokenValidity(req) {
   const clientToken = req.headers['jax-client-token']
-  if (!clientToken) return 'noToken'
+  if (!clientToken) return 'noClientToken'
 
   const client = await process.database.models.Client.findOne({
     where: {
@@ -42,14 +43,38 @@ async function isClientTokenValid(req) {
     }
   })
 
-  if (!client) return 'invalidToken'
-  if (!client.enabled) return 'disabledToken'
+  if (!client) return 'invalidClientToken'
+  if (!client.enabled) return 'disabledClientToken'
   return true
+}
+
+async function getDiscordTokenValidity(req) {
+  const discordToken = req.headers['authorization']
+  if (!discordToken) return 'noDiscordToken'
+
+  const activeUser = await fetch('https://discord.com/api/v8/users/@me', {
+    headers: {
+      'Authorization': discordToken
+    }
+  })
+    .then(async res => {
+      if (res.status !== 200) return 'invalidDiscordToken'
+      return res.json().then(json => {
+        return res.ok ? json : false
+      })
+    })
+
+  if (!activeUser) return 'invalidDiscordToken'
+  const user = await process.database.models.User.findOne({
+    where: { id: activeUser.id }
+  })
+  if (!user) return 'notAMember'
+  return activeUser
 }
 
 async function getRequestValidity(request) {
   // Allow preflights
-  if (request.method === 'OPTIONS') return 'valid'
+  if (request.method === 'OPTIONS') return 'preflight'
 
   const requestIp = request.headers['x-forwarded-for'] || request.connection.remoteAddress
   const requestHost = request.headers.host
@@ -66,11 +91,13 @@ async function getRequestValidity(request) {
   const isValid = validHosts.some(validHost => requestHost.includes(validHost))
   if (!isValid) return 'unknownHost'
 
-  // Check if Token is valid
-  const isTokenValid = await isClientTokenValid(request)
-  if (isTokenValid !== true) return isTokenValid
+  // Check if Client Token is valid
+  const isClientTokenValid = await getClientTokenValidity(request)
+  if (isClientTokenValid !== true) return isClientTokenValid
 
-  return 'valid'
+  // Check if Discord Access Token is valid
+  const isDiscordTokenValid = await getDiscordTokenValidity(request)
+  return isDiscordTokenValid
 }
 
 https.createServer(options, async function (req, res) {
@@ -80,13 +107,13 @@ https.createServer(options, async function (req, res) {
   const q = url.parse(req.url, true)
 
   res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Headers', 'jax-client-token')
+  res.setHeader('Access-Control-Allow-Headers', 'jax-client-token, authorization')
   res.setHeader('Access-Control-Allow-Methods', 'GET')
   res.setHeader('Access-Control-Max-Age', -1)
 
   const requestValidity = await getRequestValidity(req)
 
-  if (requestValidity !== 'valid') {
+  if (requestValidity !== 'preflight' && typeof requestValidity !== 'object') {
     res.writeHead(401, { 'Content-Type': 'application/json' })
     var error = {
       code: 'ERR-1000',
@@ -97,17 +124,25 @@ https.createServer(options, async function (req, res) {
       error.code = 'ERR-100'
       error.message = 'You are not whitelisted to receive respones from this source.'
       break
-    case 'noToken':
+    case 'noClientToken':
       error.code = 'ERR-110'
       error.message = 'You are not whitelisted to receive respones from this source.'
       break
-    case 'invalidToken':
+    case 'invalidClientToken':
       error.code = 'ERR-120'
       error.message = 'You are not whitelisted to receive respones from this source.'
       break
-    case 'disabledToken':
+    case 'disabledClientToken':
       error.code = 'ERR-130'
       error.message = 'You are not whitelisted to receive respones from this source.'
+      break
+    case 'noDiscordToken':
+      error.code = 'ERR-200'
+      error.message = 'You are not whitelisted to receive respones from this source.'
+      break
+    case 'notAMember':
+      error.code = 'ERR-300'
+      error.message = 'You are not a member of the TopHat Community.'
       break
     case 'blockedIp':
       error.code = 'ERR-900'
@@ -137,7 +172,11 @@ https.createServer(options, async function (req, res) {
   const route = routes.find(r => r.routeName === q.pathname)
   if (route) {
     res.writeHead(200, { 'Content-Type': 'application/json' })
-    await route.method(req, res)
+    await route.method({
+      request: req,
+      response: res,
+      activeUser: requestValidity
+    })
   } else {
     res.writeHead(404, { 'Content-Type': 'application/json' })
     res.write(convJson({

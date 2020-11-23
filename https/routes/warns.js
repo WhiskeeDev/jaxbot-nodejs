@@ -7,20 +7,20 @@ module.exports = {
     return [
       {
         routeName: '/warns',
-        async method (req, res) {
+        async method ({ response }) {
           try {
             const warns = await process.database.models.Warn.findAll({
               order: [['createdAt', 'DESC']],
               include: process.database.models.User
             })
-            res.write(convJson({
+            response.write(convJson({
               status: 'success',
               data: {
                 warns
               }
             }))
           } catch (err) {
-            res.write(convJson({
+            response.write(convJson({
               status: 'error',
               message: `[${err.name || 'Unknown Error Name'}] ${err.message}`
             }))

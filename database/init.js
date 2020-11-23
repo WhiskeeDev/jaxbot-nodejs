@@ -64,6 +64,27 @@ async function createDatabase () {
     modelName: 'User'
   })
 
+  console.log(`${titlecard} Creating 'Permission' Model`)
+  // Create Permission Model
+  class Permission extends Model { }
+  Permission.init({
+    name: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    tag: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+  }, {
+    sequelize,
+    modelName: 'Permission'
+  })
+
   console.log(`${titlecard} Creating 'Warn' Model`)
   // Create Warn Model
   class Warn extends Model { }
@@ -83,6 +104,27 @@ async function createDatabase () {
   }, {
     sequelize,
     modelName: 'Warn'
+  })
+
+  console.log(`${titlecard} Creating 'Ban' Model`)
+  // Create Ban Model
+  class Ban extends Model { }
+  Ban.init({
+    reason: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    staff: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    date: {
+      type: DataTypes.DATE,
+      allowNull: false
+    }
+  }, {
+    sequelize,
+    modelName: 'Ban'
   })
 
   console.log(`${titlecard} Creating 'ApplicationType' Model`)
@@ -111,6 +153,23 @@ async function createDatabase () {
     modelName: 'ApplicationType'
   })
 
+  console.log(`${titlecard} Creating 'ApplicationQuestion' Model`)
+  // Create Application Question Model
+  class ApplicationQuestion extends Model { }
+  ApplicationQuestion.init({
+    order: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    question: {
+      type: DataTypes.STRING,
+      allowNull: false
+    }
+  }, {
+    sequelize,
+    modelName: 'ApplicationQuestion'
+  })
+
   console.log(`${titlecard} Creating 'Application' Model`)
   // Create Application Model
   class Application extends Model { }
@@ -134,23 +193,6 @@ async function createDatabase () {
     modelName: 'Application'
   })
 
-  console.log(`${titlecard} Creating 'ApplicationQuestion' Model`)
-  // Create Application Question Model
-  class ApplicationQuestion extends Model { }
-  ApplicationQuestion.init({
-    order: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    question: {
-      type: DataTypes.STRING,
-      allowNull: false
-    }
-  }, {
-    sequelize,
-    modelName: 'ApplicationQuestion'
-  })
-
   console.log(`${titlecard} Creating 'Client' Model`)
   // Create Client Model for tokens
   class Client extends Model { }
@@ -170,8 +212,15 @@ async function createDatabase () {
 
   console.log(`${titlecard} Creating Relationships`)
   // Create Relationships (Associations)
+
+  User.belongsToMany(Permission, { through: 'UserPermissions' })
+  Permission.belongsToMany(User, { through: 'UserPermissions' })
+
   User.hasMany(Warn)
   Warn.belongsTo(User)
+
+  User.hasMany(Ban)
+  Ban.belongsTo(User)
 
   User.hasMany(Application)
   Application.belongsTo(User)
@@ -190,6 +239,34 @@ async function createDatabase () {
 
   console.log(`${titlecard} Done`)
   process.database = sequelize
+
+  console.log(`${titlecard} Creating Defaults`)
+  // Create Defaults
+  const defaultPermissions = [
+    {
+      tag: 'moderation.kick',
+      name: 'Kick Members',
+      description: 'Can Kick members of the discord server.'
+    },
+    {
+      tag: 'moderation.ban',
+      name: 'Ban Members',
+      description: 'Can Ban members of the discord server.'
+    },
+    {
+      tag: 'moderation.warn',
+      name: 'Warn Members',
+      description: 'Can Warn members of the discord server.'
+    }
+  ]
+
+  defaultPermissions.forEach(permission => {
+    console.log(`${titlecard} Permissions: creating ${permission.tag}`)
+    Permission.findOrCreate({
+      where: { tag: permission.tag },
+      defaults: permission
+    })
+  })
 }
 
 module.exports = new Promise(async (resolve) => {

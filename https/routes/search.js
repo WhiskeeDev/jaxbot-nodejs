@@ -9,9 +9,9 @@ module.exports = {
     return [
       {
         routeName: '/search',
-        async method (req, res) {
+        async method ({ request, response }) {
           try {
-            const q = url.parse(req.url, true)
+            const q = url.parse(request.url, true)
             const searchQuery = q.query.query ? q.query.query.toLowerCase() : null
 
             const allUsers = await process.database.models.User.findAll()
@@ -52,7 +52,7 @@ module.exports = {
               if (push) applications.push(app)
             })
 
-            res.write(convJson({
+            response.write(convJson({
               status: 'success',
               data: {
                 users,
@@ -62,7 +62,7 @@ module.exports = {
             }))
           } catch (err) {
             console.error(err)
-            res.write(convJson({
+            response.write(convJson({
               status: 'error',
               message: `[${err.name || 'Unknown Error Name'}] ${err.message}`
             }))

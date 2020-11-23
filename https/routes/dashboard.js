@@ -10,7 +10,7 @@ module.exports = {
     return [
       {
         routeName: '/dashboard',
-        async method (req, res) {
+        async method ({ response }) {
           try {
             const warnsTotal = await process.database.models.Warn.count()
             const warnsMonthly = await process.database.models.Warn.count({
@@ -34,7 +34,7 @@ module.exports = {
                 status: -1
               }
             })
-            res.write(convJson({
+            response.write(convJson({
               status: 'success',
               data: {
                 warns: warnsTotal,
@@ -45,7 +45,7 @@ module.exports = {
               }
             }))
           } catch (err) {
-            res.write(convJson({
+            response.write(convJson({
               status: 'error',
               message: `[${err.name || 'Unknown Error Name'}] ${err.message}`
             }))

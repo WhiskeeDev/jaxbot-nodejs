@@ -7,7 +7,7 @@ module.exports = {
     return [
       {
         routeName: '/applications',
-        async method (req, res) {
+        async method ({ response }) {
           try {
             const applications = await process.database.models.Application.findAll({
               order: [['createdAt', 'DESC']],
@@ -16,14 +16,14 @@ module.exports = {
                 process.database.models.ApplicationType
               ],
             })
-            res.write(convJson({
+            response.write(convJson({
               status: 'success',
               data: {
                 applications
               }
             }))
           } catch (err) {
-            res.write(convJson({
+            response.write(convJson({
               status: 'error',
               message: `[${err.name || 'Unknown Error Name'}] ${err.message}`
             }))

@@ -7,7 +7,7 @@ module.exports = {
     return [
       {
         routeName: '/users',
-        async method (req, res) {
+        async method ({ response }) {
           try {
             const users = await process.database.models.User.findAll({
               where: { bot: false },
@@ -17,14 +17,14 @@ module.exports = {
                 ['createdAt', 'ASC'],
               ]
             })
-            res.write(convJson({
+            response.write(convJson({
               status: 'success',
               data: {
                 users
               }
             }))
           } catch (err) {
-            res.write(convJson({
+            response.write(convJson({
               status: 'error',
               message: `[${err.name || 'Unknown Error Name'}] ${err.message}`
             }))
@@ -32,9 +32,24 @@ module.exports = {
         }
       },
       {
-        routeName: '/users/:id',
-        async method (req, res) {
-
+        routeName: '/users/me',
+        async method ({ response, activeUser }) {
+          try {
+            const user = await process.database.models.User.findOne({
+              where: { id: activeUser.id }
+            })
+            response.write(convJson({
+              status: 'success',
+              data: {
+                user
+              }
+            }))
+          } catch (err) {
+            response.write(convJson({
+              status: 'error',
+              message: `[${err.name || 'Unknown Error Name'}] ${err.message}`
+            }))
+          }
         }
       }
     ]
