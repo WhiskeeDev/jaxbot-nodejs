@@ -25,7 +25,7 @@ module.exports = {
                 }
               ]
             })
-            const allBans = await process.database.models.Warn.findAll({
+            const allBans = await process.database.models.Ban.findAll({
               order: [['createdAt', 'DESC']],
               include: [
                 process.database.models.User,
