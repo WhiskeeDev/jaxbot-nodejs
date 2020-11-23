@@ -6,16 +6,28 @@ All codes are prefixed with `ERR-` followed by a number, probably a better metho
 This IP/host was not added to the `http_valid_hosts` environment variable.
 
 ## ERR-110
-**No Token was provided**
+**No Client Token was provided**
 no `jax-client-token` header was provided.
 
 ## ERR-120
-**Invalid Token**
+**Invalid Client Token**
 The `jax-client-token` header was wrong.
 
 ## ERR-130
-**Disabled Token**
+**Disabled Client Token**
 The `jax-client-token` provided has been disabled in the database.
+
+## ERR-130
+**Disabled Client Token**
+The `jax-client-token` provided has been disabled in the database.
+
+## ERR-200
+**No Discord Access Token was provided**
+The user's Discord access token must be provided to the API as an Authorization Bearer token.
+
+## ERR-300
+**Not a member of TopHat**
+The user (found by the Discord Access Token) is not a registered member in the TopHat database.
 
 ## ERR-900
 **Blacklisted IP**
