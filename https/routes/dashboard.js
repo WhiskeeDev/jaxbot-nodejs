@@ -15,7 +15,7 @@ module.exports = {
             const warnsTotal = await process.database.models.Warn.count()
             const warnsMonthly = await process.database.models.Warn.count({
               where: {
-                date: {
+                createdAt: {
                   [Op.gte]: DateTime.local().toFormat('yyyy-LL-01')
                 }
               }
