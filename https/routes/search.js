@@ -31,7 +31,7 @@ module.exports = {
                 process.database.models.User,
                 {
                   model: process.database.models.User,
-                  as: 'WarnStaff'
+                  as: 'BanStaff'
                 }
               ]
             })
