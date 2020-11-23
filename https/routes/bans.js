@@ -6,23 +6,23 @@ module.exports = {
   routes () {
     return [
       {
-        routeName: '/warns',
+        routeName: '/bans',
         async method ({ response }) {
           try {
-            const warns = await process.database.models.Warn.findAll({
+            const bans = await process.database.models.Ban.findAll({
               order: [['createdAt', 'DESC']],
               include: [
-                process.database.models.User,
+                process.database.models.User
                 {
                   model: process.database.models.User,
-                  as: 'WarnStaff'
+                  as: 'BanStaff'
                 }
               ]
             })
             response.write(convJson({
               status: 'success',
               data: {
-                warns
+                bans
               }
             }))
           } catch (err) {

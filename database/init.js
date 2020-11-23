@@ -51,6 +51,10 @@ async function createDatabase () {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     },
+    banned: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
     vip: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
@@ -96,10 +100,6 @@ async function createDatabase () {
     staff: {
       type: DataTypes.STRING,
       allowNull: false,
-    },
-    date: {
-      type: DataTypes.DATE,
-      allowNull: false
     }
   }, {
     sequelize,
@@ -113,14 +113,6 @@ async function createDatabase () {
     reason: {
       type: DataTypes.STRING,
       allowNull: false,
-    },
-    staff: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    date: {
-      type: DataTypes.DATE,
-      allowNull: false
     }
   }, {
     sequelize,
@@ -213,12 +205,23 @@ async function createDatabase () {
   console.log(`${titlecard} Creating Relationships`)
   // Create Relationships (Associations)
 
+  // User Permission associations
   User.belongsToMany(Permission, { through: 'UserPermissions' })
   Permission.belongsToMany(User, { through: 'UserPermissions' })
 
+  // User who is being warned
   User.hasMany(Warn)
   Warn.belongsTo(User)
 
+  // User who gave the warn (staff)
+  User.hasMany(Warn, { foreignKey: 'StaffId', as: 'WarnStaff' })
+  Warn.belongsTo(User, { foreignKey: 'StaffId', as: 'WarnStaff' })
+
+  // User who was banned
+  User.hasMany(Ban, { foreignKey: 'StaffId', as: 'BanStaff' })
+  Ban.belongsTo(User, { foreignKey: 'StaffId', as: 'BanStaff' })
+
+  // User who gave the ban (staff)
   User.hasMany(Ban)
   Ban.belongsTo(User)
 
