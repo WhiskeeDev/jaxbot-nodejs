@@ -96,10 +96,6 @@ async function createDatabase () {
     reason: {
       type: DataTypes.STRING,
       allowNull: false,
-    },
-    staff: {
-      type: DataTypes.STRING,
-      allowNull: false,
     }
   }, {
     sequelize,
