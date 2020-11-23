@@ -121,15 +121,15 @@ https.createServer(options, async function (req, res) {
     }
     switch (requestValidity) {
     case 'noClientToken':
-      error.code = 'ERR-110'
+      error.code = 'ERR-100'
       error.message = 'You are not whitelisted to receive respones from this source.'
       break
     case 'invalidClientToken':
-      error.code = 'ERR-120'
+      error.code = 'ERR-110'
       error.message = 'You are not whitelisted to receive respones from this source.'
       break
     case 'disabledClientToken':
-      error.code = 'ERR-130'
+      error.code = 'ERR-120'
       error.message = 'You are not whitelisted to receive respones from this source.'
       break
     case 'noDiscordToken':
