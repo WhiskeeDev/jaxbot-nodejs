@@ -120,10 +120,6 @@ https.createServer(options, async function (req, res) {
       message: 'There was an unknown error, please contact WhiskeeDev#0001 on discord.'
     }
     switch (requestValidity) {
-    case 'unknownHost':
-      error.code = 'ERR-100'
-      error.message = 'You are not whitelisted to receive respones from this source.'
-      break
     case 'noClientToken':
       error.code = 'ERR-110'
       error.message = 'You are not whitelisted to receive respones from this source.'
@@ -143,6 +139,10 @@ https.createServer(options, async function (req, res) {
     case 'notAMember':
       error.code = 'ERR-300'
       error.message = 'You are not a member of the TopHat Community.'
+      break
+    case 'unknownHost':
+      error.code = 'ERR-800'
+      error.message = 'You are not whitelisted to receive respones from this source.'
       break
     case 'blockedIp':
       error.code = 'ERR-900'
