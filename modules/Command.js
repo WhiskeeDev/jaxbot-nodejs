@@ -21,7 +21,7 @@ module.exports = class Command {
       }
     }
 
-    this.chatAuthorName = `${message.member ? message.member.nickname : message.author.tag}`
+    this.chatAuthorName = `${message.member && message.member.nickname ? message.member.nickname : message.author.tag}`
     this.chatAuthorLocation = ''
     if (message.channel.type === 'text') {
       this.chatAuthorLocation = ` | ${message.channel.guild.name} (${message.channel.name})`
