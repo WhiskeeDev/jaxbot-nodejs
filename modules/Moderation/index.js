@@ -163,6 +163,7 @@ process.database.models.Warn.findAll().then(async warns => {
         users.forEach(async user => {
           if (!user.leftServer && !members.get(user.id)) {
             user.leftServer = true
+            user.clanMember = false
             user.save()
           } else if (user.leftServer && members.get(user.id)) {
             user.leftServer = false
