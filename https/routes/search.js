@@ -15,7 +15,26 @@ module.exports = {
             const searchQuery = q.query.query ? q.query.query.toLowerCase() : null
 
             const allUsers = await process.database.models.User.findAll()
-            const allWarns = await process.database.models.Warn.findAll({ include: process.database.models.User })
+            const allWarns = await process.database.models.Warn.findAll({
+              order: [['createdAt', 'DESC']],
+              include: [
+                process.database.models.User,
+                {
+                  model: process.database.models.User,
+                  as: 'WarnStaff'
+                }
+              ]
+            })
+            const allBans = await process.database.models.Warn.findAll({
+              order: [['createdAt', 'DESC']],
+              include: [
+                process.database.models.User,
+                {
+                  model: process.database.models.User,
+                  as: 'WarnStaff'
+                }
+              ]
+            })
             const allApplications = await process.database.models.Application.findAll({
               include: [
                 process.database.models.User,
@@ -25,6 +44,7 @@ module.exports = {
 
             var users = []
             var warns = []
+            var bans = []
             var applications = []
 
             allUsers.forEach(user => {
@@ -44,6 +64,15 @@ module.exports = {
               if (push) warns.push(warn)
             })
 
+            allBans.forEach(ban => {
+              var push = false
+              if (ban.reason.toLowerCase().includes(searchQuery)) push = true
+              if (ban.User.id.toLowerCase().includes(searchQuery)) push = true
+              if (ban.User.tag.toLowerCase().includes(searchQuery)) push = true
+
+              if (push) bans.push(ban)
+            })
+
             allApplications.forEach(app => {
               var push = false
               if (app.User.id.toLowerCase().includes(searchQuery)) push = true
@@ -57,6 +86,7 @@ module.exports = {
               data: {
                 users,
                 warns,
+                bans,
                 applications
               }
             }))
