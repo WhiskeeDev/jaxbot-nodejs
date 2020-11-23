@@ -7,13 +7,14 @@ Please make sure you are using extensions for the following when working on this
 - ESLint
 
 This is necessary to make sure formatting stays the same across contributor's PRs, and anybody using a different OS.
+
 Configuration files for both can be found in the root of this project, make sure you have a read so you know what formatting to expect.
 
 ## API error codes
 You can find API error codes and their meanings [here](/https/errorCodes.md).
 
 ## Project setup
-NOTE: We are presuming you already know and understand npm, nodejs and how to setup discord Bots in the [Discord Developer Portal](https://discord.com/developers/applications)
+NOTE: We are presuming you already know and understand [npm](https://www.npmjs.com/), [nodejs](https://nodejs.org/en/) and how to setup discord Bots in the [Discord Developer Portal](https://discord.com/developers/applications).
 
 Once you've cloned the project, start by installing necessary dependencies:
 ```
