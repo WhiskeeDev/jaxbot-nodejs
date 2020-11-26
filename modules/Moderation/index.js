@@ -69,8 +69,8 @@ client.on('message', async message => {
       for (var warnNum in warns.slice(0, 8)) {
         const warn = warns[warnNum]
         embed.addField('Reason', warn.reason, true)
-        embed.addField('Warned By', `<@${warn.staff}>`, true)
-        embed.addField('Date', warn.date ? DateTime.fromISO(warn.date.toISOString()).toISODate() : 'NO DATE', true)
+        embed.addField('Warned By', `<@${warn.StaffId}>`, true)
+        embed.addField('Date', warn.createdAt ? DateTime.fromISO(warn.createdAt.toISOString()).toISODate() : 'NO DATE', true)
       }
       command.reply(embed)
     } else if (command.formattedText.startsWith('warn')) {
