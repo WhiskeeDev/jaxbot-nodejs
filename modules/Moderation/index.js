@@ -24,7 +24,7 @@ async function saveWarn (newWarnData) {
     return process.database.models.Warn.create({
       reason: newWarnData.data.reason,
       date: newWarnData.data.date,
-      staff: newWarnData.data.staff,
+      StaffId: newWarnData.data.staff,
       UserId: newWarnData.user.id
     })
   })
