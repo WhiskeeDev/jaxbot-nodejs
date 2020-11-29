@@ -101,7 +101,7 @@ if (config.log.deletedMessages) {
     if (hasAttachments) {
       logToChannel(null, attachments)
     }
-    console.log(`${message.member.nickname || message.author.tag}'s message was deleted. Original Message: ${message.content}`.red)
+    console.log(`${message.member ? message.member.nickname : message.author.tag}'s message was deleted. Original Message: ${message.content}`.red)
   })
 
 }
