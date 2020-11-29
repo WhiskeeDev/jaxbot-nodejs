@@ -78,7 +78,9 @@ async function createDatabase () {
     },
     tag: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      unique: true,
+      primaryKey: true
     },
     description: {
       type: DataTypes.STRING,
@@ -239,7 +241,7 @@ async function createDatabase () {
   console.log(`${titlecard} Done`)
   process.database = sequelize
 
-  console.log(`${titlecard} Creating Defaults`)
+  console.log(`${titlecard} Checking if missing any default permissions...`)
   // Create Defaults
   const defaultPermissions = [
     {
@@ -256,14 +258,37 @@ async function createDatabase () {
       tag: 'moderation.warn',
       name: 'Warn Members',
       description: 'Can Warn members of the discord server.'
+    },
+    {
+      tag: 'moderation.warn',
+      name: 'Warn Members',
+      description: 'Can Warn members of the discord server.'
+    },
+    {
+      tag: 'ban.index',
+      name: 'View Bans',
+      description: 'Can View Bans on the discord server.'
+    },
+    {
+      tag: 'warn.index',
+      name: 'View Warns',
+      description: 'Can View Warns on the discord server.'
+    },
+    {
+      tag: 'application.index',
+      name: 'View Applications',
+      description: 'Can View Applications on the discord server.'
     }
   ]
 
   defaultPermissions.forEach(permission => {
-    console.log(`${titlecard} Permissions: creating ${permission.tag}`)
     Permission.findOrCreate({
       where: { tag: permission.tag },
       defaults: permission
+    }).then(([res]) => {
+      if (res['_options'].isNewRecord) {
+        console.log(`${titlecard} Permissions: created ${res.tag}`)
+      }
     })
   })
 }

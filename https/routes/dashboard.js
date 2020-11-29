@@ -45,6 +45,7 @@ module.exports = {
               }
             }))
           } catch (err) {
+            console.error(err)
             response.write(convJson({
               status: 'error',
               message: `[${err.name || 'Unknown Error Name'}] ${err.message}`
