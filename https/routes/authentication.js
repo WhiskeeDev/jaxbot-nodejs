@@ -24,7 +24,8 @@ module.exports = {
               data: {
                 user: {
                   ...user,
-                  avatar: activeUser.avatar
+                  avatar: activeUser.avatar,
+                  username: activeUser.username
                 }
               }
             }))
