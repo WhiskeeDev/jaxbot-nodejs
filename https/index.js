@@ -100,6 +100,16 @@ async function getRequestValidity(request) {
   return isDiscordTokenValid
 }
 
+function matchRoute(pathName) {
+  const route = routes.find(route => {
+    const splitRoute = route.routeName.slice(1).split('/')
+    console.error(splitRoute)
+  })
+
+  console.error(route, pathName)
+
+}
+
 https.createServer(options, async function (req, res) {
 
   // Check if the host is allowed
@@ -169,7 +179,8 @@ https.createServer(options, async function (req, res) {
     return
   }
 
-  const route = routes.find(r => r.routeName === q.pathname)
+  const route = matchRoute(q.pathname)
+
   if (route) {
     res.writeHead(200, { 'Content-Type': 'application/json' })
     await route.method({
