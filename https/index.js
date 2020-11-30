@@ -101,13 +101,50 @@ async function getRequestValidity(request) {
 }
 
 function matchRoute(pathName) {
-  const route = routes.find(route => {
-    const splitRoute = route.routeName.slice(1).split('/')
-    console.error(splitRoute)
+  const exactMatch = routes.find(route => route.routeName === pathName)
+  if (exactMatch) return { route: exactMatch }
+
+  const splitPath = pathName.slice(1).split('/')
+  const routesOfSameLength = routes.filter(route => {
+    return splitPath.length === route.routeName.slice(1).split('/').length
+  })
+  const routesWithVariables = routesOfSameLength.filter(route => {
+    return route.routeName.includes(':')
   })
 
-  console.error(route, pathName)
+  var paramLocations = []
 
+  const route = routesWithVariables.find(route => {
+    const splitRouteName = route.routeName.slice(1).split('/')
+    var splitMatcherPath = pathName.slice(1).split('/')
+    var matcherRoute = '/'
+    paramLocations = []
+    splitRouteName.forEach((block, index) => {
+      if (block.startsWith(':')) {
+        matcherRoute = matcherRoute + '*'
+        splitMatcherPath[index] = '*'
+
+        paramLocations.push({
+          index,
+          variableName: block.slice(1)
+        })
+      }
+      else matcherRoute = matcherRoute + block
+      if (index < splitRouteName.length - 1) matcherRoute = matcherRoute + '/'
+    })
+    const matcherPath = '/' + splitMatcherPath.join('/')
+
+    return matcherPath === matcherRoute
+  })
+
+  var params = {}
+  if (paramLocations.length) {
+    paramLocations.forEach(paramLoc => {
+      params[paramLoc.variableName] = splitPath[paramLoc.index]
+    })
+  }
+
+  return { route, params }
 }
 
 https.createServer(options, async function (req, res) {
@@ -179,14 +216,15 @@ https.createServer(options, async function (req, res) {
     return
   }
 
-  const route = matchRoute(q.pathname)
+  const { route, params } = matchRoute(q.pathname)
 
   if (route) {
     res.writeHead(200, { 'Content-Type': 'application/json' })
     await route.method({
       request: req,
       response: res,
-      activeUser: requestValidity
+      activeUser: requestValidity,
+      params
     })
   } else {
     res.writeHead(404, { 'Content-Type': 'application/json' })

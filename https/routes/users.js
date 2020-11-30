@@ -56,10 +56,10 @@ module.exports = {
       },
       {
         routeName: '/users/:id',
-        async method ({ response, activeUser }) {
+        async method ({ response, params }) {
           try {
             const user = await process.database.models.User.findOne({
-              where: { id: activeUser.id }
+              where: { id: params.id }
             })
             response.write(convJson({
               status: 'success',
