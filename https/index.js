@@ -100,12 +100,19 @@ async function getRequestValidity(request) {
   return isDiscordTokenValid
 }
 
-function matchRoute(pathName) {
-  const exactMatch = routes.find(route => route.routeName === pathName)
+function matchRoute(pathName, requestMethod) {
+  const routesWithMatchingMethod = routes.filter(route => {
+    const routeMethod = route.reqMethod || 'GET'
+    return routeMethod === requestMethod
+  })
+
+  if (!routesWithMatchingMethod.length) return false
+
+  const exactMatch = routesWithMatchingMethod.find(route => route.routeName === pathName)
   if (exactMatch) return { route: exactMatch }
 
   const splitPath = pathName.slice(1).split('/')
-  const routesOfSameLength = routes.filter(route => {
+  const routesOfSameLength = routesWithMatchingMethod.filter(route => {
     return splitPath.length === route.routeName.slice(1).split('/').length
   })
   const routesWithVariables = routesOfSameLength.filter(route => {
@@ -216,7 +223,7 @@ https.createServer(options, async function (req, res) {
     return
   }
 
-  const { route, params } = matchRoute(q.pathname)
+  const { route, params } = matchRoute(q.pathname, req.method)
 
   if (route) {
     res.writeHead(200, { 'Content-Type': 'application/json' })
