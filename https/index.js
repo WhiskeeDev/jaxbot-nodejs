@@ -213,7 +213,7 @@ https.createServer(options, async function (req, res) {
 
   console.log(`${titleCard} ${sourceIp}:${q.pathname}`)
 
-  if (q.pathname === '/') {
+  if (q.pathname === '/' || requestValidity === 'preflight') {
     res.writeHead(200, { 'Content-Type': 'application/json' })
     res.write(convJson({
       status: 'success',
