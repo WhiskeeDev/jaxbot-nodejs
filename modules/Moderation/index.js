@@ -160,7 +160,7 @@ client.on('message', async message => {
 
       if (staffMember && firstMentionedUser) {
         console.log(`${staffMember.nickname || staffMember.user.tag} banned ${firstMentionedUser.nickname || firstMentionedUser.user.tag} for: "${reason}"`.yellow)
-        firstMentionedUser.ban(reason).then(() => {
+        firstMentionedUser.ban({reason}).then(() => {
           command.reply(`Successfully banned <@${firstMentionedUser.user.id}>!`)
           logEvent(null, {
             description: `:athletic_shoe: banned <@${firstMentionedUser.user.id}>
