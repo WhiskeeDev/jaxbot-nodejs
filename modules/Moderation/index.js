@@ -128,11 +128,11 @@ client.on('message', async message => {
 
       if (staffMember && firstMentionedUser) {
         console.log(`${staffMember.nickname || staffMember.user.tag} kicked ${firstMentionedUser.nickname || firstMentionedUser.user.tag} for: "${reason}"`.yellow)
-        firstMentionedUser.kick(reason).then(() => {
-          command.reply(`Successfully kicked <@${firstMentionedUser.user.id}>!`)
-          firstMentionedUser
-            .send(`You were kicked by <@${staffMember.user.id}> for the following reason:\n` + '```' + reason + '```')
-            .then(() => {
+        firstMentionedUser
+          .send(`You were kicked by <@${staffMember.user.id}> for the following reason:\n` + '```' + reason + '```')
+          .then(() => {
+            firstMentionedUser.kick(reason).then(() => {
+              command.reply(`Successfully kicked <@${firstMentionedUser.user.id}>!`)
               logEvent(null, {
                 description: `:athletic_shoe: Kicked <@${firstMentionedUser.user.id}>
 
@@ -144,7 +144,7 @@ client.on('message', async message => {
                 color: colours.warning
               })
             })
-        })
+          })
       }
     } else if (command.formattedText.startsWith('ban')) {
       const hasPermission = await command.hasPermission('moderation.ban')
