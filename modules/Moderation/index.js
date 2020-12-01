@@ -101,6 +101,7 @@ client.on('message', async message => {
         }).then(() => {
           command.reply(`Sucessfully warned ${warnUser.nickname || warnUser.user.username}!`)
           if (config.warnsRoleID) firstMentionedUser.roles.add(config.warnsRoleID)
+          warnUser.send(`You were warned by <@${staffMember.user.id}> for the following reason:\n` + '```' + reason + '```')
         }).catch(error => {
           console.error(error)
           command.reply(`Unable to warn ${warnUser.nickname || warnUser.user.username}! Check console for errors...`)
@@ -128,6 +129,7 @@ client.on('message', async message => {
         console.log(`${staffMember.nickname || staffMember.user.tag} kicked ${firstMentionedUser.nickname || firstMentionedUser.user.tag} for: "${reason}"`.yellow)
         firstMentionedUser.kick(reason).then(() => {
           command.reply(`Successfully kicked <@${firstMentionedUser.user.id}>!`)
+          firstMentionedUser.send(`You were kicked by <@${staffMember.user.id}> for the following reason:\n` + '```' + reason + '```')
           logEvent(null, {
             description: `:athletic_shoe: Kicked <@${firstMentionedUser.user.id}>
 
@@ -160,10 +162,11 @@ client.on('message', async message => {
 
       if (staffMember && firstMentionedUser) {
         console.log(`${staffMember.nickname || staffMember.user.tag} banned ${firstMentionedUser.nickname || firstMentionedUser.user.tag} for: "${reason}"`.yellow)
+        firstMentionedUser.send(`You were banned by <@${staffMember.user.id}> for the following reason:\n` + '```' + reason + '```')
         firstMentionedUser.ban({reason}).then(() => {
           command.reply(`Successfully banned <@${firstMentionedUser.user.id}>!`)
           logEvent(null, {
-            description: `:athletic_shoe: banned <@${firstMentionedUser.user.id}>
+            description: `:hammer: banned <@${firstMentionedUser.user.id}>
 
             **Banned By:**
             <@${staffMember.user.id}>
