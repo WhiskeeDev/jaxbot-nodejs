@@ -53,6 +53,28 @@ module.exports = {
             }))
           }
         }
+      },
+      {
+        routeName: '/users/:id',
+        async method ({ response, params }) {
+          try {
+            const user = await process.database.models.User.findOne({
+              where: { id: params.id }
+            })
+            response.write(convJson({
+              status: 'success',
+              data: {
+                user
+              }
+            }))
+          } catch (err) {
+            console.error(err)
+            response.write(convJson({
+              status: 'error',
+              message: `[${err.name || 'Unknown Error Name'}] ${err.message}`
+            }))
+          }
+        }
       }
     ]
   }
