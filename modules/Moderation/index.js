@@ -132,11 +132,45 @@ client.on('message', async message => {
             description: `:athletic_shoe: Kicked <@${firstMentionedUser.user.id}>
 
             **Kicked By:**
-            ${staffMember.nickname || staffMember.user.tag}
+            <@${staffMember.user.id}>
 
             **Reason:**
             ${reason}`,
             color: colours.warning
+          })
+        })
+      }
+    } else if (command.formattedText.startsWith('ban')) {
+      const hasPermission = await command.hasPermission('moderation.ban')
+      if (!hasPermission) {
+        return command.invalidPermission()
+      }
+      const staffMember = command.member
+      const firstMentionedUser = command.message.mentions.members.first()
+      var reason = command.params[1] || 'No Reason'
+
+      if (command.params.length < 1) {
+        command.reply('Hey, you gotta tag who you want to ban my dude!')
+        return
+      }
+
+      if (command.params.length > 2) {
+        reason = command.params.slice(1).join(' ')
+      }
+
+      if (staffMember && firstMentionedUser) {
+        console.log(`${staffMember.nickname || staffMember.user.tag} banned ${firstMentionedUser.nickname || firstMentionedUser.user.tag} for: "${reason}"`.yellow)
+        firstMentionedUser.ban(reason).then(() => {
+          command.reply(`Successfully banned <@${firstMentionedUser.user.id}>!`)
+          logEvent(null, {
+            description: `:athletic_shoe: banned <@${firstMentionedUser.user.id}>
+
+            **Banned By:**
+            <@${staffMember.user.id}>
+
+            **Reason:**
+            ${reason}`,
+            color: colours.negative
           })
         })
       }
