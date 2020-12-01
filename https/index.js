@@ -159,6 +159,7 @@ https.createServer(options, async function (req, res) {
   // Check if the host is allowed
   const sourceIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress
   const q = url.parse(req.url, true)
+  const method = req.method
 
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Headers', 'jax-client-token, authorization')
@@ -211,7 +212,7 @@ https.createServer(options, async function (req, res) {
     return
   }
 
-  console.log(`${titleCard} ${sourceIp}:${q.pathname}`)
+  if (method !== 'OPTIONS') console.log(`${titleCard} ${method} ${sourceIp}:${q.pathname}`)
 
   if (q.pathname === '/' || requestValidity === 'preflight') {
     res.writeHead(200, { 'Content-Type': 'application/json' })
@@ -223,7 +224,7 @@ https.createServer(options, async function (req, res) {
     return
   }
 
-  const { route, params } = matchRoute(q.pathname, req.method)
+  const { route, params } = matchRoute(q.pathname, method)
 
   if (route) {
     res.writeHead(200, { 'Content-Type': 'application/json' })
