@@ -1,3 +1,4 @@
+const { logEvent, colours } = require(global.appRoot + '/utils/logging.js')
 const { MessageEmbed } = require('discord.js')
 const Command = require('../Command.js')
 const { DateTime } = require('luxon')
@@ -14,7 +15,7 @@ const client = process.discordClient
 // title card is used for both console and embeds
 const titleCard = '[Moderation]'
 
-const availableCommands = ['warn', 'warns']
+const availableCommands = ['warn', 'warns', 'kick']
 
 async function saveWarn (newWarnData) {
   await process.database.models.User.findOrCreate({where: {id: newWarnData.user.id}, defaults: {
@@ -37,17 +38,12 @@ client.on('message', async message => {
   if (!command.isAValidCommand) return
 
   if (availableCommands.some(c => command.formattedText.startsWith(c))) {
-    var makeExceptionToNonStaff = false
-
-    if (command.formattedText.startsWith('warns') && !command.params.length) makeExceptionToNonStaff = true
-
-    if (!command.isStaff && !makeExceptionToNonStaff) {
-      command.reply('Fool! You thought you could trick me? THE ALMIGHTY WSKY BOT? **YOU HAVE NO POWER HERE, PEASANT!**\n\n(a.k.a you ain\'t staff, no command 4 u)')
-      console.error(titleCard + ` ${command.member.nickname || command.author.tag} tried to run a staff command with permission.`.red)
-      return
-    }
 
     if (command.formattedText.startsWith('warns')) {
+      const hasPermission = await command.hasPermission('warn.index')
+      if (!hasPermission) {
+        return command.invalidPermission()
+      }
       const firstMentionedUser = command.message.mentions.members.first() || command.message.member
       const warnedUser = firstMentionedUser ? firstMentionedUser.user : null
       if (!warnedUser) {
@@ -74,6 +70,10 @@ client.on('message', async message => {
       }
       command.reply(embed)
     } else if (command.formattedText.startsWith('warn')) {
+      const hasPermission = await command.hasPermission('moderation.warn')
+      if (!hasPermission) {
+        return command.invalidPermission()
+      }
       const staffMember = command.member
       const firstMentionedUser = command.message.mentions.members.first()
       const warnUser = firstMentionedUser ? firstMentionedUser : null
@@ -87,8 +87,6 @@ client.on('message', async message => {
       if (command.params.length > 2) {
         reason = command.params.slice(1).join(' ')
       }
-
-      console.error(!!staffMember, !!warnUser)
 
       if (staffMember && warnUser) {
         console.log(`${staffMember.nickname || staffMember.user.tag} warned ${warnUser.nickname || warnUser.user.tag} for: "${reason}"`.yellow)
@@ -106,6 +104,40 @@ client.on('message', async message => {
         }).catch(error => {
           console.error(error)
           command.reply(`Unable to warn ${warnUser.nickname || warnUser.user.username}! Check console for errors...`)
+        })
+      }
+    } else if (command.formattedText.startsWith('kick')) {
+      const hasPermission = await command.hasPermission('moderation.kick')
+      if (!hasPermission) {
+        return command.invalidPermission()
+      }
+      const staffMember = command.member
+      const firstMentionedUser = command.message.mentions.members.first()
+      var reason = command.params[1] || 'No Reason'
+
+      if (command.params.length < 1) {
+        command.reply('Hey, you gotta tag who you want to kick my dude!')
+        return
+      }
+
+      if (command.params.length > 2) {
+        reason = command.params.slice(1).join(' ')
+      }
+
+      if (staffMember && firstMentionedUser) {
+        console.log(`${staffMember.nickname || staffMember.user.tag} kicked ${firstMentionedUser.nickname || firstMentionedUser.user.tag} for: "${reason}"`.yellow)
+        firstMentionedUser.kick(reason).then(() => {
+          command.reply(`Successfully kicked <@${firstMentionedUser.user.id}>!`)
+          logEvent(null, {
+            description: `:athletic_shoe: Kicked <@${firstMentionedUser.user.id}>
+
+            **Kicked By:**
+            ${staffMember.nickname || staffMember.user.tag}
+
+            **Reason:**
+            ${reason}`,
+            color: colours.warning
+          })
         })
       }
     }

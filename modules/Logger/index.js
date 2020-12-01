@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js')
+const { logToChannel, logEvent, colours } = require(global.appRoot + '/utils/logging.js')
 const Command = require('../Command')
 
 const { load } = require(global.appRoot + '/utils/config.js')
@@ -18,48 +18,12 @@ const config = load('logger', {
 
 const client = process.discordClient
 
-const colours = {
-  negative: '#EF476F',
-  warning: '#FFD166',
-  positive: '#06D6A0',
-  primary: '#118AB2',
-  secondary: '#073B4C'
-}
-
-
 // title card is used for both console and embeds
 const titleCard = '[Logger]'
 
 if (!config.channelID) {
   console.warn(titleCard + ' Can\'t record anything if we don\'t have a channel ID!'.red)
   return
-}
-
-let loggingChannel = null
-
-async function logToChannel (message, embed) {
-  if (!loggingChannel) {
-    const guild = await client.guilds.fetch(process.env.guild_id)
-    loggingChannel = guild.channels.cache.find(ch => ch.id === config.channelID)
-  }
-  loggingChannel.send(message, embed)
-    .catch(err => {
-      console.error(titleCard + 'Unable to log event, most likely couldn\'t find the channel.'.red)
-      console.error(err)
-    })
-}
-
-
-function logEvent (message, embedDetails) {
-  const embed = new MessageEmbed()
-  embed
-    .setTimestamp()
-    .setDescription(embedDetails.description)
-    .setColor(embedDetails.color)
-  if (embedDetails.member) {
-    embed.setAuthor(embedDetails.member.nickname || embedDetails.author.tag + (embedDetails.channelName ? ' | #' + embedDetails.channelName : ''), embedDetails.author.avatarURL())
-  }
-  logToChannel(message, embed)
 }
 
 client.on('message', message => {

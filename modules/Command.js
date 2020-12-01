@@ -40,5 +40,22 @@ module.exports = class Command {
       }
     }
 
+    this.hasPermission = async (permissionName) => {
+      const user = await process.database.models.User.findOne({
+        where: { id: this.author.id },
+        include: process.database.models.Permission
+      })
+      return user.Permissions.some(perm => {
+        console.error(perm.tag, permissionName)
+        return perm.tag === permissionName
+      })
+    }
+
+    this.invalidPermission = () => {
+      this.reply('I\'m sorry, you do not have the correct permissions to run this command.')
+      console.log(`${this.chatAuthorName} tried to run a command without the correct permission.`.red)
+      return false
+    }
+
   }
 }

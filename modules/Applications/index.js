@@ -64,10 +64,18 @@ client.on('message', async message => {
   if (availableCommands.some(c => command.formattedText.startsWith(c))) {
 
     if (command.formattedText.startsWith('applications')) {
+      const hasPermission = await command.hasPermission('application.index')
+      if (!hasPermission) {
+        return command.invalidPermission()
+      }
       showAvailableApplications(command)
     }
 
     if (command.formattedText.startsWith('apply')) {
+      const hasPermission = await command.hasPermission('application.apply')
+      if (!hasPermission) {
+        return command.invalidPermission()
+      }
       const appId = parseInt(command.params[0])
       if (appId && typeof appId === 'number' && availableApplications.some(app => app.id === appId)) {
         startApplicationProcess(appId, command.author, command)
