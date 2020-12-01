@@ -110,6 +110,7 @@ if (config.log.updatedMessages) {
 
   client.on('messageUpdate', (oldMessage, newMessage) => {
     if (oldMessage.author.bot || newMessage.author.bot) return false
+    if (oldMessage.content === newMessage.content) return false
     logEvent(null, {
       description: `:pencil: <@${oldMessage.author.id}>'s Message was updated.
 
@@ -157,8 +158,28 @@ client.on('guildMemberAdd', member => {
 })
 
 client.on('guildMemberUpdate', (oldMember, newMember) => {
-  console.log(`${oldMember.nickname || oldMember.user.tag} Updated their account.`.yellow)
-  console.log(`${oldMember.nickname || oldMember.user.tag} => ${newMember.nickname || newMember.user.tag}`)
+  const differences = [
+    {
+      Field: 'Nickname',
+      oldValue: oldMember.nickname,
+      newValue: newMember.nickname,
+      Changed: oldMember.nickname !== newMember.nickname
+    },
+    {
+      Field: 'Username',
+      oldValue: oldMember.user.tag,
+      newValue: newMember.user.tag,
+      Changed: oldMember.user.tag !== newMember.user.tag
+    },
+    {
+      Field: 'Avatar',
+      oldValue: oldMember.user.avatar,
+      newValue: newMember.user.avatar,
+      Changed: oldMember.user.avatar !== newMember.user.avatar
+    }
+  ]
+  console.log(`${oldMember.nickname} [${oldMember.user.tag}] Updated their account.`.yellow)
+  console.table(differences)
   if (config.log.memberUpdate) {
     logEvent(null, {
       description: `:new: <@${oldMember.user.id}> Updated their account`,
