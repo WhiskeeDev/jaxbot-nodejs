@@ -15,7 +15,7 @@ const client = process.discordClient
 // title card is used for both console and embeds
 const titleCard = '[Moderation]'
 
-const availableCommands = ['warn', 'warns', 'kick']
+const availableCommands = ['warn', 'warns', 'kick', 'ban']
 
 async function saveWarn (newWarnData) {
   await process.database.models.User.findOrCreate({where: {id: newWarnData.user.id}, defaults: {
