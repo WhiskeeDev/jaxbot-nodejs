@@ -31,6 +31,7 @@ console.log = function () {
   const curDateTime = DateTime.local()
   const time = curDateTime.toLocaleString(DateTime.TIME_24_WITH_SECONDS)
   var outputMessage = `[${time}] `
+  const newLineSpacer = outputMessage.replace(/./g, ' ')
   if (arguments[0] instanceof String) {
     if (arguments[0].startsWith('[HTTPS]')) useHttpsLogs = true
     if (arguments[0].startsWith('[Toxicity]')) useToxicityLogs = true
@@ -38,7 +39,7 @@ console.log = function () {
   for (var i = 0; i < arguments.length; i++) {
     const shouldJsonParse = ((arguments[i] instanceof Object) || (arguments[i] instanceof Array))
     const parsedText = shouldJsonParse ? JSON.stringify(arguments[i], null, 2) : arguments[i]
-    outputMessage = outputMessage + parsedText + (i ? '\n' : '')
+    outputMessage = outputMessage + parsedText + (i ? '\n' + newLineSpacer : '')
   }
   fs.writeFileSync(`./logs${useHttpsLogs ? '/https/' : useToxicityLogs ? '/toxicity/' : '/'}` + curDateTime.toISODate() + '.log', outputMessage + '\n', {
     flag: 'a'
