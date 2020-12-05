@@ -33,7 +33,7 @@ client.on('message', async message => {
       console.log(`${titleCard} Checking time to receive the command`)
       date = new Date()
       const t4 = date.getTime()
-      const timeToReceiveCommand = command.message.createdTimestamp - t4
+      const timeToReceiveCommand = t4 - command.message.createdTimestamp
 
 
       command.reply('Completed timing test, here are the results in milliseconds:\n```' + `Time for the command to reach the bot: ${timeToReceiveCommand}\nTime to do a DB Lookup: ${timeToLookupInDB}\nTime to check Permission(s): ${timeToCheckPermission}` + '```**All times are estimations and may not be accurate**', false)
