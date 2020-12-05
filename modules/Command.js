@@ -45,10 +45,7 @@ module.exports = class Command {
         where: { id: this.author.id },
         include: process.database.models.Permission
       })
-      return user.Permissions.some(perm => {
-        console.error(perm.tag, permissionName)
-        return perm.tag === permissionName
-      })
+      return user.Permissions.some(perm => perm.tag === permissionName)
     }
 
     this.invalidPermission = () => {

@@ -15,7 +15,7 @@ const client = process.discordClient
 // title card is used for both console and embeds
 const titleCard = '[Moderation]'
 
-const availableCommands = ['warn', 'warns', 'kick', 'ban']
+const availableCommands = ['warn', 'warns', 'kick', 'ban', 'pardon']
 
 async function saveWarn (newWarnData) {
   await process.database.models.User.findOrCreate({where: {id: newWarnData.user.id}, defaults: {
@@ -184,6 +184,13 @@ client.on('message', async message => {
             })
           })
       }
+    } else if (command.formattedText.startsWith('pardon')) {
+      command.reply('This command is still being worked on, it should be available in the future.')
+      // const hasPermission = await command.hasPermission('moderation.pardon')
+
+      // const staffMember = command.member
+      // const firstMentionedUser = command.message.mentions.members.first()
+      // var reason = command.params[1] || 'No Reason'
     }
   }
 })
