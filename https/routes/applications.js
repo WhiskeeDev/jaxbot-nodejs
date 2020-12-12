@@ -26,7 +26,7 @@ module.exports = {
             if (!hasIndexPermission) where.UserId = activeUser.id
             const applications = await process.database.models.Application.findAll({
               where,
-              order: [['createdAt', 'DESC']],
+              order: [['id', 'DESC']],
               include: [
                 process.database.models.User,
                 process.database.models.ApplicationType
