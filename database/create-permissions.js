@@ -39,6 +39,11 @@ const defaultPermissions = [
     name: 'Create Applications',
     description: 'Can Create Applications on the discord server.'
   },
+  {
+    tag: 'application.review',
+    name: 'Review Applications',
+    description: 'Can Review Applications on the discord server.'
+  },
 ]
 
 module.exports = {

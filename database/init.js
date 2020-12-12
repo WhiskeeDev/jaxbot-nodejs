@@ -156,6 +156,10 @@ async function createDatabase () {
     data: {
       type: DataTypes.STRING,
       allowNull: true
+    },
+    reviewerReason: {
+      type: DataTypes.STRING,
+      allowNull: true,
     }
   }, {
     sequelize,

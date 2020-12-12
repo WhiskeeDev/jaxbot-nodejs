@@ -162,7 +162,7 @@ https.createServer(options, async function (req, res) {
   const method = req.method
 
   res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Headers', 'jax-client-token, authorization')
+  res.setHeader('Access-Control-Allow-Headers', 'jax-client-token, authorization, content-type')
   res.setHeader('Access-Control-Allow-Methods', 'GET')
   res.setHeader('Access-Control-Max-Age', -1)
 
@@ -224,23 +224,32 @@ https.createServer(options, async function (req, res) {
     return
   }
 
-  const { route, params } = matchRoute(q.pathname, method)
+  let body = []
+  req
+    .on('data', data => body.push(data))
+    .on('end', async function () {
+      body = Buffer.concat(body).toString()
+      const json = body ? JSON.parse(body) : null
 
-  if (route) {
-    res.writeHead(200, { 'Content-Type': 'application/json' })
-    await route.method({
-      request: req,
-      response: res,
-      activeUser: requestValidity,
-      params
+      const { route, params } = matchRoute(q.pathname, method)
+
+      if (route) {
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        await route.method({
+          request: req,
+          response: res,
+          activeUser: requestValidity,
+          bodyData: json,
+          params
+        })
+      } else {
+        res.writeHead(404, { 'Content-Type': 'application/json' })
+        res.write(convJson({
+          status: 'error',
+          message: 'Route not found'
+        }))
+      }
+
+      res.end()
     })
-  } else {
-    res.writeHead(404, { 'Content-Type': 'application/json' })
-    res.write(convJson({
-      status: 'error',
-      message: 'Route not found'
-    }))
-  }
-
-  res.end()
 }).listen(process.env.http_port || 443)
