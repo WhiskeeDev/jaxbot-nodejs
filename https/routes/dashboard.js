@@ -31,7 +31,9 @@ module.exports = {
             })
             const applications_pending = await process.database.models.Application.count({
               where: {
-                status: -1
+                status: {
+                  [Op.eq]: -1
+                }
               }
             })
             response.write(convJson({

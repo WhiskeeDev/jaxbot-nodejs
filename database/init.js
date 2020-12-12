@@ -2,6 +2,7 @@ const { Sequelize, DataTypes, Model } = require('sequelize')
 const colors = require('colors')
 const env = process.env
 const titlecard = '[DB]'
+const { createPermissions } = require('./create-permissions.js')
 
 async function createDatabase () {
   console.log(`${titlecard} Initalizing`)
@@ -143,36 +144,14 @@ async function createDatabase () {
     modelName: 'ApplicationType'
   })
 
-  console.log(`${titlecard} Creating 'ApplicationQuestion' Model`)
-  // Create Application Question Model
-  class ApplicationQuestion extends Model { }
-  ApplicationQuestion.init({
-    order: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    question: {
-      type: DataTypes.STRING,
-      allowNull: false
-    }
-  }, {
-    sequelize,
-    modelName: 'ApplicationQuestion'
-  })
-
   console.log(`${titlecard} Creating 'Application' Model`)
   // Create Application Model
   class Application extends Model { }
   Application.init({
     status: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: -1
-    },
-    lastQuestion: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: -1
+      allowNull: true,
+      defaultValue: null
     },
     data: {
       type: DataTypes.STRING,
@@ -226,11 +205,11 @@ async function createDatabase () {
   User.hasMany(Application)
   Application.belongsTo(User)
 
+  User.hasMany(Application, { foreignKey: 'ReviewerId', as: 'ApplicationReviewer' })
+  Application.belongsTo(User, { foreignKey: 'ReviewerId', as: 'ApplicationReviewer' })
+
   ApplicationType.hasMany(Application)
   Application.belongsTo(ApplicationType)
-
-  ApplicationType.hasMany(ApplicationQuestion)
-  ApplicationQuestion.belongsTo(ApplicationType)
 
   console.log(`${titlecard} Syncing Database`)
   // Sync Database
@@ -243,54 +222,7 @@ async function createDatabase () {
 
   console.log(`${titlecard} Checking if missing any default permissions...`)
   // Create Defaults
-  const defaultPermissions = [
-    {
-      tag: 'moderation.kick',
-      name: 'Kick Members',
-      description: 'Can Kick members of the discord server.'
-    },
-    {
-      tag: 'moderation.ban',
-      name: 'Ban Members',
-      description: 'Can Ban members of the discord server.'
-    },
-    {
-      tag: 'moderation.warn',
-      name: 'Warn Members',
-      description: 'Can Warn members of the discord server.'
-    },
-    {
-      tag: 'moderation.warn',
-      name: 'Warn Members',
-      description: 'Can Warn members of the discord server.'
-    },
-    {
-      tag: 'ban.index',
-      name: 'View Bans',
-      description: 'Can View Bans on the discord server.'
-    },
-    {
-      tag: 'warn.index',
-      name: 'View Warns',
-      description: 'Can View Warns on the discord server.'
-    },
-    {
-      tag: 'application.index',
-      name: 'View Applications',
-      description: 'Can View Applications on the discord server.'
-    }
-  ]
-
-  defaultPermissions.forEach(permission => {
-    Permission.findOrCreate({
-      where: { tag: permission.tag },
-      defaults: permission
-    }).then(([res]) => {
-      if (res['_options'].isNewRecord) {
-        console.log(`${titlecard} Permissions: created ${res.tag}`)
-      }
-    })
-  })
+  createPermissions(Permission, titlecard)
 }
 
 module.exports = new Promise(async (resolve) => {
