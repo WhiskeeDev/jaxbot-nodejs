@@ -44,6 +44,11 @@ const defaultPermissions = [
     name: 'Review Applications',
     description: 'Can Review Applications on the discord server.'
   },
+  {
+    tag: 'discord.chat.canPostGifs',
+    name: 'Can Post Gifs',
+    description: 'Can post gifs in the discord chat.'
+  },
 ]
 
 module.exports = {
