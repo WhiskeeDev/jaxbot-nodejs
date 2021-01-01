@@ -20,6 +20,11 @@ const defaultPermissions = [
     description: 'Can Warn members of the discord server.'
   },
   {
+    tag: 'moderation.textchannel.wipe',
+    name: 'Wipe Text Channel',
+    description: 'Wipe a text channel (technically just dupes and deletes the old one).'
+  },
+  {
     tag: 'ban.index',
     name: 'View Bans',
     description: 'Can View Bans on the discord server.'

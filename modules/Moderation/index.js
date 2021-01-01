@@ -15,7 +15,7 @@ const client = process.discordClient
 // title card is used for both console and embeds
 const titleCard = '[Moderation]'
 
-const availableCommands = ['warn', 'warns', 'kick', 'ban', 'pardon']
+const availableCommands = ['wipe', 'warn', 'warns', 'kick', 'ban', 'pardon']
 
 async function saveWarn (newWarnData) {
   await process.database.models.User.findOrCreate({where: {id: newWarnData.user.id}, defaults: {
@@ -38,6 +38,20 @@ client.on('message', async message => {
   if (!command.isAValidCommand) return
 
   if (availableCommands.some(c => command.formattedText.startsWith(c))) {
+
+    if (command.formattedText.startsWith('wipe')) {
+      if (message.channel.type !== 'text') return false
+
+      const hasPermission = await command.hasPermission('moderation.textchannel.wipe')
+      if (!hasPermission) return command.invalidPermission()
+
+      const oldChannel = message.channel
+      const originalPosition = oldChannel.position
+
+      const newChannel = await oldChannel.clone()
+      oldChannel.delete()
+      newChannel.setPosition(originalPosition)
+    }
 
     if (command.formattedText.startsWith('warns')) {
       const hasPermission = await command.hasPermission('warn.index')
