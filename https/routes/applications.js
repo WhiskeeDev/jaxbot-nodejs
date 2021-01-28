@@ -2,6 +2,25 @@ function convJson (json) {
   return JSON.stringify(json, null, 2)
 }
 
+const client = process.discordClient
+
+const { load } = require(global.appRoot + '/utils/config.js')
+const config = load('moderation', null)
+
+const applyLogID = config ? config.applyLogID : null
+const applyAcceptLogID = config ? config.applyAcceptLogID : null
+const applyDenyLogID = config ? config.applyDenyLogID : null
+const managerRoleID = config ? config.applyLogID : null
+const clanMemberRoleID = config ? config.clanMemberRoleID : null
+
+function sendMessage (channelID, message) {
+  if (!channelID || !message) return
+  const channel = client.channels.cache.get(channelID)
+  if (!channel) return
+
+  channel.send(message)
+}
+
 async function hasPermission(activeUser, permissionName) {
   if (!permissionName) return false
   const userPermissions = await process.database.models.User.findOne({
@@ -63,7 +82,7 @@ module.exports = {
               UserId: activeUser.id,
               status: -1
             })
-            console.error(application)
+            sendMessage(applyLogID, `<@&${managerRoleID}>\nA new application has been made by <@${activeUser.id}>.\n${process.env.app_url}/applications`)
             response.write(convJson({
               status: 'success',
               data: {
@@ -112,6 +131,30 @@ module.exports = {
             application.reviewerReason = bodyData.reason
             application.ReviewerId = activeUser.id
             await application.save()
+
+            if (application.status) {
+              var message = `Congratulations <@${application.UserId}>, your application has been accepted!`
+              if (application.ApplicationTypeId === 1) {
+                message = message + '\nFeel free to add `TopH` or `TopHat` to your in-game name!'
+                const user = await process.database.models.User.findOne({
+                  where: { id: application.UserId }
+                })
+                if (user) {
+                  user.clanMember = true
+                  user.save()
+
+                  const guild = await client.guilds.fetch(process.env.guild_id)
+
+                  guild.members.fetch(user.id).then(member => {
+                    if (!member || !member.roles) return
+                    member.roles.add(clanMemberRoleID)
+                  })
+                }
+              }
+              sendMessage(applyAcceptLogID, message+'\n\n')
+            } else {
+              sendMessage(applyDenyLogID, `<@${application.UserId}> Your application has been denied by <@${application.ReviewerId}> for the following reason:\n\`\`\`${application.reviewerReason}\`\`\`Unless a member of staff has stated otherwise, you can re-apply in 2 weeks.\n\n`)
+            }
 
             response.write(convJson({
               status: 'success',

@@ -258,13 +258,21 @@ process.database.models.Warn.findAll().then(async warns => {
 
       process.database.models.User.findAll().then(users => {
         users.forEach(async user => {
-          if (!user.leftServer && !members.get(user.id)) {
+          const member = members.get(user.id)
+          const roles = member ? member.roles.cache : null
+          if (!user.leftServer && !member) {
             user.leftServer = true
             user.clanMember = false
             user.save()
-          } else if (user.leftServer && members.get(user.id)) {
+            return
+          } else if (user.leftServer && member) {
             user.leftServer = false
             user.save()
+          }
+
+          if (user.vip && !roles.get(config.vipRoleID)) {
+            member.roles.add(config.vipRoleID)
+            console.log(`${titleCard} Gave ${member.nickname || member.user.tag} the 'VIP' role because they were missing it.`.cyan)
           }
 
         })
