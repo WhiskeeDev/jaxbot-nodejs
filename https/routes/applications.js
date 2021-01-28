@@ -10,7 +10,7 @@ const config = load('moderation', null)
 const applyLogID = config ? config.applyLogID : null
 const applyAcceptLogID = config ? config.applyAcceptLogID : null
 const applyDenyLogID = config ? config.applyDenyLogID : null
-const managerRoleID = config ? config.applyLogID : null
+const managerRoleID = config ? config.managerRoleID : null
 const clanMemberRoleID = config ? config.clanMemberRoleID : null
 
 function sendMessage (channelID, message) {
