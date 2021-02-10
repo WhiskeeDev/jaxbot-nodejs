@@ -71,6 +71,14 @@ module.exports = {
         reqMethod: 'POST',
         async method ({ response, activeUser, bodyData }) {
           try {
+            const canCreateApplication = await hasPermission(activeUser, 'application.create')
+            if (!canCreateApplication) {
+              response.write(convJson({
+                status: 'error',
+                message: '[ERR-400] Missing permission'
+              }))
+              return
+            }
             const application = await process.database.models.Application.create({
               ApplicationTypeId: bodyData.type,
               data: JSON.stringify({
@@ -102,7 +110,7 @@ module.exports = {
         routeName: '/applications/:id',
         reqMethod: 'POST',
         async method ({ response, activeUser, bodyData, params }) {
-          const hasReviewPermission = hasPermission(activeUser, 'application.review')
+          const hasReviewPermission = await hasPermission(activeUser, 'application.review')
           if (!hasReviewPermission) {
             response.write(convJson({
               status: 'error',
