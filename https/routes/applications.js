@@ -102,6 +102,14 @@ module.exports = {
         routeName: '/applications/:id',
         reqMethod: 'POST',
         async method ({ response, activeUser, bodyData, params }) {
+          const hasReviewPermission = hasPermission(activeUser, 'application.review')
+          if (!hasReviewPermission) {
+            response.write(convJson({
+              status: 'error',
+              message: '[ERR-400] Missing permission'
+            }))
+            return
+          }
           try {
             const application = await process.database.models.Application.findOne({
               where: { id: params.id }
