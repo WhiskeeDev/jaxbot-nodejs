@@ -40,7 +40,7 @@ module.exports = {
         routeName: '/applications',
         async method ({ response, activeUser }) {
           try {
-            const hasIndexPermission = hasPermission(activeUser, 'application.index')
+            const hasIndexPermission = await hasPermission(activeUser, 'application.index')
             let where = {}
             if (!hasIndexPermission) where.UserId = activeUser.id
             const applications = await process.database.models.Application.findAll({
@@ -192,7 +192,7 @@ module.exports = {
         routeName: '/applications/types',
         async method ({ response, activeUser }) {
           try {
-            const hasIndexPermission = hasPermission(activeUser, 'application.index')
+            const hasIndexPermission = await hasPermission(activeUser, 'application.index')
             let where = {
               enabled: true
             }
