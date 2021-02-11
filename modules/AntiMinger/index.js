@@ -11,12 +11,13 @@ client.on('message', async message => {
   const command = new Command(message)
   const hasPermissionToPostGifs = await command.hasPermission('discord.chat.canPostGifs')
 
-  var containsGif = message.content.match(/(?:https*:\/\/(?:giphy|tenor)\.(?:com|co.uk))|\.gif$/gm)
+  var containsGif = message.content.match(/(?:https*:\/\/(?:giphy|tenor|imgur|i.imgur)\.(?:com|co.uk))|\.(gif|gifv)$/gm)
 
   if (!containsGif) {
     const attachments = message.attachments.array()
     console.error(attachments)
     if (attachments.find( a => a.url.endsWith('.gif') )) containsGif = true
+    if (attachments.find( a => a.url.endsWith('.gifv') )) containsGif = true
   }
 
   console.log(`${titleCard} Contains GIF: ${containsGif ? 'yes' : 'no'}`)
