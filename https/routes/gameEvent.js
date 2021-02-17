@@ -61,7 +61,7 @@ module.exports = {
         public: true,
         async method ({ response, bodyData }) {
           try {
-            console.error(bodyData)
+            // console.error(bodyData)
             if (bodyData.gamemode === 'terrortown') {
               if (bodyData.event_type === 'death') {
                 const logID = config.gamemodeLogChannels[bodyData.gamemode]
@@ -85,7 +85,7 @@ module.exports = {
 
                 const vcID = config.gamemodeVCChannels[bodyData.gamemode]
 
-                if (!vcID) return
+                if (!vcID || bodyData.round_state != '3') return
 
                 const victimUser = await process.database.models.User.findOne({
                   where: { steamid: bodyData.victim_steamid }
