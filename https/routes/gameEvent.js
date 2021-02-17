@@ -63,6 +63,7 @@ module.exports = {
           try {
             if (bodyData.gamemode === 'terrortown') {
               if (bodyData.event_type === 'death') {
+                const logID = config.gamemodeLogChannels[bodyData.gamemode]
                 logEvent(null, {
                   description: `:skull_crossbones: Death
 
@@ -78,7 +79,7 @@ module.exports = {
                   // author: message.author,
                   // member: message.member,
                   channelName: 'TTT'
-                }, config.gamemodeLogChannels[bodyData.gamemode] || null)
+                }, logID ? logID : null)
 
                 const vcID = config.gamemodeVCChannels[bodyData.gamemode]
 
