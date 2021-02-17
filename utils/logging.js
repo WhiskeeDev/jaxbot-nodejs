@@ -26,10 +26,10 @@ const colours = {
   secondary: '#073B4C'
 }
 
-const logToChannel = async function (message, embed) {
+const logToChannel = async function (message, embed, channelID) {
   if (!loggingChannel) {
     const guild = await client.guilds.fetch(process.env.guild_id)
-    loggingChannel = guild.channels.cache.find(ch => ch.id === config.channelID)
+    loggingChannel = guild.channels.cache.find(ch => ch.id === (channelID ? channelID : config.channelID))
   }
   loggingChannel.send(message, embed)
     .catch(err => {
@@ -38,7 +38,7 @@ const logToChannel = async function (message, embed) {
     })
 }
 
-const logEvent = function (message, embedDetails) {
+const logEvent = function (message, embedDetails, channelID) {
   const embed = new MessageEmbed()
   embed
     .setTimestamp()
@@ -47,7 +47,7 @@ const logEvent = function (message, embedDetails) {
   if (embedDetails.member) {
     embed.setAuthor(embedDetails.member.nickname || embedDetails.author.tag + (embedDetails.channelName ? ' | #' + embedDetails.channelName : ''), embedDetails.author.avatarURL())
   }
-  logToChannel(message, embed)
+  logToChannel(message, embed, channelID || config.channelID)
 }
 
 module.exports = {

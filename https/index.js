@@ -64,7 +64,7 @@ async function getDiscordTokenValidity(req) {
       })
     })
 
-  if (!activeUser) return 'invalidDiscordToken'
+  if (!activeUser || !activeUser.id) return 'invalidDiscordToken'
   const user = await process.database.models.User.findOne({
     where: { id: activeUser.id }
   })
@@ -168,7 +168,7 @@ https.createServer(options, async function (req, res) {
 
   const requestValidity = await getRequestValidity(req)
 
-  if (requestValidity !== 'preflight' && typeof requestValidity !== 'object') {
+  if (requestValidity !== 'preflight' && requestValidity !== 'noDiscordToken' && typeof requestValidity !== 'object') {
     res.writeHead(401, { 'Content-Type': 'application/json' })
     var error = {
       code: 'ERR-1000',
@@ -185,10 +185,6 @@ https.createServer(options, async function (req, res) {
       break
     case 'disabledClientToken':
       error.code = 'ERR-120'
-      error.message = 'You are not whitelisted to receive respones from this source.'
-      break
-    case 'noDiscordToken':
-      error.code = 'ERR-200'
       error.message = 'You are not whitelisted to receive respones from this source.'
       break
     case 'notAMember':
@@ -229,11 +225,21 @@ https.createServer(options, async function (req, res) {
     .on('data', data => body.push(data))
     .on('end', async function () {
       body = Buffer.concat(body).toString()
+      if (req.headers['content-type'] === 'application/x-www-form-urlencoded') {
+        let parsedBody = {}
+        body.split('&').forEach(param => {
+          let splitParam = param.split('=')
+          parsedBody[splitParam[0]] = splitParam[1].replace('+', ' ')
+        })
+        body = JSON.stringify(parsedBody)
+      }
       const json = body ? JSON.parse(body) : null
 
       const { route, params } = matchRoute(q.pathname, method)
 
-      if (route) {
+      if (route.public === undefined) route.public = true
+
+      if (route && (requestValidity === 'noDiscordToken' && route.public)) {
         res.writeHead(200, { 'Content-Type': 'application/json' })
         await route.method({
           request: req,
@@ -242,11 +248,17 @@ https.createServer(options, async function (req, res) {
           bodyData: json,
           params
         })
-      } else {
+      } else if (requestValidity === 'noDiscordToken' && !route.public) {
         res.writeHead(404, { 'Content-Type': 'application/json' })
         res.write(convJson({
           status: 'error',
           message: 'Route not found'
+        }))
+      } else {
+        res.writeHead(404, { 'Content-Type': 'application/json' })
+        res.write(convJson({
+          status: 'error',
+          message: '[ERR-200] You are not whitelisted to receive respones from this source.'
         }))
       }
 

@@ -44,6 +44,10 @@ async function createDatabase () {
       type: DataTypes.STRING,
       allowNull: true,
     },
+    steamID: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     bot: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
@@ -181,6 +185,23 @@ async function createDatabase () {
   }, {
     sequelize,
     modelName: 'Client'
+  })
+
+  console.log(`${titlecard} Creating 'SteamLink' Model`)
+  // Create Client Model for tokens
+  class SteamLink extends Model { }
+  SteamLink.init({
+    token: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    steamID: {
+      type: DataTypes.STRING,
+      allowNull: false
+    }
+  }, {
+    sequelize,
+    modelName: 'SteamLink'
   })
 
   console.log(`${titlecard} Creating Relationships`)
