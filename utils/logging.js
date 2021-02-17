@@ -27,9 +27,8 @@ const colours = {
 }
 
 const logToChannel = async function (message, embed, channelID) {
-  if (!loggingChannel) {
+  if (!loggingChannel || (channelID && loggingChannel !== channelID)) {
     const guild = await client.guilds.fetch(process.env.guild_id)
-    console.error('grabbing channel with ID of, ', channelID ? channelID : config.channelID)
     loggingChannel = guild.channels.cache.find(ch => ch.id === (channelID ? channelID : config.channelID))
   }
   loggingChannel.send(message, embed)
