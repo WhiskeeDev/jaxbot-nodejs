@@ -16,7 +16,7 @@ const config = load('logger', {
   }
 })
 
-let loggingChannel = null
+let channels = []
 
 const colours = {
   negative: '#EF476F',
@@ -27,11 +27,12 @@ const colours = {
 }
 
 const logToChannel = async function (message, embed, channelID) {
-  if (!loggingChannel || (channelID && loggingChannel !== channelID)) {
+  const queryChannel = channelID ? channelID : config.channelID
+  if (!channels[queryChannel]) {
     const guild = await client.guilds.fetch(process.env.guild_id)
-    loggingChannel = guild.channels.cache.find(ch => ch.id === (channelID ? channelID : config.channelID))
+    channels[queryChannel] = guild.channels.cache.find(ch => ch.id === queryChannel)
   }
-  loggingChannel.send(message, embed)
+  channels[queryChannel].send(message, embed)
     .catch(err => {
       console.error('Unable to log event, most likely couldn\'t find the channel.'.red)
       console.error(err)
