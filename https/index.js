@@ -237,7 +237,7 @@ https.createServer(options, async function (req, res) {
 
       const { route, params } = matchRoute(q.pathname, method)
 
-      if (route.public === undefined) route.public = true
+      if (route.public === undefined) route.public = false
 
       if (route && (requestValidity === 'noDiscordToken' && route.public)) {
         res.writeHead(200, { 'Content-Type': 'application/json' })
