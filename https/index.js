@@ -161,6 +161,8 @@ https.createServer(options, async function (req, res) {
   const q = url.parse(req.url, true)
   const method = req.method
 
+  console.error('[DEBUG] Request coming in, ', q, method)
+
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Headers', 'jax-client-token, authorization, content-type')
   res.setHeader('Access-Control-Allow-Methods', 'GET')
