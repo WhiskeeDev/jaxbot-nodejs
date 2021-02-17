@@ -47,7 +47,7 @@ const logEvent = function (message, embedDetails, channelID) {
   if (embedDetails.member) {
     embed.setAuthor(embedDetails.member.nickname || embedDetails.author.tag + (embedDetails.channelName ? ' | #' + embedDetails.channelName : ''), embedDetails.author.avatarURL())
   }
-  logToChannel(message, embed, channelID || config.channelID)
+  logToChannel(message, embed, channelID ? channelID : config.channelID)
 }
 
 module.exports = {
