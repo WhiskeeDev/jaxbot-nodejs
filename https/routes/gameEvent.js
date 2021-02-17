@@ -64,6 +64,7 @@ module.exports = {
             if (bodyData.gamemode === 'terrortown') {
               if (bodyData.event_type === 'death') {
                 const logID = config.gamemodeLogChannels[bodyData.gamemode]
+                console.error('gonna use the following logID from gameEvent, ', logID ? logID : null)
                 logEvent(null, {
                   description: `:skull_crossbones: Death
 
