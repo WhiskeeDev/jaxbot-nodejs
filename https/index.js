@@ -239,7 +239,9 @@ https.createServer(options, async function (req, res) {
 
       if (route.public === undefined) route.public = false
 
-      if (route && (requestValidity === 'noDiscordToken' && route.public)) {
+      const canAccessRoute = (route.public || (!route.public && requestValidity !== 'noDiscordToken'))
+
+      if (route && canAccessRoute) {
         res.writeHead(200, { 'Content-Type': 'application/json' })
         await route.method({
           request: req,
@@ -248,7 +250,7 @@ https.createServer(options, async function (req, res) {
           bodyData: json,
           params
         })
-      } else if (requestValidity === 'noDiscordToken' && !route.public) {
+      } else if (requestValidity !== 'noDiscordToken') {
         res.writeHead(404, { 'Content-Type': 'application/json' })
         res.write(convJson({
           status: 'error',
