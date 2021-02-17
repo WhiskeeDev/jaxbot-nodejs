@@ -88,7 +88,6 @@ async function getRequestValidity(request) {
   if (isBlocked) return 'blockedIp'
 
   // Check if Host is allowed
-  console.error(request.headers.host)
   const isValid = validHosts.some(validHost => requestHost.includes(validHost))
   if (!isValid) return 'unknownHost'
 
@@ -156,13 +155,10 @@ function matchRoute(pathName, requestMethod) {
 }
 
 https.createServer(options, async function (req, res) {
-
   // Check if the host is allowed
   const sourceIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress
   const q = url.parse(req.url, true)
   const method = req.method
-
-  console.error('[DEBUG] Request coming in, ', q, method)
 
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Headers', 'jax-client-token, authorization, content-type')

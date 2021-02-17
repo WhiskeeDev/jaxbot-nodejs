@@ -61,6 +61,7 @@ module.exports = {
         public: true,
         async method ({ response, bodyData }) {
           try {
+            console.error(bodyData)
             if (bodyData.gamemode === 'terrortown') {
               if (bodyData.event_type === 'death') {
                 const logID = config.gamemodeLogChannels[bodyData.gamemode]
