@@ -88,6 +88,7 @@ async function getRequestValidity(request) {
   if (isBlocked) return 'blockedIp'
 
   // Check if Host is allowed
+  console.error(request.headers.host)
   const isValid = validHosts.some(validHost => requestHost.includes(validHost))
   if (!isValid) return 'unknownHost'
 
