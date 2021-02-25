@@ -48,7 +48,6 @@ const logEvent = function (message, embedDetails, channelID) {
   if (embedDetails.member) {
     embed.setAuthor(embedDetails.member.nickname || embedDetails.author.tag + (embedDetails.channelName ? ' | #' + embedDetails.channelName : ''), embedDetails.author.avatarURL())
   }
-  console.error('bout to log to channel using this ID, ', channelID ? channelID : config.channelID)
   logToChannel(message, embed, channelID ? channelID : config.channelID)
 }
 

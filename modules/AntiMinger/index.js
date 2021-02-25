@@ -20,9 +20,8 @@ client.on('message', async message => {
     if (attachments.find( a => a.url.endsWith('.gifv') )) containsGif = true
   }
 
-  console.log(`${titleCard} Contains GIF: ${containsGif ? 'yes' : 'no'}`)
-
   if (containsGif) {
+    console.log(`${titleCard} Contains GIF, checking for permission...`)
     if (!hasPermissionToPostGifs) {
       console.log(`${titleCard} User does not have permission to post Gif, removing.`)
       command.reply('Your post was removed because it contains a gif, and you do not have permission to post gifs.')
