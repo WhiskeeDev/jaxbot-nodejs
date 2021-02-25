@@ -11,7 +11,7 @@ client.on('message', async message => {
   const command = new Command(message)
   const hasPermissionToPostGifs = await command.hasPermission('discord.chat.canPostGifs')
 
-  var containsGif = message.content.match(/(?:https*:\/\/(?:giphy|tenor|imgur|i.imgur)\.(?:com|co.uk))|\.(gif|gifv)$/gm)
+  var containsGif = message.content.match(/(?:https*:\/\/(?:giphy|tenor|imgur|i.imgur)\.(?:com|co.uk))|\.(gif|gifv).*$/gm)
 
   if (!containsGif) {
     const attachments = message.attachments.array()
