@@ -8,8 +8,20 @@ const titleCard = '[Anti-Minger]'
 
 client.on('message', async message => {
   if (message.author.bot) return false
+
   const command = new Command(message)
   const hasPermissionToPostGifs = await command.hasPermission('discord.chat.canPostGifs')
+
+  const noContents = (!message.attachments.array().length && !message.content.length)
+
+  if (noContents) {
+    console.log(`${titleCard} Has no content...`)
+    command.reply('Your post was removed because it has no valid content. If you think this is incorrect, use the help and support channel.')
+    message.delete({
+      reason: 'User\'s message did not contain valid content.'
+    })
+    return
+  }
 
   var containsGif = message.content.match(/(?:https*:\/\/(?:giphy|tenor|imgur|i.imgur)\.(?:com|co.uk))|\.(gif|gifv).*$/gm)
 
@@ -28,6 +40,7 @@ client.on('message', async message => {
       message.delete({
         reason: 'User does not have permission to post Gifs'
       })
+      return
     }
   }
 })
