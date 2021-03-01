@@ -17,7 +17,7 @@ client.on('message', async message => {
       console.log(`${titleCard} Getting DB Lookup timing`)
       date = new Date()
       const t2 = date.getTime()
-      await process.database.models.User.findOne({ include: process.database.models.Permission })
+      await process.database.models.User.findOne({ include: process.database.models.Role })
       date = new Date()
       const t3 = date.getTime()
       const timeToLookupInDB = t3 - t2
