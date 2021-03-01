@@ -275,13 +275,18 @@ process.database.models.Warn.findAll().then(async warns => {
   if (guilds) {
     guilds.each(guild => {
       guild.members.fetch().then(async members => {
-        usersToWarn.forEach(async u => {
-          const guildMember = await members.get(u)
-          if (guildMember && !guildMember.roles.cache.get(config.warnsRoleID)) {
-            guildMember.roles.add(config.warnsRoleID)
-            console.log(`${titleCard} Gave ${guildMember.nickname || guildMember.user.tag} the 'warns' role because they already have warns`.red)
-          }
-        })
+
+        const isTopHat = (guild.id === process.env.guild_id)
+
+        if (isTopHat) {
+          usersToWarn.forEach(async u => {
+            const guildMember = await members.get(u)
+            if (guildMember && !guildMember.roles.cache.get(config.warnsRoleID)) {
+              guildMember.roles.add(config.warnsRoleID)
+              console.log(`${titleCard} Gave ${guildMember.nickname || guildMember.user.tag} the 'warns' role because they already have warns`.red)
+            }
+          })
+        }
 
         members.forEach(member => {
           process.database.models.User.findOrCreate({
@@ -318,7 +323,7 @@ process.database.models.Warn.findAll().then(async warns => {
               user.save()
             }
 
-            if (user.vip && (roles && !roles.get(config.vipRoleID))) {
+            if (isTopHat && user.vip && (roles && !roles.get(config.vipRoleID))) {
               member.roles.add(config.vipRoleID)
               console.log(`${titleCard} Gave ${member.nickname || member.user.tag} the 'VIP' role because they were missing it.`.cyan)
             }
