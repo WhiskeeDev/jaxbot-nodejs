@@ -111,7 +111,7 @@ client.on('guildMemberAdd', member => {
     where: { id: member.user.id },
     defaults: {
       id: member.user.id,
-      tag: member.nickname || member.user.tag,
+      tag: member.user.tag,
       avatar: member.user.avatar,
       bot: member.user.bot,
       discriminator: member.user.discriminator
@@ -158,14 +158,14 @@ client.on('guildMemberUpdate', (oldMember, newMember) => {
     where: { id: oldMember.user.id },
     defaults: {
       id: newMember.user.id,
-      tag: newMember.nickname || newMember.user.tag,
+      tag: newMember.user.tag,
       avatar: newMember.user.avatar,
       bot: newMember.user.bot,
       discriminator: newMember.user.discriminator
     }
   }).then(([user]) => {
     if (!user.isNewRecord) {
-      user.tag = newMember.nickname || newMember.user.tag
+      user.tag = newMember.user.tag
       user.avatar = newMember.user.avatar
       user.bot = newMember.user.bot
       user.discriminator = newMember.user.discriminator

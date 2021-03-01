@@ -117,7 +117,7 @@ client.on('message', async message => {
         console.log(`${staffMember.nickname || staffMember.user.tag} warned ${warnUser.nickname || warnUser.user.tag} for: "${reason}"`.yellow)
         saveWarn({
           user: warnUser,
-          tag: warnUser.nickname || warnUser.user.tag,
+          tag: warnUser.user.tag,
           data: {
             date: command.message.createdTimestamp,
             reason: reason,
@@ -208,7 +208,7 @@ client.on('message', async message => {
               })
               saveBan({
                 user: firstMentionedUser,
-                tag: firstMentionedUser.nickname || firstMentionedUser.user.tag,
+                tag: firstMentionedUser.user.tag,
                 data: {
                   date: command.message.createdTimestamp,
                   reason: reason,
@@ -234,7 +234,7 @@ client.on('guildMemberAdd', async member => {
     where: { id: member.user.id },
     defaults: {
       id: member.user.id,
-      tag: member.nickname || member.user.tag,
+      tag: member.user.tag,
       avatar: member.user.avatar,
       bot: member.user.bot,
       discriminator: member.user.discriminator
@@ -254,7 +254,7 @@ client.on('guildMemberRemove', async member => {
     where: { id: member.user.id },
     defaults: {
       id: member.user.id,
-      tag: member.nickname || member.user.tag,
+      tag: member.user.tag,
       avatar: member.user.avatar,
       bot: member.user.bot,
       discriminator: member.user.discriminator
@@ -287,14 +287,14 @@ process.database.models.Warn.findAll().then(async warns => {
           where: { id: member.user.id },
           defaults: {
             id: member.user.id,
-            tag: member.nickname || member.user.tag,
+            tag: member.user.tag,
             avatar: member.user.avatar,
             bot: member.user.bot,
             discriminator: member.user.discriminator
           }
         }).then(([user]) => {
           if (!user.isNewRecord) {
-            user.tag = member.nickname || member.user.tag
+            user.tag = member.user.tag
             user.avatar = member.user.avatar
             user.bot = member.user.bot
             user.discriminator = member.user.discriminator
