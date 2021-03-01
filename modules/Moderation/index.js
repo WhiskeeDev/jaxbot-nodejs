@@ -1,4 +1,5 @@
 const { logEvent, colours } = require(global.appRoot + '/utils/logging.js')
+const { User, Warn, Ban } = process.database.models
 const { MessageEmbed } = require('discord.js')
 const Command = require('../Command.js')
 const { DateTime } = require('luxon')
@@ -15,11 +16,11 @@ const titleCard = '[Moderation]'
 const availableCommands = ['wipe', 'warn', 'warns', 'kick', 'ban', 'pardon']
 
 async function saveWarn (params) {
-  await process.database.models.User.findOrCreate({where: {id: params.user.id}, defaults: {
+  await User.findOrCreate({where: {id: params.user.id}, defaults: {
     id: params.user.id,
     tag: params.tag || 'UNKNOWN'
   }}).then(() => {
-    return process.database.models.Warn.create({
+    return Warn.create({
       reason: params.data.reason,
       date: params.data.date,
       StaffId: params.data.staff,
@@ -29,11 +30,11 @@ async function saveWarn (params) {
 }
 
 async function saveBan (params) {
-  await process.database.models.User.findOrCreate({where: {id: params.user.id}, defaults: {
+  await User.findOrCreate({where: {id: params.user.id}, defaults: {
     id: params.user.id,
     tag: params.tag || 'UNKNOWN'
   }}).then(() => {
-    return process.database.models.Ban.create({
+    return Ban.create({
       reason: params.data.reason,
       date: params.data.date,
       StaffId: params.data.staff,
@@ -75,7 +76,7 @@ client.on('message', async message => {
         command.reply('Yo, I need to know who you want me to check for warns!\nGive me a name by tagging them. i.e. `@' + command.member.nickname || command.author.tag + '`')
         return
       }
-      const warns = await process.database.models.Warn.findAll({
+      const warns = await Warn.findAll({
         where: { UserId: warnedUser.id }
       })
       if (warns.length < 1) {
@@ -230,7 +231,7 @@ client.on('message', async message => {
 })
 
 client.on('guildMemberAdd', async member => {
-  process.database.models.User.findOrCreate({
+  User.findOrCreate({
     where: { id: member.user.id },
     defaults: {
       id: member.user.id,
@@ -241,7 +242,7 @@ client.on('guildMemberAdd', async member => {
     }
   })
   if (!config.warnsRoleID) return false
-  const usersWarnProfile = await process.database.models.Warn.count({ where: {UserId: member.user.id} })
+  const usersWarnProfile = await Warn.count({ where: {UserId: member.user.id} })
 
   if (usersWarnProfile) {
     member.roles.add(config.warnsRoleID)
@@ -250,7 +251,7 @@ client.on('guildMemberAdd', async member => {
 })
 
 client.on('guildMemberRemove', async member => {
-  process.database.models.User.findOrCreate({
+  User.findOrCreate({
     where: { id: member.user.id },
     defaults: {
       id: member.user.id,
@@ -267,7 +268,7 @@ client.on('guildMemberRemove', async member => {
 })
 
 var usersToWarn = []
-process.database.models.Warn.findAll().then(async warns => {
+Warn.findAll().then(async warns => {
   warns.forEach(warn => {
     if (!usersToWarn.includes(warn.UserId)) usersToWarn.push(warn.UserId)
   })
@@ -289,7 +290,7 @@ process.database.models.Warn.findAll().then(async warns => {
         }
 
         members.forEach(member => {
-          process.database.models.User.findOrCreate({
+          User.findOrCreate({
             where: { id: member.user.id },
             defaults: {
               id: member.user.id,
@@ -304,30 +305,17 @@ process.database.models.Warn.findAll().then(async warns => {
               user.avatar = member.user.avatar
               user.bot = member.user.bot
               user.discriminator = member.user.discriminator
-              user.save()
             }
-          })
-        })
 
-        process.database.models.User.findAll().then(users => {
-          users.forEach(async user => {
-            const member = members.get(user.id)
+            user.leftServer = false
+
             const roles = member ? member.roles.cache : null
-            if (!user.leftServer && !member) {
-              user.leftServer = true
-              user.clanMember = false
-              user.save()
-              return
-            } else if (user.leftServer && member) {
-              user.leftServer = false
-              user.save()
-            }
-
             if (isTopHat && user.vip && (roles && !roles.get(config.vipRoleID))) {
               member.roles.add(config.vipRoleID)
               console.log(`${titleCard} Gave ${member.nickname || member.user.tag} the 'VIP' role because they were missing it.`.cyan)
             }
 
+            user.save()
           })
         })
       })
