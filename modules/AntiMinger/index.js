@@ -27,7 +27,6 @@ client.on('message', async message => {
 
   if (!containsGif) {
     const attachments = message.attachments.array()
-    console.error(attachments)
     if (attachments.find( a => a.url.endsWith('.gif') )) containsGif = true
     if (attachments.find( a => a.url.endsWith('.gifv') )) containsGif = true
   }

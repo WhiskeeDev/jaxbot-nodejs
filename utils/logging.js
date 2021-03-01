@@ -29,8 +29,7 @@ const colours = {
 const logToChannel = async function (message, embed, channelID) {
   const queryChannel = channelID ? channelID : config.channelID
   if (!channels[queryChannel]) {
-    const guild = await client.guilds.fetch(process.env.guild_id)
-    channels[queryChannel] = guild.channels.cache.find(ch => ch.id === queryChannel)
+    channels[queryChannel] = client.channels.cache.find(ch => ch.id === queryChannel)
   }
   channels[queryChannel].send(message, embed)
     .catch(err => {
@@ -46,8 +45,12 @@ const logEvent = function (message, embedDetails, channelID) {
     .setDescription(embedDetails.description)
     .setColor(embedDetails.color)
   if (embedDetails.member) {
-    embed.setAuthor(embedDetails.member.nickname || embedDetails.author.tag + (embedDetails.channelName ? ' | #' + embedDetails.channelName : ''), embedDetails.author.avatarURL())
+    embed.setAuthor((embedDetails.member.nickname || embedDetails.author.tag) + (embedDetails.guildName ? (' | ' + embedDetails.guildName) : '') + (embedDetails.channelName ? (' | #' + embedDetails.channelName) : ''), embedDetails.author.avatarURL())
   }
+  process.database.models.Event.create({
+    message,
+    data: embedDetails
+  })
   logToChannel(message, embed, channelID ? channelID : config.channelID)
 }
 

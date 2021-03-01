@@ -3,6 +3,8 @@ const colors = require('colors')
 const env = process.env
 const titlecard = '[DB]'
 const { createPermissions } = require('./create-permissions.js')
+const { createRoles } = require('./create-roles.js')
+const { createRolePermissions } = require('./create-rolePermissions.js')
 
 async function createDatabase () {
   console.log(`${titlecard} Initalizing`)
@@ -21,6 +23,25 @@ async function createDatabase () {
   })
 
   process.database = sequelize
+
+  console.log(`${titlecard} Creating 'Guild' Model`)
+  // Create Guild Model
+  class Guild extends Model { }
+  Guild.init({
+    id: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false,
+      primaryKey: true
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false
+    }
+  }, {
+    sequelize,
+    modelName: 'Guild'
+  })
 
   console.log(`${titlecard} Creating 'User' Model`)
   // Create User Model
@@ -94,6 +115,76 @@ async function createDatabase () {
   }, {
     sequelize,
     modelName: 'Permission'
+  })
+
+  console.log(`${titlecard} Creating 'Role' Model`)
+  // Create Role Model
+  class Role extends Model { }
+  Role.init({
+    name: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    tag: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      primaryKey: true
+    },
+    level: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    inherit: {
+      type: DataTypes.STRING,
+
+    }
+  }, {
+    sequelize,
+    modelName: 'Role'
+  })
+
+  console.log(`${titlecard} Creating 'UserRoles' Model`)
+  // Create UserRoles Model
+  class UserRoles extends Model { }
+  UserRoles.init({
+    id: {
+      type: DataTypes.INTEGER,
+      unique: true,
+      allowNull: false,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    UserId: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      reference: {
+        model: User,
+        key: 'id',
+      }
+    },
+    RoleTag: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      reference: {
+        model: Role,
+        key: 'tag'
+      }
+    },
+    GuildId: {
+      type: DataTypes.STRING,
+      reference: {
+        model: Guild,
+        key: 'id'
+      }
+    },
+  }, {
+    sequelize,
+    modelName: 'UserRoles'
   })
 
   console.log(`${titlecard} Creating 'Warn' Model`)
@@ -204,12 +295,34 @@ async function createDatabase () {
     modelName: 'SteamLink'
   })
 
+  console.log(`${titlecard} Creating 'Event' Model`)
+  // Create Client Model for tokens
+  class Event extends Model { }
+  Event.init({
+    message: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    data: {
+      type: DataTypes.JSON,
+      allowNull: false
+    },
+  }, {
+    sequelize,
+    modelName: 'Event'
+  })
+
   console.log(`${titlecard} Creating Relationships`)
   // Create Relationships (Associations)
 
-  // User Permission associations
-  User.belongsToMany(Permission, { through: 'UserPermissions' })
-  Permission.belongsToMany(User, { through: 'UserPermissions' })
+  // Role Permission associations
+  Role.belongsToMany(Permission, { through: 'RolePermissions' })
+  Permission.belongsToMany(Role, { through: 'RolePermissions' })
+  Role.hasOne(Role, { foreignKey: 'inherit', as: 'RoleInheritance' })
+
+  // User Role associations
+  User.belongsToMany(Role, { through: { model: UserRoles, unique: false } })
+  Role.belongsToMany(User, { through: { model: UserRoles, unique: false } })
 
   // User who is being warned
   User.hasMany(Warn)
@@ -236,6 +349,15 @@ async function createDatabase () {
   ApplicationType.hasMany(Application)
   Application.belongsTo(ApplicationType)
 
+  Guild.hasMany(Warn)
+  Warn.belongsTo(Guild)
+
+  Guild.hasMany(Ban)
+  Ban.belongsTo(Guild)
+
+  Guild.hasMany(Application)
+  Application.belongsTo(Guild)
+
   console.log(`${titlecard} Syncing Database`)
   // Sync Database
   await sequelize.sync({ alter: true }).catch(error => {
@@ -248,6 +370,8 @@ async function createDatabase () {
   console.log(`${titlecard} Checking if missing any default permissions...`)
   // Create Defaults
   createPermissions(Permission, titlecard)
+  createRoles(Role, titlecard)
+  createRolePermissions(Role, titlecard)
 }
 
 module.exports = new Promise(async (resolve) => {

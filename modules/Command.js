@@ -1,5 +1,4 @@
-const { load } = require(global.appRoot + '/utils/config.js')
-const moderationConfig = load('moderation')
+const { getUser, getUserRoles, getUserPermissions, hasPermission } = require(global.appRoot + '/utils/roles-and-perms.js')
 
 module.exports = class Command {
   constructor(message) {
@@ -10,16 +9,9 @@ module.exports = class Command {
     this.member = message.member
     this.formattedText = message.content.slice(process.env.prefix.length).toLowerCase()
     this.params = message.content.slice(process.env.prefix.length).split(' ').slice(1) || []
+    this.guild = message.guild
 
     this.isAValidCommand = (message.content.length > (process.env.prefix.length)) && message.content.startsWith(`${process.env.prefix}`)
-
-    this.isStaff = false
-
-    if (message.channel.type !== 'dm' && moderationConfig.staffRoles && moderationConfig.staffRoles.length) {
-      if (moderationConfig.staffRoles.some(id => this.message.member.roles.cache.has(id))) {
-        this.isStaff = true
-      }
-    }
 
     this.chatAuthorName = `${message.member && message.member.nickname ? message.member.nickname : message.author.tag}`
     this.chatAuthorLocation = ''
@@ -40,13 +32,11 @@ module.exports = class Command {
       }
     }
 
-    this.hasPermission = async (permissionName) => {
-      const user = await process.database.models.User.findOne({
-        where: { id: this.author.id },
-        include: process.database.models.Permission
-      })
-      return user.Permissions.some(perm => perm.tag === permissionName)
-    }
+    this.user = async () => await getUser(this.guild.id, this.author.id)
+    this.userRoles = async () => await getUserRoles(this.guild.id, this.author.id)
+    this.userPermissions = async () => await getUserPermissions(this.guild.id, this.author.id)
+
+    this.hasPermission = async (permTag) => hasPermission(this.guild.id, this.author.id, permTag)
 
     this.invalidPermission = () => {
       this.reply('I\'m sorry, you do not have the correct permissions to run this command.')

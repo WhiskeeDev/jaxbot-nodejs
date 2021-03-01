@@ -3,7 +3,7 @@ const client = process.discordClient
 // title card is used for both console and embeds
 const titleCard = '[Utilities]'
 
-const availableCommands = ['ms']
+const availableCommands = ['ms', 'roles', 'perms']
 
 client.on('message', async message => {
   if (message.author.bot) return
@@ -37,6 +37,16 @@ client.on('message', async message => {
 
 
       command.reply('Completed timing test, here are the results in milliseconds:\n```' + `Time for the command to reach the bot: ${timeToReceiveCommand}\nTime to do a DB Lookup: ${timeToLookupInDB}\nTime to check Permission(s): ${timeToCheckPermission}` + '```**All times are estimations and may not be accurate**', false)
+    }
+    if (command.formattedText.startsWith('roles')) {
+      const roles = await command.userRoles()
+      let rolesText = roles.map(role => `- ${role.name}`).join('\n')
+      command.reply('You have the following Roles:```' + rolesText + '```')
+    }
+    if (command.formattedText.startsWith('perms')) {
+      const permissions = await command.userPermissions()
+      let permissionsText = permissions.map(permission => `- ${permission.name}`).join('\n')
+      command.reply('You have the following Permissions:```' + permissionsText + '```')
     }
   }
 })

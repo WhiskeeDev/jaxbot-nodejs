@@ -5,10 +5,7 @@ const { DateTime } = require('luxon')
 
 const { load } = require(global.appRoot + '/utils/config.js')
 const config = load('moderation', {
-  warnsRoleID: null,
-  staffRoles: [
-    null
-  ]
+  warnsRoleID: null
 })
 
 const client = process.discordClient
@@ -17,16 +14,30 @@ const titleCard = '[Moderation]'
 
 const availableCommands = ['wipe', 'warn', 'warns', 'kick', 'ban', 'pardon']
 
-async function saveWarn (newWarnData) {
-  await process.database.models.User.findOrCreate({where: {id: newWarnData.user.id}, defaults: {
-    id: newWarnData.user.id,
-    tag: newWarnData.tag || 'UNKNOWN'
+async function saveWarn (params) {
+  await process.database.models.User.findOrCreate({where: {id: params.user.id}, defaults: {
+    id: params.user.id,
+    tag: params.tag || 'UNKNOWN'
   }}).then(() => {
     return process.database.models.Warn.create({
-      reason: newWarnData.data.reason,
-      date: newWarnData.data.date,
-      StaffId: newWarnData.data.staff,
-      UserId: newWarnData.user.id
+      reason: params.data.reason,
+      date: params.data.date,
+      StaffId: params.data.staff,
+      UserId: params.user.id
+    })
+  })
+}
+
+async function saveBan (params) {
+  await process.database.models.User.findOrCreate({where: {id: params.user.id}, defaults: {
+    id: params.user.id,
+    tag: params.tag || 'UNKNOWN'
+  }}).then(() => {
+    return process.database.models.Ban.create({
+      reason: params.data.reason,
+      date: params.data.date,
+      StaffId: params.data.staff,
+      UserId: params.user.id
     })
   })
 }
@@ -195,6 +206,15 @@ client.on('message', async message => {
                 ${reason}`,
                 color: colours.negative
               })
+              saveBan({
+                user: firstMentionedUser,
+                tag: firstMentionedUser.nickname || firstMentionedUser.user.tag,
+                data: {
+                  date: command.message.createdTimestamp,
+                  reason: reason,
+                  staff: staffMember.user.id
+                }
+              })
             })
           })
       }
@@ -210,6 +230,16 @@ client.on('message', async message => {
 })
 
 client.on('guildMemberAdd', async member => {
+  process.database.models.User.findOrCreate({
+    where: { id: member.user.id },
+    defaults: {
+      id: member.user.id,
+      tag: member.nickname || member.user.tag,
+      avatar: member.user.avatar,
+      bot: member.user.bot,
+      discriminator: member.user.discriminator
+    }
+  })
   if (!config.warnsRoleID) return false
   const usersWarnProfile = await process.database.models.Warn.count({ where: {UserId: member.user.id} })
 
@@ -217,6 +247,23 @@ client.on('guildMemberAdd', async member => {
     member.roles.add(config.warnsRoleID)
     console.log(`${titleCard} Gave ${member.nickname || member.user.tag} the 'warns' role because they already have warns`.red)
   }
+})
+
+client.on('guildMemberRemove', async member => {
+  process.database.models.User.findOrCreate({
+    where: { id: member.user.id },
+    defaults: {
+      id: member.user.id,
+      tag: member.nickname || member.user.tag,
+      avatar: member.user.avatar,
+      bot: member.user.bot,
+      discriminator: member.user.discriminator
+    }
+  })
+    .then(([user]) => {
+      user.leftServer = false
+      user.save()
+    })
 })
 
 var usersToWarn = []
@@ -270,7 +317,7 @@ process.database.models.Warn.findAll().then(async warns => {
             user.save()
           }
 
-          if (user.vip && !roles.get(config.vipRoleID)) {
+          if (user.vip && (roles && !roles.get(config.vipRoleID))) {
             member.roles.add(config.vipRoleID)
             console.log(`${titleCard} Gave ${member.nickname || member.user.tag} the 'VIP' role because they were missing it.`.cyan)
           }

@@ -1,3 +1,5 @@
+const { getUserPermissions } = require(global.appRoot + '/utils/roles-and-perms.js')
+
 function convJson (json) {
   return JSON.stringify(json, null, 2)
 }
@@ -23,13 +25,7 @@ function sendMessage (channelID, message) {
 
 async function hasPermission(activeUser, permissionName) {
   if (!permissionName) return false
-  const userPermissions = await process.database.models.User.findOne({
-    where: { id: activeUser.id },
-    include: process.database.models.Permission
-  }).then(user => {
-    const permissions = user.Permissions.map(perm => perm.tag)
-    return permissions
-  })
+  const userPermissions = await getUserPermissions(activeUser.id).then(res => res.map(perm => perm.tag))
   return userPermissions.includes(permissionName)
 }
 

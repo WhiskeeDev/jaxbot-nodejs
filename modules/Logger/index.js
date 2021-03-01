@@ -50,7 +50,7 @@ if (config.log.deletedMessages) {
       a.url = a.proxyURL
     })
     logEvent(null, {
-      description: `:no_entry: <@${message.author.id}>'s message was deleted.
+      description: `🚯 <@${message.author.id}>'s message was deleted.
 
             **Original Message**
             ${message.content}
@@ -60,7 +60,8 @@ if (config.log.deletedMessages) {
       color: colours.negative,
       author: message.author,
       member: message.member,
-      channelName: message.channel.name
+      channelName: message.channel.name,
+      guildName: message.guild.name
     })
     if (hasAttachments) {
       logToChannel(null, attachments)
@@ -89,7 +90,8 @@ if (config.log.updatedMessages) {
       color: colours.warning,
       author: oldMessage.author,
       member: oldMessage.member,
-      channelName: newMessage.channel.name
+      channelName: newMessage.channel.name,
+      guildName: newMessage.guild.name
     })
     console.log(`${oldMessage.member.nickname || oldMessage.author.tag}'s Message was updated. Original Message: \`${oldMessage.content}\` -> \`${newMessage.content}\``.yellow)
   })
