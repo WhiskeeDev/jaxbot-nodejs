@@ -11,7 +11,6 @@ module.exports = {
         routeName: '/authenticate',
         async method ({ response, activeUser }) {
           try {
-            console.error(activeUser)
             const user = await process.database.models.User.findOne({
               where: { bot: false, id: activeUser.id }
             }).then(async user => {
