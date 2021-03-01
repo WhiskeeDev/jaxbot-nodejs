@@ -271,57 +271,59 @@ process.database.models.Warn.findAll().then(async warns => {
   warns.forEach(warn => {
     if (!usersToWarn.includes(warn.UserId)) usersToWarn.push(warn.UserId)
   })
-  const guild = await client.guilds.fetch(process.env.guild_id)
-  if (guild) {
-    guild.members.fetch().then(async members => {
-      usersToWarn.forEach(async u => {
-        const guildMember = await members.get(u)
-        if (guildMember && !guildMember.roles.cache.get(config.warnsRoleID)) {
-          guildMember.roles.add(config.warnsRoleID)
-          console.log(`${titleCard} Gave ${guildMember.nickname || guildMember.user.tag} the 'warns' role because they already have warns`.red)
-        }
-      })
-
-      members.forEach(member => {
-        process.database.models.User.findOrCreate({
-          where: { id: member.user.id },
-          defaults: {
-            id: member.user.id,
-            tag: member.user.tag,
-            avatar: member.user.avatar,
-            bot: member.user.bot,
-            discriminator: member.user.discriminator
-          }
-        }).then(([user]) => {
-          if (!user.isNewRecord) {
-            user.tag = member.user.tag
-            user.avatar = member.user.avatar
-            user.bot = member.user.bot
-            user.discriminator = member.user.discriminator
-            user.save()
+  const guilds = await client.guilds.cache
+  if (guilds) {
+    guilds.each(guild => {
+      guild.members.fetch().then(async members => {
+        usersToWarn.forEach(async u => {
+          const guildMember = await members.get(u)
+          if (guildMember && !guildMember.roles.cache.get(config.warnsRoleID)) {
+            guildMember.roles.add(config.warnsRoleID)
+            console.log(`${titleCard} Gave ${guildMember.nickname || guildMember.user.tag} the 'warns' role because they already have warns`.red)
           }
         })
-      })
 
-      process.database.models.User.findAll().then(users => {
-        users.forEach(async user => {
-          const member = members.get(user.id)
-          const roles = member ? member.roles.cache : null
-          if (!user.leftServer && !member) {
-            user.leftServer = true
-            user.clanMember = false
-            user.save()
-            return
-          } else if (user.leftServer && member) {
-            user.leftServer = false
-            user.save()
-          }
+        members.forEach(member => {
+          process.database.models.User.findOrCreate({
+            where: { id: member.user.id },
+            defaults: {
+              id: member.user.id,
+              tag: member.user.tag,
+              avatar: member.user.avatar,
+              bot: member.user.bot,
+              discriminator: member.user.discriminator
+            }
+          }).then(([user]) => {
+            if (!user.isNewRecord) {
+              user.tag = member.user.tag
+              user.avatar = member.user.avatar
+              user.bot = member.user.bot
+              user.discriminator = member.user.discriminator
+              user.save()
+            }
+          })
+        })
 
-          if (user.vip && (roles && !roles.get(config.vipRoleID))) {
-            member.roles.add(config.vipRoleID)
-            console.log(`${titleCard} Gave ${member.nickname || member.user.tag} the 'VIP' role because they were missing it.`.cyan)
-          }
+        process.database.models.User.findAll().then(users => {
+          users.forEach(async user => {
+            const member = members.get(user.id)
+            const roles = member ? member.roles.cache : null
+            if (!user.leftServer && !member) {
+              user.leftServer = true
+              user.clanMember = false
+              user.save()
+              return
+            } else if (user.leftServer && member) {
+              user.leftServer = false
+              user.save()
+            }
 
+            if (user.vip && (roles && !roles.get(config.vipRoleID))) {
+              member.roles.add(config.vipRoleID)
+              console.log(`${titleCard} Gave ${member.nickname || member.user.tag} the 'VIP' role because they were missing it.`.cyan)
+            }
+
+          })
         })
       })
     })

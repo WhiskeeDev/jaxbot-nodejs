@@ -89,8 +89,7 @@ module.exports = {
                 })
 
                 if (!victimUser) return
-                const guild = await client.guilds.fetch(process.env.guild_id)
-                const vc = guild.channels.cache.find(ch => ch.id === vcID)
+                const vc = client.channels.cache.find(ch => ch.id === vcID)
 
                 if (vc.members.has(victimUser.id)) {
                   const member = vc.members.get(victimUser.id)
@@ -106,8 +105,7 @@ module.exports = {
                 })
 
                 if (!victimUser) return
-                const guild = await client.guilds.fetch(process.env.guild_id)
-                const vc = guild.channels.cache.find(ch => ch.id === vcID)
+                const vc = client.channels.cache.find(ch => ch.id === vcID)
 
                 if (vc.members.has(victimUser.id)) {
                   const member = vc.members.get(victimUser.id)
@@ -118,8 +116,7 @@ module.exports = {
 
                 if (!vcID) return
 
-                const guild = await client.guilds.fetch(process.env.guild_id)
-                const vc = guild.channels.cache.find(ch => ch.id === vcID)
+                const vc = client.channels.cache.find(ch => ch.id === vcID)
 
                 vc.members.each(member => {
                   member.voice.setMute(false, 'Round ended')
