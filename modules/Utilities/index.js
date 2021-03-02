@@ -7,7 +7,7 @@ const availableCommands = ['ms', 'roles', 'perms']
 
 client.on('message', async message => {
   if (message.author.bot) return
-  const command = new Command(message)
+  const command = new Command(message, true)
 
   if (!command.isAValidCommand) return
 
@@ -39,14 +39,16 @@ client.on('message', async message => {
       command.reply('Completed timing test, here are the results in milliseconds:\n```' + `Time for the command to reach the bot: ${timeToReceiveCommand}\nTime to do a DB Lookup: ${timeToLookupInDB}\nTime to check Permission(s): ${timeToCheckPermission}` + '```**All times are estimations and may not be accurate**', false)
     }
     if (command.formattedText.startsWith('roles')) {
-      const roles = await command.userRoles()
+      const targetText = command.target !== command.author ? `${command.target.username} has` : 'You have'
+      const roles = await command.userRoles(command.target ? command.target.id : null)
       let rolesText = roles.map(role => `- ${role.name}`).join('\n')
-      command.reply('You have the following Roles:```' + rolesText + '```')
+      command.reply(targetText + ' the following Roles:```' + rolesText + '```')
     }
     if (command.formattedText.startsWith('perms')) {
-      const permissions = await command.userPermissions()
+      const targetText = command.target !== command.author ? `${command.target.username} has` : 'You have'
+      const permissions = await command.userPermissions(command.target ? command.target.id : null)
       let permissionsText = permissions.map(permission => `- ${permission.name}`).join('\n')
-      command.reply('You have the following Permissions:```' + permissionsText + '```')
+      command.reply(targetText + ' the following Permissions:```' + permissionsText + '```')
     }
   }
 })

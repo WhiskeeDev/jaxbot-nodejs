@@ -26,7 +26,7 @@ if (!config.channelID) {
   return
 }
 
-client.on('message', message => {
+client.on('message', async message => {
   if (message.author.bot) return false
   const command = new Command(message)
   console.log(`[ ${command.chatAuthorName}${command.chatAuthorLocation} ]: ${command.message.content}`.cyan)

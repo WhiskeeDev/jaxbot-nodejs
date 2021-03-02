@@ -8,6 +8,7 @@ const titleCard = '[Anti-Minger]'
 
 client.on('message', async message => {
   if (message.author.bot) return false
+  if (message.system) return false
 
   const command = new Command(message)
   const hasPermissionToPostGifs = await command.hasPermission('discord.chat.canPostGifs')

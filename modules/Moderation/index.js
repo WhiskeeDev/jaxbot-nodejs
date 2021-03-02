@@ -45,7 +45,7 @@ async function saveBan (params) {
 
 client.on('message', async message => {
   if (message.author.bot) return
-  const command = new Command(message)
+  const command = new Command(message, true)
 
   if (!command.isAValidCommand) return
 
@@ -65,27 +65,26 @@ client.on('message', async message => {
       newChannel.setPosition(originalPosition)
     }
 
-    if (command.formattedText.startsWith('warns')) {
+
+    else if (command.formattedText.startsWith('warns')) {
       const hasPermission = await command.hasPermission('warn.index')
       if (!hasPermission) {
         return command.invalidPermission()
       }
-      const firstMentionedUser = command.message.mentions.members.first() || command.message.member
-      const warnedUser = firstMentionedUser ? firstMentionedUser.user : null
-      if (!warnedUser) {
+      if (!command.target) {
         command.reply('Yo, I need to know who you want me to check for warns!\nGive me a name by tagging them. i.e. `@' + command.member.nickname || command.author.tag + '`')
         return
       }
       const warns = await Warn.findAll({
-        where: { UserId: warnedUser.id }
+        where: { UserId: command.target.id }
       })
       if (warns.length < 1) {
-        command.reply(((warnedUser.id === command.author.id) ? 'You have' : warnedUser.username + ' has') + ' no warns! Yey!')
+        command.reply(((command.target.id === command.author.id) ? 'You have' : command.target.username + ' has') + ' no warns! Yey!')
         return
       }
       const embed = new MessageEmbed()
       embed
-        .setAuthor(warnedUser.tag, warnedUser.avatarURL())
+        .setAuthor(command.target.tag, command.target.avatarURL())
         .setDescription(`Here is the first ${Math.min(8, warns.length)} of ${warns.length} warns`)
 
       for (var warnNum in warns.slice(0, 8)) {
@@ -95,18 +94,25 @@ client.on('message', async message => {
         embed.addField('Date', warn.createdAt ? DateTime.fromISO(warn.createdAt.toISOString()).toISODate() : 'NO DATE', true)
       }
       command.reply(embed)
-    } else if (command.formattedText.startsWith('warn')) {
+    }
+
+
+    else if (command.formattedText.startsWith('warn')) {
       const hasPermission = await command.hasPermission('moderation.warn')
       if (!hasPermission) {
         return command.invalidPermission()
       }
+      const canTarget = await command.canInvokeTarget()
+      if (!canTarget) {
+        return command.cannotTarget()
+      }
       const staffMember = command.member
-      const firstMentionedUser = command.message.mentions.members.first()
-      const warnUser = firstMentionedUser ? firstMentionedUser : null
+      const target = command.target
+      const targetMember = command.guild.member(target)
       var reason = command.params[1] || 'No Reason'
 
-      if (command.params.length < 1) {
-        command.reply('Hey, you gotta tag who you want to warn my dude!')
+      if (command.target === command.author) {
+        command.reply('Unless you\'re looking to warn yourself, I\'d recommend actually targetting someone.')
         return
       }
 
@@ -114,37 +120,45 @@ client.on('message', async message => {
         reason = command.params.slice(1).join(' ')
       }
 
-      if (staffMember && warnUser) {
-        console.log(`${staffMember.nickname || staffMember.user.tag} warned ${warnUser.nickname || warnUser.user.tag} for: "${reason}"`.yellow)
+      if (staffMember && target) {
+        console.log(`${staffMember.nickname || staffMember.user.tag} warned ${target.tag} for: "${reason}"`.yellow)
         saveWarn({
-          user: warnUser,
-          tag: warnUser.user.tag,
+          user: target,
+          tag: target.tag,
           data: {
             date: command.message.createdTimestamp,
             reason: reason,
             staff: staffMember.user.id
           }
         }).then(() => {
-          command.reply(`Sucessfully warned ${warnUser.nickname || warnUser.user.username}!`)
-          if (config.warnsRoleID) firstMentionedUser.roles.add(config.warnsRoleID)
-          warnUser
+          command.reply(`Sucessfully warned ${target.username}!`)
+          if (config.warnsRoleID) targetMember.roles.add(config.warnsRoleID)
+          target
             .send(`You were warned by <@${staffMember.user.id}> for the following reason:\n` + '```' + reason + '```')
         }).catch(error => {
           console.error(error)
-          command.reply(`Unable to warn ${warnUser.nickname || warnUser.user.username}! Check console for errors...`)
+          command.reply(`Unable to warn ${target.username}! Check console for errors...`)
         })
       }
-    } else if (command.formattedText.startsWith('kick')) {
+    }
+
+
+    else if (command.formattedText.startsWith('kick')) {
       const hasPermission = await command.hasPermission('moderation.kick')
       if (!hasPermission) {
         return command.invalidPermission()
       }
+      const canTarget = await command.canInvokeTarget()
+      if (!canTarget) {
+        return command.cannotTarget()
+      }
       const staffMember = command.member
-      const firstMentionedUser = command.message.mentions.members.first()
+      const target = command.target
+      const targetMember = command.guild.member(target)
       var reason = command.params[1] || 'No Reason'
 
-      if (command.params.length < 1) {
-        command.reply('Hey, you gotta tag who you want to kick my dude!')
+      if (command.target === command.author) {
+        command.reply('Unless you\'re looking to kick yourself, I\'d recommend actually targetting someone.')
         return
       }
 
@@ -152,15 +166,15 @@ client.on('message', async message => {
         reason = command.params.slice(1).join(' ')
       }
 
-      if (staffMember && firstMentionedUser) {
-        console.log(`${staffMember.nickname || staffMember.user.tag} kicked ${firstMentionedUser.nickname || firstMentionedUser.user.tag} for: "${reason}"`.yellow)
-        firstMentionedUser
-          .send(`You were kicked by <@${staffMember.user.id}> for the following reason:\n` + '```' + reason + '```')
+      if (staffMember && target) {
+        console.log(`${staffMember.nickname || staffMember.user.tag} kicked ${target.tag} for: "${reason}"`.yellow)
+        target
+          .send(`You were kicked by <@${staffMember.user.id}> from ${command.guild.name} for the following reason:\n` + '```' + reason + '```')
           .then(() => {
-            firstMentionedUser.kick(reason).then(() => {
-              command.reply(`Successfully kicked <@${firstMentionedUser.user.id}>!`)
+            targetMember.kick(reason).then(() => {
+              command.reply(`Successfully kicked <@${target.id}>!`)
               logEvent(null, {
-                description: `:athletic_shoe: Kicked <@${firstMentionedUser.user.id}>
+                description: `:athletic_shoe: Kicked <@${target.id}>
 
                 **Kicked By:**
                 <@${staffMember.user.id}>
@@ -172,17 +186,25 @@ client.on('message', async message => {
             })
           })
       }
-    } else if (command.formattedText.startsWith('ban')) {
+    }
+
+
+    else if (command.formattedText.startsWith('ban')) {
       const hasPermission = await command.hasPermission('moderation.ban')
       if (!hasPermission) {
         return command.invalidPermission()
       }
+      const canTarget = await command.canInvokeTarget()
+      if (!canTarget) {
+        return command.cannotTarget()
+      }
       const staffMember = command.member
-      const firstMentionedUser = command.message.mentions.members.first()
+      const target = command.target
+      const targetMember = command.guild.member(target)
       var reason = command.params[1] || 'No Reason'
 
-      if (command.params.length < 1) {
-        command.reply('Hey, you gotta tag who you want to ban my dude!')
+      if (command.target === command.author) {
+        command.reply('Unless you\'re looking to ban yourself, I\'d recommend actually targetting someone.')
         return
       }
 
@@ -190,15 +212,15 @@ client.on('message', async message => {
         reason = command.params.slice(1).join(' ')
       }
 
-      if (staffMember && firstMentionedUser) {
-        console.log(`${staffMember.nickname || staffMember.user.tag} banned ${firstMentionedUser.nickname || firstMentionedUser.user.tag} for: "${reason}"`.yellow)
-        firstMentionedUser
+      if (staffMember && target) {
+        console.log(`${staffMember.nickname || staffMember.user.tag} banned ${target.tag} for: "${reason}"`.yellow)
+        target
           .send(`You were banned by <@${staffMember.user.id}> for the following reason:\n` + '```' + reason + '```')
           .then(() => {
-            firstMentionedUser.ban({ reason }).then(() => {
-              command.reply(`Successfully banned <@${firstMentionedUser.user.id}>!`)
+            targetMember.ban({ reason }).then(() => {
+              command.reply(`Successfully banned <@${target.id}>!`)
               logEvent(null, {
-                description: `:hammer: banned <@${firstMentionedUser.user.id}>
+                description: `:hammer: banned <@${target.id}>
 
                 **Banned By:**
                 <@${staffMember.user.id}>
@@ -208,8 +230,8 @@ client.on('message', async message => {
                 color: colours.negative
               })
               saveBan({
-                user: firstMentionedUser,
-                tag: firstMentionedUser.user.tag,
+                user: target,
+                tag: target.tag,
                 data: {
                   date: command.message.createdTimestamp,
                   reason: reason,
@@ -219,7 +241,10 @@ client.on('message', async message => {
             })
           })
       }
-    } else if (command.formattedText.startsWith('pardon')) {
+    }
+
+
+    else if (command.formattedText.startsWith('pardon')) {
       command.reply('This command is still being worked on, it should be available in the future.')
       // const hasPermission = await command.hasPermission('moderation.pardon')
 

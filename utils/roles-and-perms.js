@@ -129,14 +129,33 @@ const getUserPermissions = async function (guildId, id) {
   return permsFromRoles
 }
 
-const hasPermission = async function (guildId, id, permTag) {
-  const permissions = await getUserPermissions(guildId, id)
+const hasPermission = async function (guildId, userId, permTag) {
+  const permissions = await getUserPermissions(guildId, userId)
   return permissions.some(perm => perm.tag === permTag)
+}
+
+const userCanInvokeTarget = async function (guildId, userId, targetId) {
+  const userRoles = await getUserRoles(guildId, userId)
+  const targetRoles = await getUserRoles(guildId, targetId)
+
+  let highestUserLevel = 0
+  let highestTargetLevel = 0
+
+  userRoles.forEach(role => {
+    if (role.level > highestUserLevel) highestUserLevel = role.level
+  })
+
+  targetRoles.forEach(role => {
+    if (role.level > highestTargetLevel) highestTargetLevel = role.level
+  })
+
+  return highestUserLevel > highestTargetLevel
 }
 
 module.exports = {
   getUser,
   getUserRoles,
   getUserPermissions,
-  hasPermission
+  hasPermission,
+  userCanInvokeTarget
 }
