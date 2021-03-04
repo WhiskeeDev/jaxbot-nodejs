@@ -81,7 +81,7 @@ module.exports = class Command {
 
     // Setup targetting (i.e. who is the command being run against)
     this.target = null
-    if (shouldFindTarget) {
+    if (shouldFindTarget && this.isAValidCommand) {
       this.target = this.author
       this.validateTarget = false
       const secondParam = this.formattedText.split(' ')[1]
