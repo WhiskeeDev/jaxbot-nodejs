@@ -9,7 +9,7 @@ client.on('message', async message => {
   if (message.author.bot) return false
   if (message.system) return false
 
-  const command = new Command(message)
+  const command = new Command(message, false, true)
   const hasPermissionToPostGifs = await command.hasPermission('discord.chat.canPostGifs')
 
   const noContents = (!message.attachments.array().length && !message.content.length && !message.activity)
@@ -22,6 +22,8 @@ client.on('message', async message => {
     })
     return
   }
+
+  if (!command.dbGuild.gifsRequirePerms) return
 
   var containsGif = message.content.match(/(?:https*:\/\/(?:giphy|tenor|imgur|i.imgur)\.(?:com|co.uk))|\.(gif|gifv).*$/gm)
 

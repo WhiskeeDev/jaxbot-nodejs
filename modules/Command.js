@@ -1,11 +1,12 @@
 const { getUser, getUserRoles, getUserPermissions, hasPermission, userCanInvokeTarget } = require(global.appRoot + '/utils/roles-and-perms.js')
+const { Guild } = process.database.models
 const client = process.discordClient
 
 module.exports = class Command {
-  constructor(message, shouldFindTarget) {
+  constructor(message, shouldFindTarget, checkGuild) {
     const BotLogName = '~BOT~'
     this.message = message
-    this.init(shouldFindTarget)
+    this.init(shouldFindTarget, checkGuild)
 
     this.reply = (reply, direct = true) => {
       const author = `${message.member.nickname || message.author.tag}`
@@ -70,7 +71,7 @@ module.exports = class Command {
 
   }
 
-  async init (shouldFindTarget) {
+  async init (shouldFindTarget, checkGuild) {
     // Setup initial params
     this.author = this.message.author
     this.member = this.message.member
@@ -112,6 +113,11 @@ module.exports = class Command {
       this.chatAuthorLocation = `${this.message.channel.guild.name} (#${this.message.channel.name})`
     } else if (this.message.channel.type === 'dm') {
       this.chatAuthorLocation = 'DM'
+    }
+
+    // Get guild from DB, for config and shite
+    if (checkGuild) {
+      this.dbGuild = await Guild.findOne({ where: { id: this.guild.id } })
     }
 
     return this

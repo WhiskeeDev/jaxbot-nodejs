@@ -37,6 +37,11 @@ async function createDatabase () {
     name: {
       type: DataTypes.STRING,
       allowNull: false
+    },
+    gifsRequirePerms: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true
     }
   }, {
     sequelize,
