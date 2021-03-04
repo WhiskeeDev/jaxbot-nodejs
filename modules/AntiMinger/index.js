@@ -1,4 +1,3 @@
-// const { logToChannel, logEvent, colours } = require(global.appRoot + '/utils/logging.js')
 const Command = require('../Command')
 
 const client = process.discordClient
@@ -13,7 +12,7 @@ client.on('message', async message => {
   const command = new Command(message)
   const hasPermissionToPostGifs = await command.hasPermission('discord.chat.canPostGifs')
 
-  const noContents = (!message.attachments.array().length && !message.content.length)
+  const noContents = (!message.attachments.array().length && !message.content.length && !message.activity)
 
   if (noContents) {
     console.log(`${titleCard} Has no content...`)

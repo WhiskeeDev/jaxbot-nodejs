@@ -29,7 +29,11 @@ if (!config.channelID) {
 client.on('message', async message => {
   if (message.author.bot) return false
   const command = new Command(message)
-  console.log(`[ ${command.chatAuthorName}${command.chatAuthorLocation} ]: ${command.message.content}`.cyan)
+
+  let messageToPrint = message.content
+  if (!messageToPrint && message.activity) messageToPrint = message.activity.partyID
+
+  console.log(`[ ${command.chatAuthorName} | ${command.chatAuthorLocation} ]: ${messageToPrint}`.cyan)
 })
 
 if (config.log.logBoot) {
