@@ -30,8 +30,29 @@ client.on('message', async message => {
   if (message.author.bot) return false
   const command = new Command(message)
 
-  let messageToPrint = message.content
-  if (!messageToPrint && message.activity) messageToPrint = message.activity.partyID
+  const activityPartyID = message.activity ? message.activity .partyID : null
+  let activityType = ''
+
+  if (message.activity) {
+    switch (message.activity.type) {
+    case 1:
+      activityType = 'JOIN'
+      break
+    case 2:
+      activityType = 'SPECTATE'
+      break
+    case 3:
+      activityType = 'LISTEN'
+      break
+    case 5:
+      activityType = 'JOIN REQUEST'
+      break
+    default:
+      activityType = 'UNKNOWN'
+    }
+  }
+
+  const messageToPrint = message.content + (activityPartyID ? `${(message.content && message.content.length > 0) ? ' ' : ''}[Activity Type: ${activityType}, ID: ${activityPartyID}]` : '')
 
   console.log(`[ ${command.chatAuthorName} | ${command.chatAuthorLocation} ]: ${messageToPrint}`.cyan)
 })
