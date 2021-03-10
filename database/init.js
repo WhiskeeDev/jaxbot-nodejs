@@ -42,6 +42,17 @@ async function createDatabase () {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true
+    },
+    meta: {
+      type: DataTypes.JSON,
+      defaultValue: JSON.stringify({
+        gifsRequirePerms: true,
+        gameEventConfig: {
+          gamemodeLogChannels: {},
+          gamemodeVCChannels: {}
+        }
+      }),
+      allowNull: false
     }
   }, {
     sequelize,

@@ -1,3 +1,5 @@
+const { Guild, SteamLink, User } = process.database.models
+
 const { logEvent, colours } = require(global.appRoot + '/utils/logging.js')
 
 function convJson (json) {
@@ -5,11 +7,6 @@ function convJson (json) {
 }
 
 const client = process.discordClient
-const { load } = require(global.appRoot + '/utils/config.js')
-const config = load('gameEvents', {
-  gamemodeLogChannels: [],
-  gamemodeVCChannels: []
-})
 
 module.exports = {
   routes () {
@@ -27,7 +24,7 @@ module.exports = {
                 message: 'Missing required field: steamID'
               }))
             } else {
-              const link = await process.database.models.SteamLink.findOrCreate({
+              const link = await SteamLink.findOrCreate({
                 where: { steamID },
                 defaults: {
                   steamID,
@@ -59,8 +56,16 @@ module.exports = {
         reqMethod: 'POST',
         public: true,
         async method ({ response, bodyData }) {
+          if (!bodyData.guildId) return
+          const guild = await Guild.findOne({ where: { id: bodyData.guildId } })
+          if (!guild) return
+          const config = guild.meta.gameEventConfig
+
           try {
             if (bodyData.gamemode === 'terrortown') {
+              const playingRole = config.gamemodePlayingRoles[bodyData.gamemode]
+              const vcID = config.gamemodeVCChannels[bodyData.gamemode]
+
               if (bodyData.event_type === 'death') {
                 const logID = config.gamemodeLogChannels[bodyData.gamemode]
                 logEvent(null, {
@@ -84,7 +89,7 @@ module.exports = {
 
                 if (!vcID || bodyData.round_state != '3') return
 
-                const victimUser = await process.database.models.User.findOne({
+                const victimUser = await User.findOne({
                   where: { steamid: bodyData.victim_steamid }
                 })
 
@@ -95,12 +100,10 @@ module.exports = {
                   const member = vc.members.get(victimUser.id)
                   member.voice.setMute(true, 'Died in TTT')
                 }
-              } else if (bodyData.event_type === 'respawn') {
-                const vcID = config.gamemodeVCChannels[bodyData.gamemode]
-
+              } else if (bodyData.event_type === 'respawn' && bodyData.observation_mode === '0') {
                 if (!vcID) return
 
-                const victimUser = await process.database.models.User.findOne({
+                const victimUser = await User.findOne({
                   where: { steamid: bodyData.steamid }
                 })
 
@@ -112,14 +115,34 @@ module.exports = {
                   member.voice.setMute(false, 'Respawned in TTT')
                 }
               } else if (bodyData.event_type === 'round_end') {
-                const vcID = config.gamemodeVCChannels[bodyData.gamemode]
-
                 if (!vcID) return
 
                 const vc = client.channels.cache.find(ch => ch.id === vcID)
 
                 vc.members.each(member => {
                   member.voice.setMute(false, 'Round ended')
+                })
+              } else if (bodyData.event_type === 'connect') {
+                if (!playingRole) return
+
+                const user = await User.findOne({ where: { steamid: bodyData.steamid } })
+
+                client.guilds.fetch(guild.id).then(guild => {
+                  guild.members.fetch({ user: user.id }).then(member => {
+                    member.roles.add(playingRole)
+                    if (vcID && member.voice.guild.id === guild.id) member.voice.setChannel(vcID)
+                  })
+                })
+              } else if (bodyData.event_type === 'disconnect') {
+                if (!playingRole) return
+
+                const user = await User.findOne({ where: { steamid: bodyData.steamid } })
+
+                client.guilds.fetch(guild.id).then(guild => {
+                  guild.members.fetch({ user: user.id }).then(member => {
+                    member.roles.remove(playingRole)
+                    if (member.voice.channelID === vcID) member.voice.setChannel(null, 'Left TTT Server, disconnecting from VC.')
+                  })
                 })
               }
             }
