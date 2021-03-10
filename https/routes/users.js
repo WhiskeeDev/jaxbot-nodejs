@@ -1,3 +1,5 @@
+const { User, Role } = process.database.models
+
 function convJson (json) {
   return JSON.stringify(json, null, 2)
 }
@@ -9,14 +11,42 @@ module.exports = {
         routeName: '/users',
         async method ({ response }) {
           try {
-            const users = await process.database.models.User.findAll({
+            let users = await User.findAll({
               where: { bot: false },
-              order: [
-                ['leftServer', 'ASC'],
-                ['bot', 'ASC'],
-                ['createdAt', 'ASC'],
-              ]
+              include: {
+                model: Role,
+              }
             })
+            users = await Promise.all(users.map(async user => {
+              let roles = await Promise.all(user.Roles.map(async role => {
+                return {
+                  name: role.name,
+                  tag: role.tag,
+                  description: role.description,
+                  level: role.level
+                }
+              }))
+              roles = roles.sort((a, b) => b.level - a.level)
+              const highestRole = roles[0]
+
+              return {
+                avatar: user.avatar,
+                banned: user.banned,
+                bot: user.bot,
+                clanMember: user.clanMember,
+                createdAt: user.createdAt,
+                discriminator: user.discriminator,
+                id: user.id,
+                leftServer: user.leftServer,
+                steamID: user.steamID,
+                tag: user.tag,
+                updatedAt: user.updatedAt,
+                vip: user.vip,
+                roles,
+                highestRole
+              }
+            }))
+
             response.write(convJson({
               status: 'success',
               data: {
@@ -36,7 +66,7 @@ module.exports = {
         routeName: '/users/me',
         async method ({ response, activeUser }) {
           try {
-            const user = await process.database.models.User.findOne({
+            const user = await User.findOne({
               where: { id: activeUser.id }
             })
             response.write(convJson({
@@ -58,7 +88,7 @@ module.exports = {
         routeName: '/users/:id',
         async method ({ response, params }) {
           try {
-            const user = await process.database.models.User.findOne({
+            const user = await User.findOne({
               where: { id: params.id }
             })
             response.write(convJson({
