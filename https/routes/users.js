@@ -1,4 +1,4 @@
-const { User, Role } = process.database.models
+const { User, Role, Guild } = process.database.models
 
 function convJson (json) {
   return JSON.stringify(json, null, 2)
@@ -13,17 +13,24 @@ module.exports = {
           try {
             let users = await User.findAll({
               where: { bot: false },
+              order: [
+                ['leftServer', 'ASC'],
+                ['bot', 'ASC'],
+                ['createdAt', 'ASC'],
+              ],
               include: {
                 model: Role,
               }
             })
             users = await Promise.all(users.map(async user => {
               let roles = await Promise.all(user.Roles.map(async role => {
+                const guild = await Guild.findOne({ where: { id: role.UserRoles.GuildId } })
                 return {
                   name: role.name,
                   tag: role.tag,
                   description: role.description,
-                  level: role.level
+                  level: role.level,
+                  guild
                 }
               }))
               roles = roles.sort((a, b) => b.level - a.level)

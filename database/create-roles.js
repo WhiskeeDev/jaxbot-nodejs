@@ -6,22 +6,22 @@ const defaultRoles = [
     level: 0
   },
   {
-    tag: 'vip',
-    name: 'V.I.P',
-    description: 'V.I.P of jaxbot.',
-    level: 0
-  },
-  {
     tag: 'clan_member',
     name: 'Clan Member',
     description: 'Member of the TopHat Clan.',
-    level: 0
+    level: 1
   },
   {
     tag: 'clan_leader',
     name: 'Clan Leader',
     description: 'Leader of the TopHat Clan.',
-    level: 100
+    level: 2
+  },
+  {
+    tag: 'vip',
+    name: 'V.I.P',
+    description: 'V.I.P of TopHat.',
+    level: 3
   },
   {
     tag: 'admin',
