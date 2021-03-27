@@ -52,6 +52,7 @@ client.on('message', async message => {
   if (availableCommands.some(c => command.formattedText.startsWith(c))) {
 
     if (command.formattedText.startsWith('wipe')) {
+      command.markForDelete()
       if (message.channel.type !== 'text') return false
 
       const hasPermission = await command.hasPermission('moderation.textchannel.wipe')
@@ -67,6 +68,7 @@ client.on('message', async message => {
 
 
     else if (command.formattedText.startsWith('warns')) {
+      command.markForDelete()
       const hasPermission = await command.hasPermission('warn.index')
       if (!hasPermission) {
         return command.invalidPermission()
@@ -98,6 +100,7 @@ client.on('message', async message => {
 
 
     else if (command.formattedText.startsWith('warn')) {
+      command.markForDelete()
       const hasPermission = await command.hasPermission('moderation.warn')
       if (!hasPermission) {
         return command.invalidPermission()
@@ -144,6 +147,7 @@ client.on('message', async message => {
 
 
     else if (command.formattedText.startsWith('kick')) {
+      command.markForDelete()
       const hasPermission = await command.hasPermission('moderation.kick')
       if (!hasPermission) {
         return command.invalidPermission()
@@ -190,6 +194,7 @@ client.on('message', async message => {
 
 
     else if (command.formattedText.startsWith('ban')) {
+      command.markForDelete()
       const hasPermission = await command.hasPermission('moderation.ban')
       if (!hasPermission) {
         return command.invalidPermission()
@@ -246,6 +251,7 @@ client.on('message', async message => {
 
     else if (command.formattedText.startsWith('pardon')) {
       command.reply('This command is still being worked on, it should be available in the future.')
+      command.markForDelete()
       // const hasPermission = await command.hasPermission('moderation.pardon')
 
       // const staffMember = command.member

@@ -1,3 +1,4 @@
+const { MessageEmbed } = require('discord.js')
 const Command = require('../Command')
 
 const client = process.discordClient
@@ -13,6 +14,12 @@ client.on('message', async message => {
   const hasPermissionToPostGifs = await command.hasPermission('discord.chat.canPostGifs')
 
   const noContents = (!message.attachments.array().length && !message.content.length && !message.activity)
+
+  if (message.content === '!testing') {
+    const embed = new MessageEmbed()
+    embed.setDescription('Click [here](http://a/%%30%30) to see something')
+    message.reply(embed)
+  }
 
   if (noContents) {
     console.log(`${titleCard} Has no content...`)

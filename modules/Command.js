@@ -1,6 +1,16 @@
 const { getUser, getUserRoles, getUserPermissions, hasPermission, userCanInvokeTarget } = require(global.appRoot + '/utils/roles-and-perms.js')
-const { Guild } = process.database.models
+const { Guild, Trash } = process.database.models
 const client = process.discordClient
+
+function decayMessage (botResponse) {
+  const now = new Date()
+  const collection = now.setSeconds(now.getSeconds() + 15)
+  Trash.create({
+    trash_type: 'message',
+    item_id: botResponse.id,
+    collection_time: collection
+  })
+}
 
 module.exports = class Command {
   constructor(message, shouldFindTarget, checkGuild) {
@@ -8,15 +18,19 @@ module.exports = class Command {
     this.message = message
     this.init(shouldFindTarget, checkGuild)
 
-    this.reply = (reply, direct = true) => {
+    this.reply = async (reply, direct = true) => {
       const author = `${message.member.nickname || message.author.tag}`
       if (direct) {
         console.log(`[${BotLogName}]: @${author}, ${reply}`.yellow)
-        message.reply(reply)
+        return await message.reply(reply).then(decayMessage)
       } else {
         console.log(`[${BotLogName}]: ${reply}`.yellow)
-        message.channel.send(reply)
+        return await message.channel.send(reply).then(decayMessage)
       }
+    }
+
+    this.markForDelete = (message) => {
+      decayMessage(message || this.message)
     }
 
     this.user = async (guildId, userId) => {

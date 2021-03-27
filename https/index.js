@@ -68,7 +68,10 @@ async function getDiscordTokenValidity(req) {
   const user = await process.database.models.User.findOne({
     where: { id: activeUser.id }
   })
-  if (!user) return 'notAMember'
+  if (!user) {
+    console.log(`${titleCard} Not a member: ${activeUser.username}#${activeUser.discriminator} [${activeUser.id}]`.red)
+    return 'notAMember'
+  }
   return activeUser
 }
 
@@ -207,7 +210,9 @@ https.createServer(options, async function (req, res) {
     return
   }
 
-  if (method !== 'OPTIONS') console.log(`${titleCard} ${method} ${sourceIp}:${q.pathname}`)
+  const userIdentifier = `${requestValidity.username}#${requestValidity.discriminator} [${requestValidity.id}]`
+
+  if (method !== 'OPTIONS') console.log(`${titleCard} <${userIdentifier}> ${method} ${sourceIp}:${q.pathname}`)
 
   if (q.pathname === '/' || requestValidity === 'preflight') {
     res.writeHead(200, { 'Content-Type': 'application/json' })

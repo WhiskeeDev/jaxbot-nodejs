@@ -64,6 +64,7 @@ client.on('message', async message => {
   if (availableCommands.some(c => command.formattedText.startsWith(c))) {
 
     if (command.formattedText.startsWith('applications')) {
+      command.markForDelete()
       const hasPermission = await command.hasPermission('application.index')
       if (!hasPermission) {
         return command.invalidPermission()
@@ -72,6 +73,7 @@ client.on('message', async message => {
     }
 
     if (command.formattedText.startsWith('apply')) {
+      command.markForDelete()
       const hasPermission = await command.hasPermission('application.apply')
       if (!hasPermission) {
         return command.invalidPermission()

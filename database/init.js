@@ -328,6 +328,27 @@ async function createDatabase () {
     modelName: 'Event'
   })
 
+  console.log(`${titlecard} Creating 'Trash' Model`)
+  // Create Client Model for tokens
+  class Trash extends Model { }
+  Trash.init({
+    trash_type: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    item_id: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    collection_time: {
+      type: DataTypes.DATE,
+      allowNull: false
+    }
+  }, {
+    sequelize,
+    modelName: 'Trash'
+  })
+
   console.log(`${titlecard} Creating Relationships`)
   // Create Relationships (Associations)
 

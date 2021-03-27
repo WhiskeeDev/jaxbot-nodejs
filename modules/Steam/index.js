@@ -12,6 +12,7 @@ client.on('message', async message => {
   if (availableCommands.some(c => command.formattedText.startsWith(c))) {
 
     if (command.formattedText.startsWith('steamlink')) {
+      command.markForDelete()
       const token = command.params[0]
       if (!token) {
         command.reply('You\'re missing your token! You can get it in-game by using `/steamlink`.')
