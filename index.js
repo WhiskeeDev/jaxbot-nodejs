@@ -20,6 +20,8 @@ client.on('ready', () => {
     }, 2000)
   }
   require('./https/index.js')
+
+  require('./queue.js')
 })
 
 // Log current bot version (honestly pointless as no one ever updates the number)
@@ -37,5 +39,3 @@ require('./database/init.js').then(() => {
     console.error('[WBF] The token was not provided in the environment file! Can\'t continue! :('.red)
   }
 })
-
-require('./queue.js')
