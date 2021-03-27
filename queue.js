@@ -5,13 +5,11 @@ const { Trash } = process.database.models
 const client = process.discordClient
 
 const titleCard = '[Queue]'
-const delay = 10
+const delay = 5
 
 console.log(`${titleCard} Starting queue, I will run ever ${delay} seconds checking for _trash_.`.cyan)
 
 async function processQueue () {
-  console.log(`${titleCard} Checking trash for any due/overdue collections...`.cyan)
-
   Trash.findAll({
     where: {
       collection_time: {
@@ -26,9 +24,9 @@ async function processQueue () {
 
     console.log(`${titleCard} Found ${trashes.length} due collection(s)`)
 
-    await Promise.all(trashes.map(async trash => {
+    for (const trash of trashes) {
       await processTrash(trash)
-    }))
+    }
 
     setTimeout(() => processQueue(), delay * 1000)
   })
@@ -40,21 +38,26 @@ async function processTrash(trash) {
   console.log(`${titleCard} Processing Trash [${trash.id}] - ${trash.trash_type}`.cyan)
   switch (trash.trash_type) {
   case 'message':
-    await client.channels.cache.each(async channel => {
+    await Promise.all(client.channels.cache.map(async channel => {
       if (channel.type !== 'text') return
       await channel.messages.fetch(trash.item_id).then(async message => {
         if (!message) return
-        await message.delete()
+        await message.delete({
+          reason: 'Jaxbot Trash collection'
+        })
           .then(() => {
             trash.destroy()
-            console.log(`${titleCard} Successfully removed message`.green)
+            console.log(`${titleCard} Successfully collected (${trash.trash_type}) ${trash.item_id} [Trash-${trash.id}]`.green)
           })
-          .catch(displayError(trash))
-      }).catch(() => {})
-    })
+          .catch(() => {
+            console.error(message)
+            displayError(trash)
+          })
+      }).catch(() => { })
+    }))
     break
   default:
-    console.log(`${titleCard} The trash type of "${trash.trash_type}" is unknown, and can not be processed.`.red)
+    console.log(`${titleCard} The trash type of "${trash.trash_type}" [Trash-${trash.id}] is unknown, and can not be processed.`.red)
   }
 }
 
