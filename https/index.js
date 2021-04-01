@@ -207,6 +207,7 @@ https.createServer(options, async function (req, res) {
       message: `[${error.code}] ${error.message}`
     }))
     res.end()
+    console.error(requestValidity)
     return
   }
 
