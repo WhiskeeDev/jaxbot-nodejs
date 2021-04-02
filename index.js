@@ -12,6 +12,11 @@ client.on('ready', () => {
   // Load all enabled modules of the Bot
   require('./modules/index.js')
   console.log(`[WBF] Logged in as ${client.user.tag}!`.bgGreen)
+
+  client.guilds.cache.each(guild => {
+    console.log(`[WBF] Logged into ${guild.name}`)
+  })
+
   if (process.env.bot_activity_type && process.env.bot_activity_text) {
     setTimeout(() => {
       client.user.setActivity(process.env.bot_activity_text, { type: process.env.bot_activity_type }).then(() => {
