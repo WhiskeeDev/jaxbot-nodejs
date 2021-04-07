@@ -30,6 +30,8 @@ client.on('ready', () => {
   require('./queue.js')
 })
 
+client.on('debug', console.error)
+
 // Log current bot version (honestly pointless as no one ever updates the number)
 console.log(`[WBF] Bot version ${process.env.appVersion}`.magenta.bold)
 
