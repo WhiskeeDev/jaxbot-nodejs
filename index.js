@@ -41,7 +41,10 @@ require('./database/init.js').then(() => {
   // Login to bot, if token is available and valid
   const token = process.env.discord_token
   if (token) {
-    client.login(token)
+    client.login(token).then(res => {
+      console.log('logged in')
+      console.log(res)
+    })
   } else {
     console.error('[WBF] The token was not provided in the environment file! Can\'t continue! :('.red)
   }
