@@ -41,6 +41,7 @@ require('./database/init.js').then(() => {
   // Login to bot, if token is available and valid
   const token = process.env.discord_token
   if (token) {
+    console.log('logging in with token: ' + token)
     client.login(token).then(res => {
       console.log('logged in')
       console.log(res)
