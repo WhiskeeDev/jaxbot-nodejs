@@ -407,8 +407,12 @@ async function createDatabase () {
   console.log(`${titlecard} Checking if missing any default permissions...`)
   // Create Defaults
   createPermissions(Permission, titlecard)
+  console.log(`${titlecard} Checking if missing any default roles...`)
   createRoles(Role, titlecard)
+  console.log(`${titlecard} Checking if missing any default roles/perms links...`)
   createRolePermissions(Role, titlecard)
+
+  console.log(`${titlecard} Done`)
 }
 
 module.exports = new Promise(async (resolve) => {
