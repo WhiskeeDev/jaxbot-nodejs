@@ -11,7 +11,8 @@ rolePerms.vip = [
 ]
 rolePerms.clan_leader = [
   // ...rolePerms.user,
-  'application.review'
+  'application.review',
+  'clan.kick'
 ]
 rolePerms.admin = [
   // ...rolePerms.user,
@@ -25,7 +26,8 @@ rolePerms.manager = [
   // ...rolePerms.admin,
   'application.review',
   'moderation.ban',
-  'moderation.textchannel.wipe'
+  'moderation.textchannel.wipe',
+  'clan.kick'
 ]
 rolePerms.owner = [
   // ...rolePerms.manager,

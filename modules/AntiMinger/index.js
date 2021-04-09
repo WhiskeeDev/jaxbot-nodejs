@@ -30,7 +30,7 @@ client.on('message', async message => {
     return
   }
 
-  if (!command.dbGuild.gifsRequirePerms) return
+  if (!command.dbGuild || !command.dbGuild.gifsRequirePerms) return
 
   var containsGif = message.content.match(/(?:https*:\/\/(?:giphy|tenor|imgur|i.imgur)\.(?:com|co.uk))|\.(gif|gifv).*$/gm)
 

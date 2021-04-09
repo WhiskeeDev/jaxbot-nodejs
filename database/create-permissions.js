@@ -54,6 +54,11 @@ const defaultPermissions = [
     name: 'Can Post Gifs',
     description: 'Can post gifs in the discord chat.'
   },
+  {
+    tag: 'clan.kick',
+    name: 'Can Kick clan members',
+    description: 'Can Kick clan members in the discord chat.'
+  },
 ]
 
 module.exports = {

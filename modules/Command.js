@@ -38,21 +38,21 @@ module.exports = class Command {
         userId = guildId
         guildId = null
       }
-      return await getUser(guildId || this.guild.id, userId || this.author.id)
+      return await getUser(guildId || this.guild ? this.guild.id : null, userId || this.author.id)
     }
     this.userRoles = async (guildId, userId) => {
       if (guildId && !userId) {
         userId = guildId
         guildId = null
       }
-      return await getUserRoles(guildId || this.guild.id, userId || this.author.id)
+      return await getUserRoles(guildId || this.guild ? this.guild.id : null, userId || this.author.id)
     }
     this.userPermissions = async (guildId, userId) => {
       if (guildId && !userId) {
         userId = guildId
         guildId = null
       }
-      return await getUserPermissions(guildId || this.guild.id, userId || this.author.id)
+      return await getUserPermissions(guildId || this.guild ? this.guild.id : null, userId || this.author.id)
     }
     this.hasPermission = async (guildId, userId, permTag) => {
       if (guildId && !userId && !permTag) {
@@ -60,7 +60,7 @@ module.exports = class Command {
         guildId = null
         userId = null
       }
-      return hasPermission(guildId || this.guild.id, userId || this.author.id, permTag)
+      return hasPermission(guildId || this.guild ? this.guild.id : null, userId || this.author.id, permTag)
     }
     this.canInvokeTarget = async (guildId, userId, targetId) => {
       if (guildId && !userId && !targetId) {
@@ -68,7 +68,7 @@ module.exports = class Command {
         guildId = null
         userId = null
       }
-      return userCanInvokeTarget(guildId || this.guild.id, userId || this.author.id, targetId || this.target.id)
+      return userCanInvokeTarget(guildId || this.guild ? this.guild.id : null, userId || this.author.id, targetId || this.target.id)
     }
 
     this.invalidPermission = () => {
@@ -130,7 +130,7 @@ module.exports = class Command {
     }
 
     // Get guild from DB, for config and shite
-    if (checkGuild) {
+    if (checkGuild && this.guild) {
       this.dbGuild = await Guild.findOne({ where: { id: this.guild.id } })
     }
 
