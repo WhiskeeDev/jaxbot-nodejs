@@ -59,6 +59,19 @@ async function createDatabase () {
     modelName: 'Guild'
   })
 
+  console.log(`${titlecard} Creating 'Upload' Model`)
+  // Create Upload Model
+  class Upload extends Model { }
+  Upload.init({
+    data: {
+      type: DataTypes.TEXT('long'),
+      allowNull: false
+    }
+  }, {
+    sequelize,
+    modelName: 'Upload'
+  })
+
   console.log(`${titlecard} Creating 'User' Model`)
   // Create User Model
   class User extends Model { }
@@ -382,6 +395,9 @@ async function createDatabase () {
 
   User.hasMany(Application, { foreignKey: 'ReviewerId', as: 'ApplicationReviewer' })
   Application.belongsTo(User, { foreignKey: 'ReviewerId', as: 'ApplicationReviewer' })
+
+  Upload.belongsToMany(Application, { through: 'ApplicationUploads' })
+  Application.belongsToMany(Upload, { through: 'ApplicationUploads' })
 
   ApplicationType.hasMany(Application)
   Application.belongsTo(ApplicationType)

@@ -1,4 +1,5 @@
 const { getUserPermissions } = require(global.appRoot + '/utils/roles-and-perms.js')
+const { Upload, User, Application, ApplicationType } = process.database.models
 
 function convJson (json) {
   return JSON.stringify(json, null, 2)
@@ -39,13 +40,14 @@ module.exports = {
             const hasIndexPermission = await hasPermission(activeUser, 'application.index')
             let where = {}
             if (!hasIndexPermission) where.UserId = activeUser.id
-            const applications = await process.database.models.Application.findAll({
+            const applications = await Application.findAll({
               where,
               order: [['id', 'DESC']],
               include: [
-                process.database.models.User,
-                process.database.models.ApplicationType
-              ],
+                User,
+                ApplicationType,
+                Upload
+              ]
             })
             response.write(convJson({
               status: 'success',
@@ -67,7 +69,16 @@ module.exports = {
         reqMethod: 'POST',
         async method ({ response, activeUser, bodyData }) {
           try {
-            const application = await process.database.models.Application.create({
+            let uploads = []
+            await Promise.all(bodyData.uploads.map(async file => {
+              return await Upload.create({
+                data: file
+              })
+                .then(upload => {
+                  uploads.push(upload.id)
+                })
+            }))
+            const application = await Application.create({
               ApplicationTypeId: bodyData.type,
               data: JSON.stringify({
                 age: bodyData.age,
@@ -78,6 +89,7 @@ module.exports = {
               UserId: activeUser.id,
               status: -1
             })
+            application.addUploads(uploads)
             sendMessage(applyLogID, `<@&${managerRoleID}>\nA new application has been made by <@${activeUser.id}>.\n${process.env.app_url}/applications`)
             response.write(convJson({
               status: 'success',
@@ -107,7 +119,7 @@ module.exports = {
             return
           }
           try {
-            const application = await process.database.models.Application.findOne({
+            const application = await Application.findOne({
               where: { id: params.id }
             })
             if (!application) {
@@ -140,7 +152,7 @@ module.exports = {
               var message = `Congratulations <@${application.UserId}>, your application has been accepted!`
               if (application.ApplicationTypeId === 1) {
                 message = message + '\nFeel free to add `TopH` or `TopHat` to your in-game name!'
-                const user = await process.database.models.User.findOne({
+                const user = await User.findOne({
                   where: { id: application.UserId }
                 })
                 if (user) {
@@ -185,7 +197,7 @@ module.exports = {
               enabled: true
             }
             if (!hasIndexPermission) delete where.enabled
-            const applicationTypes = await process.database.models.ApplicationType.findAll({
+            const applicationTypes = await ApplicationType.findAll({
               where,
               order: [['createdAt', 'DESC']]
             })
