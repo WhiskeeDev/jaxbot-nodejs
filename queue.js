@@ -24,9 +24,10 @@ async function processQueue () {
 
     console.log(`${titleCard} Found ${trashes.length} due collection(s)`)
 
-    for (const trash of trashes) {
-      await processTrash(trash)
-    }
+    console.log(`${titleCard} TRASH COLLECTION HAS BEEN DISABLED DUE TO DISCORD RATE LIMITS`.red)
+    // for (const trash of trashes) {
+    //   await processTrash(trash)
+    // }
 
     setTimeout(() => processQueue(), delay * 1000)
   })
