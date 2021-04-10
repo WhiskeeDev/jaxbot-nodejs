@@ -13,7 +13,7 @@ const client = process.discordClient
 // title card is used for both console and embeds
 const titleCard = '[Clan Moderation]'
 
-const availableCommands = ['clan-kick']
+const availableCommands = ['clanmember-remove']
 
 client.on('message', async message => {
   if (message.author.bot) return
@@ -22,49 +22,50 @@ client.on('message', async message => {
   if (!command.isAValidCommand) return
 
   if (availableCommands.some(c => command.formattedText.startsWith(c))) {
-    if (command.formattedText.startsWith('clan-kick')) {
+    if (command.formattedText.startsWith('clanmember-remove')) {
       command.markForDelete()
+
       const hasPermission = await command.hasPermission('clan.kick')
-      if (!hasPermission) {
-        return command.invalidPermission()
-      }
+      if (!hasPermission) return command.invalidPermission()
+
       const canTarget = await command.canInvokeTarget()
-      if (!canTarget) {
-        return command.cannotTarget()
-      }
+      if (!canTarget) return command.cannotTarget()
+
       const staffMember = command.member
       const target = command.target
-      const targetMember = command.guild.member(target)
       var reason = command.params[1] || 'No Reason'
 
-      if (command.target === command.author) {
-        command.reply('Unless you\'re looking to kick yourself, I\'d recommend actually targetting someone.')
-        return
-      }
+      if (command.target === command.author) return command.reply('Unless you\'re looking to kick yourself, I\'d recommend actually targetting someone.')
 
-      if (command.params.length > 2) {
-        reason = command.params.slice(1).join(' ')
-      }
+      if (command.params.length > 2) reason = command.params.slice(1).join(' ')
 
       if (staffMember && target) {
-        console.log(`${staffMember.nickname || staffMember.user.tag} kicked ${target.tag} from the clan, for: "${reason}"`.yellow)
+        console.error(target)
+        console.log(`${staffMember.nickname || staffMember.user.tag} removed ${target.tag} from the clan, for: "${reason}"`.yellow)
         target
-          .send(`You were kicked from the clan by <@${staffMember.user.id}> for the following reason:\n` + '```' + reason + '```')
+          .send(`You were removed from the clan by <@${staffMember.user.id}> for the following reason:\n` + '```' + reason + '```')
           .then(() => {
             User.findOne({
               where: {
-                id: targetMember.user.id
+                id: target.id
               }
             }).then(user => {
               user.removeRoles('clan_member')
-              user.clanMember = 0
+              user.clanMember = false
               user.save()
 
-              command.reply(`Successfully kicked <@${target.id}> from the clan!`)
-              logEvent(null, {
-                description: `:athletic_shoe: Kicked <@${target.id}> from the clan
+              // Hard coding this because fuck it I don't have the time, and the whole discord roles/jax role thing needs to be redone anyway
+              client.guilds.fetch('704721117574725755').then(guild => {
+                guild.members.fetch(user.id).then(member => {
+                  member.roles.remove('455401459958415382')
+                })
+              })
 
-                **Kicked By:**
+              command.reply(`Successfully removed <@${target.id}> from the clan!`)
+              logEvent(null, {
+                description: `:athletic_shoe: Removed <@${target.id}> from the clan
+
+                **Removed By:**
                 <@${staffMember.user.id}>
 
                 **Reason:**

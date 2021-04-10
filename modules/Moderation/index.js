@@ -293,7 +293,8 @@ client.on('guildMemberRemove', async member => {
     }
   })
     .then(([user]) => {
-      user.leftServer = false
+      user.leftServer = true
+      user.clanMember = false
       user.save()
     })
 })
