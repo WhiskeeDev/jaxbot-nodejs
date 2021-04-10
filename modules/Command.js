@@ -78,7 +78,7 @@ module.exports = class Command {
     }
 
     this.cannotTarget = () => {
-      this.reply('I\'m sorry, your role is too low to target this person with this command.')
+      this.reply('I\'m sorry, you are unable to target that user using this command.\nThis could be because of one (or more) of the following reasons:\n```• The user you are targetting is higher ranking than you.\n• The user you are targetting doesn\'t exist (i.e. has left the server)\n• The name/id you\'ve entered is incorrect.```\nPlease check your command, and try again.')
       console.log(`${this.chatAuthorName} tried to run a command with too low a level.`.red)
       return false
     }
