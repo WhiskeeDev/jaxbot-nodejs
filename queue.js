@@ -9,31 +9,32 @@ const delay = 5
 
 console.log(`${titleCard} Starting queue, I will run ever ${delay} seconds checking for _trash_.`.cyan)
 
-async function processQueue () {
-  Trash.findAll({
-    where: {
-      collection_time: {
-        [Op.lte]: new Date()
-      }
-    }
-  }).then(async trashes => {
-    if (!trashes || !trashes.length) {
-      setTimeout(() => processQueue(), delay * 1000)
-      return
-    }
+console.log(`${titleCard} QUEUE HAS BEEN DISABLED DUE TO DISCORD RATE LIMITS`.red)
 
-    console.log(`${titleCard} Found ${trashes.length} due collection(s)`)
+// async function processQueue () {
+//   Trash.findAll({
+//     where: {
+//       collection_time: {
+//         [Op.lte]: new Date()
+//       }
+//     }
+//   }).then(async trashes => {
+//     if (!trashes || !trashes.length) {
+//       setTimeout(() => processQueue(), delay * 1000)
+//       return
+//     }
 
-    console.log(`${titleCard} TRASH COLLECTION HAS BEEN DISABLED DUE TO DISCORD RATE LIMITS`.red)
-    // for (const trash of trashes) {
-    //   await processTrash(trash)
-    // }
+//     console.log(`${titleCard} Found ${trashes.length} due collection(s)`)
 
-    setTimeout(() => processQueue(), delay * 1000)
-  })
-}
+//     for (const trash of trashes) {
+//       await processTrash(trash)
+//     }
 
-processQueue()
+//     setTimeout(() => processQueue(), delay * 1000)
+//   })
+// }
+
+// processQueue()
 
 async function processTrash(trash) {
   console.log(`${titleCard} Processing Trash [${trash.id}] - ${trash.trash_type}`.cyan)
