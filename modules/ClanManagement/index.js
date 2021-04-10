@@ -54,10 +54,9 @@ client.on('message', async message => {
               user.clanMember = false
               user.save()
 
-              // Hard coding this because fuck it I don't have the time, and the whole discord roles/jax role thing needs to be redone anyway
-              client.guilds.fetch('704721117574725755').then(guild => {
+              client.guilds.fetch(process.env.guild_id).then(guild => {
                 guild.members.fetch(user.id).then(member => {
-                  member.roles.remove('455401459958415382')
+                  member.roles.remove(config.clanMemberRoleID)
                 })
               })
 
