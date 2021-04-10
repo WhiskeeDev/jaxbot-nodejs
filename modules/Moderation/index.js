@@ -346,6 +346,14 @@ Warn.findAll().then(async warns => {
               member.roles.add(config.vipRoleID)
               console.log(`${titleCard} Gave ${member.nickname || member.user.tag} the 'VIP' role because they were missing it.`.cyan)
             }
+            if (isTopHat && user.clanMember && (roles && !roles.get(config.clanMemberRoleID))) {
+              member.roles.add(config.clanMemberRoleID)
+              console.log(`${titleCard} Gave ${member.nickname || member.user.tag} the 'Clan Member' role because they were missing it.`.cyan)
+            }
+            else if (isTopHat && !user.clanMember && (roles && roles.get(config.clanMemberRoleID))) {
+              member.roles.remove(config.clanMemberRoleID)
+              console.log(`${titleCard} Removed ${member.nickname || member.user.tag}'s 'Clan Member' role because they shouldn't have it.`.cyan)
+            }
 
             user.save()
           })
