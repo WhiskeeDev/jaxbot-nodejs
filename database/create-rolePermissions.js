@@ -21,6 +21,7 @@ rolePerms.admin = [
   'warn.index',
   'moderation.kick',
   'moderation.warn',
+  'can.view.admin.statistics'
 ]
 rolePerms.manager = [
   // ...rolePerms.admin,

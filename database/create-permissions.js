@@ -59,6 +59,11 @@ const defaultPermissions = [
     name: 'Can Kick clan members',
     description: 'Can Kick clan members in the discord chat.'
   },
+  {
+    tag: 'can.view.admin.statistics',
+    name: 'Can view admin statistics',
+    description: 'Can view admin stats on the jaxbot app.'
+  },
 ]
 
 module.exports = {
