@@ -9,7 +9,6 @@ const client = new Discord.Client()
 process.discordClient = client
 
 client.on('ready', () => {
-  console.log('bot ready, go do the thing')
   // Load all enabled modules of the Bot
   require('./modules/index.js')
   console.log(`[WBF] Logged in as ${client.user.tag}!`.bgGreen)
@@ -37,16 +36,8 @@ require('./safe2boot.js')
 
 // Create sequelize instance
 require('./database/init.js').then(() => {
-  console.log('finished db setup')
   // Login to bot, if token is available and valid
   const token = process.env.discord_token
-  if (token) {
-    console.log('logging in with token: ' + token)
-    client.login(token).then(res => {
-      console.log('logged in')
-      console.log(res)
-    })
-  } else {
-    console.error('[WBF] The token was not provided in the environment file! Can\'t continue! :('.red)
-  }
+  if (token) client.login(token)
+  else console.error('[WBF] The token was not provided in the environment file! Can\'t continue! :('.red)
 })

@@ -38,7 +38,7 @@ console.log = function () {
     if (arguments[0].startsWith('[HTTPS]')) useHttpsLogs = true
   }
 
-  fs.writeFileSync(`./logs${useHttpsLogs ? '/https/' : '/'}` + curDateTime.toISODate() + '.log', [`[${time}]`, ...arguments] + '\n', {
+  fs.writeFileSync(`./logs${useHttpsLogs ? '/https/' : '/'}` + curDateTime.toISODate() + '.log', `[${time}] ` + [...arguments] + '\n', {
     flag: 'a'
   })
 
