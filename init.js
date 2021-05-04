@@ -22,7 +22,7 @@ necessaryDirectories.forEach(d => {
 })
 
 console.debug = function () {
-  console.error('[DEBUG] ', { ...arguments })
+  console.error.apply(console, ['[DEBUG] ', ...arguments])
 }
 
 
