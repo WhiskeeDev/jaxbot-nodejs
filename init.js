@@ -21,6 +21,10 @@ necessaryDirectories.forEach(d => {
   if (!fs.existsSync(path)) fs.mkdirSync(path)
 })
 
+console.debug = function () {
+  console.error('[DEBUG] ', arguments)
+}
+
 
 // Override the console.log function so format it better,
 // Aswell as append it all to a .log file.
@@ -32,6 +36,7 @@ console.log = function () {
   var outputMessage = `[${time}] `
   const newLineSpacer = outputMessage.replace(/./g, ' ')
   if (typeof arguments[0] === 'string') {
+    console.debug(arguments[0], arguments[0].startsWith('[HTTPS]'))
     if (arguments[0].startsWith('[HTTPS]')) useHttpsLogs = true
   }
   for (var i = 0; i < arguments.length; i++) {
