@@ -201,13 +201,13 @@ https.createServer(options, async function (req, res) {
       error.code = 'ERR-900'
       break
     }
-    console.log(`${titleCard} [${error.code}] ${sourceIp}:${q.pathname}`.red)
+    console.log(titleCard + ` [${error.code}] ${sourceIp}:${q.pathname}`.red)
     res.write(convJson({
       status: 'error',
       message: `[${error.code}] ${error.message}`
     }))
     res.end()
-    console.error(requestValidity)
+    console.debug(requestValidity)
     return
   }
 
