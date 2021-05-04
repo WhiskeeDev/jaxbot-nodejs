@@ -86,7 +86,7 @@ if (config.log.deletedMessages) {
       author: message.author,
       member: message.member,
       channelName: message.channel.name,
-      guildName: message.guild.name
+      guildName: message.guild ? message.guild.name : null
     })
     if (hasAttachments) {
       logToChannel(null, attachments)
