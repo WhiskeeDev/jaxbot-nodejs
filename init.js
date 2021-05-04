@@ -22,7 +22,7 @@ necessaryDirectories.forEach(d => {
 })
 
 console.debug = function () {
-  console.error.apply(console, ['[DEBUG] ', ...arguments])
+  console.error.apply(console, ['[DEBUG]'.bgRed.yellow, ...arguments])
 }
 
 
@@ -33,19 +33,15 @@ console.log = function () {
   var useHttpsLogs = false
   const curDateTime = DateTime.local()
   const time = curDateTime.toLocaleString(DateTime.TIME_24_WITH_SECONDS)
-  var outputMessage = `[${time}] `
-  const newLineSpacer = outputMessage.replace(/./g, ' ')
+
   if (typeof arguments[0] === 'string') {
     console.debug(arguments[0], arguments[0].startsWith('[HTTPS]'))
     if (arguments[0].startsWith('[HTTPS]')) useHttpsLogs = true
   }
-  for (var i = 0; i < arguments.length; i++) {
-    const shouldJsonParse = ((arguments[i] instanceof Object) || (arguments[i] instanceof Array))
-    const parsedText = shouldJsonParse ? JSON.stringify(arguments[i], null, 2) : arguments[i]
-    outputMessage = outputMessage + parsedText + (i ? '\n' + newLineSpacer : '')
-  }
-  fs.writeFileSync(`./logs${useHttpsLogs ? '/https/' : '/'}` + curDateTime.toISODate() + '.log', outputMessage + '\n', {
+
+  fs.writeFileSync(`./logs${useHttpsLogs ? '/https/' : '/'}` + curDateTime.toISODate() + '.log', [`[${time}]`, ...arguments] + '\n', {
     flag: 'a'
   })
-  originalLog(outputMessage)
+
+  originalLog.apply(console, [`[${time}]`.brightBlue, ...arguments])
 }
