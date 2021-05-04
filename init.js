@@ -35,7 +35,6 @@ console.log = function () {
   const time = curDateTime.toLocaleString(DateTime.TIME_24_WITH_SECONDS)
 
   if (typeof arguments[0] === 'string') {
-    console.debug(arguments[0], arguments[0].startsWith('[HTTPS]'))
     if (arguments[0].startsWith('[HTTPS]')) useHttpsLogs = true
   }
 
