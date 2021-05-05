@@ -101,7 +101,7 @@ module.exports = class Command {
       this.validateTarget = false
       const secondParam = this.formattedText.split(' ')[1]
       const firstMentioned = this.message.mentions.members.first()
-      if (firstMentioned || (secondParam && secondParam.startsWith('<@!') && secondParam.endsWith('>'))) {
+      if (secondParam && secondParam.startsWith('<@') && secondParam.endsWith('>')) {
         this.target = firstMentioned.user
       } else if (secondParam) {
         const matchedId = client.users.cache.find(user => user.id === secondParam)
