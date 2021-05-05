@@ -100,8 +100,9 @@ module.exports = class Command {
       this.target = this.author
       this.validateTarget = false
       const secondParam = this.formattedText.split(' ')[1]
-      if (secondParam && secondParam.startsWith('<@!') && secondParam.endsWith('>')) {
-        this.target = this.message.mentions.members.first().user
+      const firstMentioned = this.message.mentions.members.first()
+      if (firstMentioned || (secondParam && secondParam.startsWith('<@!') && secondParam.endsWith('>'))) {
+        this.target = firstMentioned.user
       } else if (secondParam) {
         const matchedId = client.users.cache.find(user => user.id === secondParam)
         if (matchedId) this.target = matchedId
