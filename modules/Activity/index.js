@@ -25,6 +25,8 @@ function checkShouldBanish (user) {
 async function checkForMissingClanRole (user, guild) {
   if (!activeUsers.has(user.id) || !user.clanMember) return
 
+  const logThis = user.id === '431874276820385794'
+
   UserRoles.findOrCreate({
     where: {
       UserId: user.id,
@@ -36,13 +38,14 @@ async function checkForMissingClanRole (user, guild) {
     }
   })
 
-  console.log('Checking if Guild was found...')
+  if (logThis) console.log('Checking if Guild was found...')
+
   if (guild) {
-    console.log('Found guild! checking for member...')
+    if (logThis) console.log('Found guild! checking for member...')
     guild.members.fetch(user.id).then(member => {
-      console.log('Found member!', member)
+      if (logThis) console.log('Found member!', member)
       if (!member || !member.roles) return
-      console.log('Current Roles', member.roles)
+      if (logThis) console.log('Current Roles', member.roles)
       member.roles.add(clanMemberRoleID || '705723159231332363')
     })
   }
