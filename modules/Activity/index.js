@@ -38,9 +38,11 @@ async function checkForMissingClanRole (user, guild) {
 
   console.log('Checking if Guild was found...')
   if (guild) {
-    console.log('Adding clan role to user')
+    console.log('Found guild! checking for member...')
     guild.members.fetch(user.id).then(member => {
+      console.log('Found member!', member)
       if (!member || !member.roles) return
+      console.log('Current Roles', member.roles)
       member.roles.add(clanMemberRoleID || '705723159231332363')
     })
   }
