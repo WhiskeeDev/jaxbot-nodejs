@@ -22,7 +22,7 @@ function checkShouldBanish (user) {
   })
 }
 
-async function checkForMissingClanRole (user) {
+async function checkForMissingClanRole (user, guild) {
   if (!activeUsers.has(user.id) || !user.clanMember) return
 
   UserRoles.findOrCreate({
@@ -36,19 +36,24 @@ async function checkForMissingClanRole (user) {
     }
   })
 
-  const guild = await client.guilds.fetch(process.env.guild_id)
-
-  guild.members.fetch(user.id).then(member => {
-    if (!member || !member.roles) return
-    member.roles.add(clanMemberRoleID)
-  })
+  console.log('Checking if Guild was found...')
+  if (guild) {
+    console.log('Adding clan role to user')
+    guild.members.fetch(user.id).then(member => {
+      if (!member || !member.roles) return
+      member.roles.add(clanMemberRoleID || '705723159231332363')
+    })
+  }
 }
 
-User.findAll().then(async users => {
-  activeUsers = client.users.cache
+client.guilds.fetch(process.env.guild_id).then(guild => {
+  User.findAll().then(async users => {
+    activeUsers = client.users.cache
 
-  await users.forEach(async user => {
-    await checkShouldBanish(user)
-    await checkForMissingClanRole(user)
+    await users.forEach(async user => {
+      await checkShouldBanish(user)
+      await checkForMissingClanRole(user, guild)
+    })
   })
+
 })
