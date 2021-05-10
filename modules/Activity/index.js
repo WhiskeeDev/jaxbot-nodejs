@@ -4,11 +4,6 @@ const client = process.discordClient
 var activeUsers = client.users.cache
 const clanMemberRoleTag = 'clan_member'
 
-const { load } = require(global.appRoot + '/utils/config.js')
-const config = load('moderation', null)
-
-const clanMemberRoleID = config ? config.clanMemberRoleID : null
-
 function checkShouldBanish (user) {
   if (activeUsers.has(user.id) || user.leftServer) return
   user.leftServer = true
@@ -22,10 +17,8 @@ function checkShouldBanish (user) {
   })
 }
 
-async function checkForMissingClanRole (user, guild) {
+function checkForMissingClanRole (user) {
   if (!activeUsers.has(user.id) || !user.clanMember) return
-
-  const logThis = user.id === '431874276820385794'
 
   UserRoles.findOrCreate({
     where: {
@@ -37,28 +30,13 @@ async function checkForMissingClanRole (user, guild) {
       RoleTag: clanMemberRoleTag
     }
   })
-
-  if (logThis) console.log('Checking if Guild was found...')
-
-  if (guild) {
-    if (logThis) console.log('Found guild! checking for member...')
-    guild.members.fetch(user.id).then(member => {
-      if (logThis) console.log('Found member!', member)
-      if (!member || !member.roles) return
-      if (logThis) console.log('Current Roles', member.roles)
-      member.roles.add(clanMemberRoleID || '705723159231332363')
-    })
-  }
 }
 
-client.guilds.fetch(process.env.guild_id).then(guild => {
-  User.findAll().then(async users => {
-    activeUsers = client.users.cache
+User.findAll().then(users => {
+  activeUsers = client.users.cache
 
-    await users.forEach(async user => {
-      await checkShouldBanish(user)
-      await checkForMissingClanRole(user, guild)
-    })
+  users.forEach(user => {
+    checkShouldBanish(user)
+    checkForMissingClanRole(user)
   })
-
 })
