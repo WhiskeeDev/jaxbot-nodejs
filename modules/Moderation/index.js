@@ -70,12 +70,12 @@ client.on('message', async message => {
     else if (command.formattedText.startsWith('warns')) {
       command.markForDelete()
       const hasPermission = await command.hasPermission('warn.index')
-      if (!hasPermission) {
-        return command.invalidPermission()
-      }
       if (!command.target) {
         command.reply('Yo, I need to know who you want me to check for warns!\nGive me a name by tagging them. i.e. `@' + command.member.nickname || command.author.tag + '`')
         return
+      }
+      if ((command.target !== command.author) && !hasPermission) {
+        return command.invalidPermission()
       }
       const warns = await Warn.findAll({
         where: { UserId: command.target.id }
