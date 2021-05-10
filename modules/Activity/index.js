@@ -4,6 +4,11 @@ const client = process.discordClient
 var activeUsers = client.users.cache
 const clanMemberRoleTag = 'clan_member'
 
+const { load } = require(global.appRoot + '/utils/config.js')
+const config = load('moderation', null)
+
+const clanMemberRoleID = config ? config.clanMemberRoleID : null
+
 function checkShouldBanish (user) {
   if (activeUsers.has(user.id) || user.leftServer) return
   user.leftServer = true
@@ -17,7 +22,7 @@ function checkShouldBanish (user) {
   })
 }
 
-function checkForMissingClanRole (user) {
+async function checkForMissingClanRole (user) {
   if (!activeUsers.has(user.id) || !user.clanMember) return
 
   UserRoles.findOrCreate({
@@ -30,13 +35,20 @@ function checkForMissingClanRole (user) {
       RoleTag: clanMemberRoleTag
     }
   })
+
+  const guild = await client.guilds.fetch(process.env.guild_id)
+
+  guild.members.fetch(user.id).then(member => {
+    if (!member || !member.roles) return
+    member.roles.add(clanMemberRoleID)
+  })
 }
 
-User.findAll().then(users => {
+User.findAll().then(async users => {
   activeUsers = client.users.cache
 
-  users.forEach(user => {
-    checkShouldBanish(user)
-    checkForMissingClanRole(user)
+  await users.forEach(async user => {
+    await checkShouldBanish(user)
+    await checkForMissingClanRole(user)
   })
 })
