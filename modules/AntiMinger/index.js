@@ -13,7 +13,7 @@ client.on('message', async message => {
   const command = new Command(message, false, true)
   const hasPermissionToPostGifs = await command.hasPermission('discord.chat.canPostGifs')
 
-  const noContents = (!message.attachments.array().length && !message.content.length && !message.activity)
+  // const noContents = (!message.attachments.array().length && !message.content.length && !message.activity)
 
   if (message.content === '!testing') {
     const embed = new MessageEmbed()
@@ -21,14 +21,14 @@ client.on('message', async message => {
     message.reply(embed)
   }
 
-  if (noContents) {
-    console.log(`${titleCard} Has no content...`)
-    command.reply('Your post was removed because it has no valid content. If you think this is incorrect, use the help and support channel.')
-    message.delete({
-      reason: 'User\'s message did not contain valid content.'
-    })
-    return
-  }
+  // if (noContents) {
+  //   console.log(`${titleCard} Has no content...`)
+  //   command.reply('Your post was removed because it has no valid content. If you think this is incorrect, use the help and support channel.')
+  //   message.delete({
+  //     reason: 'User\'s message did not contain valid content.'
+  //   })
+  //   return
+  // }
 
   if (!command.dbGuild || !command.dbGuild.gifsRequirePerms) return
 
