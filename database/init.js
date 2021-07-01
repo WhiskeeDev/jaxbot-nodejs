@@ -5,6 +5,7 @@ const titlecard = '[DB]'
 const { createPermissions } = require('./create-permissions.js')
 const { createRoles } = require('./create-roles.js')
 const { createRolePermissions } = require('./create-rolePermissions.js')
+const { createPunishmentTypes } = require('./create-punishmentTypes.js')
 
 async function createDatabase () {
   console.log(`${titlecard} Initalizing`)
@@ -243,6 +244,49 @@ async function createDatabase () {
     modelName: 'Ban'
   })
 
+  console.log(`${titlecard} Creating 'PunishmentType' Model`)
+  // Create Punishment Type Model
+  class PunishmentType extends Model { }
+  PunishmentType.init({
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    tag: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    enabled: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    }
+  }, {
+    sequelize,
+    modelName: 'PunishmentType'
+  })
+
+  console.log(`${titlecard} Creating 'Punishment' Model`)
+  // Create Punishment Model
+  class Punishment extends Model { }
+  Punishment.init({
+    reason: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    endsAt: {
+      type: DataTypes.DATE,
+      allowNull: true
+    }
+  }, {
+    sequelize,
+    modelName: 'Punishment'
+  })
+
   console.log(`${titlecard} Creating 'ApplicationType' Model`)
   // Create Application Type Model
   class ApplicationType extends Model { }
@@ -391,6 +435,17 @@ async function createDatabase () {
   User.hasMany(Ban)
   Ban.belongsTo(User)
 
+  // User who was punished
+  User.hasMany(Punishment)
+  Punishment.belongsTo(User)
+
+  // User who gave the punishment (staff)
+  User.hasMany(Punishment, { foreignKey: 'StaffId', as: 'PunishmentStaff' })
+  Punishment.belongsTo(User, { foreignKey: 'StaffId', as: 'PunishmentStaff' })
+
+  PunishmentType.hasMany(Punishment)
+  Punishment.belongsTo(PunishmentType)
+
   User.hasMany(Application)
   Application.belongsTo(User)
 
@@ -421,13 +476,21 @@ async function createDatabase () {
   console.log(`${titlecard} Done`)
   process.database = sequelize
 
-  console.log(`${titlecard} Checking if missing any default permissions...`)
   // Create Defaults
+
+  // Perms and Roles
+  console.log(`${titlecard} Checking if missing any default permissions...`)
   createPermissions(Permission, titlecard)
+
   console.log(`${titlecard} Checking if missing any default roles...`)
   createRoles(Role, titlecard)
+
   console.log(`${titlecard} Checking if missing any default roles/perms links...`)
   createRolePermissions(Role, titlecard)
+
+  // App Types and Punishment Types
+  console.log(`${titlecard} Checking if missing any default punishment types...`)
+  createPunishmentTypes(PunishmentType, titlecard)
 
   console.log(`${titlecard} Done`)
 }
