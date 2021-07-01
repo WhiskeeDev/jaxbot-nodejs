@@ -1,8 +1,9 @@
 const { logEvent, colours } = require(global.appRoot + '/utils/logging.js')
-const { User, Warn, Ban } = process.database.models
+const { User, Punishment } = process.database.models
 const { MessageEmbed } = require('discord.js')
 const Command = require('../Command.js')
-const { DateTime } = require('luxon')
+const { DateTime, Duration } = require('luxon')
+const { gt } = require('sequelize').Op
 
 const { load } = require(global.appRoot + '/utils/config.js')
 const config = load('moderation', {
@@ -15,32 +16,37 @@ const titleCard = '[Moderation]'
 
 const availableCommands = ['wipe', 'warn', 'warns', 'kick', 'ban', 'pardon']
 
-async function saveWarn (params) {
-  await User.findOrCreate({where: {id: params.user.id}, defaults: {
-    id: params.user.id,
-    tag: params.tag || 'UNKNOWN'
-  }}).then(() => {
-    return Warn.create({
+async function savePunishment (type, params) {
+  let endsAt
+  if (params.data.duration) {
+    endsAt = DateTime.local().plus(params.data.duration)
+  }
+
+  await User.findOrCreate({
+    where: { id: params.user.id }, defaults: {
+      id: params.user.id,
+      tag: params.tag || 'UNKNOWN'
+    }
+  }).then(() => {
+    return Punishment.create({
       reason: params.data.reason,
       date: params.data.date,
       StaffId: params.data.staff,
-      UserId: params.user.id
+      UserId: params.user.id,
+      endsAt,
+      PunishmentTypeTag: type
     })
   })
 }
 
+async function saveWarn (params) {
+  return savePunishment('warn', params)
+}
+async function saveKick (params) {
+  return savePunishment('kick', params)
+}
 async function saveBan (params) {
-  await User.findOrCreate({where: {id: params.user.id}, defaults: {
-    id: params.user.id,
-    tag: params.tag || 'UNKNOWN'
-  }}).then(() => {
-    return Ban.create({
-      reason: params.data.reason,
-      date: params.data.date,
-      StaffId: params.data.staff,
-      UserId: params.user.id
-    })
-  })
+  return savePunishment('ban', params)
 }
 
 client.on('message', async message => {
@@ -114,30 +120,43 @@ client.on('message', async message => {
       const targetMember = command.guild.member(target)
       var reason = command.params[1] || 'No Reason'
 
-      if (command.target === command.author) {
-        command.reply('Unless you\'re looking to warn yourself, I\'d recommend actually targetting someone.')
-        return
-      }
-
       if (command.params.length > 2) {
         reason = command.params.slice(1).join(' ')
       }
 
+      const numberOfActiveWarns = await Punishment.count({
+        where: {
+          UserId: target.id,
+          PunishmentTypeTag: 'warn',
+          endsAt: {
+            [gt]: new Date()
+          }
+        }
+      })
+
+      const weeks = 2
+      const days = weeks * 7
+      const duration = { hours: days * 24 }
+
+      console.log({ weeks, days, duration, numberOfActiveWarns})
+
       if (staffMember && target) {
         console.log(`${staffMember.nickname || staffMember.user.tag} warned ${target.tag} for: "${reason}"`.yellow)
+
         saveWarn({
           user: target,
           tag: target.tag,
           data: {
             date: command.message.createdTimestamp,
             reason: reason,
+            duration,
             staff: staffMember.user.id
           }
         }).then(() => {
-          command.reply(`Sucessfully warned ${target.username}!`)
+          command.reply(`Sucessfully warned ${target.username}!\nThey now have ${numberOfActiveWarns + 1} active warns.`)
           if (config.warnsRoleID) targetMember.roles.add(config.warnsRoleID)
           target
-            .send(`You were warned by <@${staffMember.user.id}> for the following reason:\n` + '```' + reason + '```')
+            .send(`You were warned by <@${staffMember.user.id}> for the following reason:\n` + '```' + reason + '```' + `This warn will expire in ${weeks} weeks.`)
         }).catch(error => {
           console.error(error)
           command.reply(`Unable to warn ${target.username}! Check console for errors...`)
@@ -161,11 +180,6 @@ client.on('message', async message => {
       const targetMember = command.guild.member(target)
       var reason = command.params[1] || 'No Reason'
 
-      if (command.target === command.author) {
-        command.reply('Unless you\'re looking to kick yourself, I\'d recommend actually targetting someone.')
-        return
-      }
-
       if (command.params.length > 2) {
         reason = command.params.slice(1).join(' ')
       }
@@ -187,6 +201,15 @@ client.on('message', async message => {
                 ${reason}`,
                 color: colours.warning
               })
+              saveKick({
+                user: target,
+                tag: target.tag,
+                data: {
+                  date: command.message.createdTimestamp,
+                  reason: reason,
+                  staff: staffMember.user.id
+                }
+              })
             })
           })
       }
@@ -206,23 +229,30 @@ client.on('message', async message => {
       const staffMember = command.member
       const target = command.target
       const targetMember = command.guild.member(target)
-      var reason = command.params[1] || 'No Reason'
+      var reason = command.params[2] || 'No Reason'
 
-      if (command.target === command.author) {
-        command.reply('Unless you\'re looking to ban yourself, I\'d recommend actually targetting someone.')
-        return
-      }
+      var duration = Duration.fromISO(`PT${command.params[1]}H`)
+
+      if (duration.invalid) {
+        reason = command.params[1] || 'No Reason'
+        duration = null
+      } else duration = duration.toObject()
 
       if (command.params.length > 2) {
-        reason = command.params.slice(1).join(' ')
+        reason = command.params.slice(duration ? 2 : 1).join(' ')
       }
+
+      console.debug({
+        duration,
+        reason
+      })
 
       if (staffMember && target) {
         console.log(`${staffMember.nickname || staffMember.user.tag} banned ${target.tag} for: "${reason}"`.yellow)
         target
-          .send(`You were banned by <@${staffMember.user.id}> for the following reason:\n` + '```' + reason + '```')
+          .send(`You were banned by <@${staffMember.user.id}> for the following reason:\n` + '```' + reason + '```' + `The ban duration is ${duration ? duration.hours : '∞'} hour(s).`)
           .then(() => {
-            targetMember.ban({ reason }).then(() => {
+            targetMember.ban({ reason, days: 7 }).then(() => {
               command.reply(`Successfully banned <@${target.id}>!`)
               logEvent(null, {
                 description: `:hammer: banned <@${target.id}>
@@ -239,6 +269,7 @@ client.on('message', async message => {
                 tag: target.tag,
                 data: {
                   date: command.message.createdTimestamp,
+                  duration,
                   reason: reason,
                   staff: staffMember.user.id
                 }
@@ -300,10 +331,11 @@ client.on('guildMemberRemove', async member => {
 })
 
 var usersToWarn = []
-Warn.findAll().then(async warns => {
-  warns.forEach(warn => {
-    if (!usersToWarn.includes(warn.UserId)) usersToWarn.push(warn.UserId)
-  })
+Punishment.findAll().then(async punishments => {
+  // warns.forEach(warn => {
+  //   if (!usersToWarn.includes(warn.UserId)) usersToWarn.push(warn.UserId)
+  // })
+
   const guilds = await client.guilds.cache
   if (guilds) {
     guilds.each(guild => {

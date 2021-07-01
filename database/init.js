@@ -5,7 +5,7 @@ const titlecard = '[DB]'
 const { createPermissions } = require('./create-permissions.js')
 const { createRoles } = require('./create-roles.js')
 const { createRolePermissions } = require('./create-rolePermissions.js')
-const { createPunishmentTypes } = require('./create-punishmentTypes.js')
+const { createPunishmentTypes, migrateWarns, migrateBans } = require('./create-punishmentTypes.js')
 
 async function createDatabase () {
   console.log(`${titlecard} Initalizing`)
@@ -172,7 +172,6 @@ async function createDatabase () {
     },
     inherit: {
       type: DataTypes.STRING,
-
     }
   }, {
     sequelize,
@@ -254,7 +253,9 @@ async function createDatabase () {
     },
     tag: {
       type: DataTypes.STRING,
+      unique: true,
       allowNull: false,
+      primaryKey: true
     },
     description: {
       type: DataTypes.STRING,
@@ -491,6 +492,9 @@ async function createDatabase () {
   // App Types and Punishment Types
   console.log(`${titlecard} Checking if missing any default punishment types...`)
   createPunishmentTypes(PunishmentType, titlecard)
+
+  migrateWarns(Warn, Punishment, titlecard)
+  migrateBans(Ban, Punishment, titlecard)
 
   console.log(`${titlecard} Done`)
 }

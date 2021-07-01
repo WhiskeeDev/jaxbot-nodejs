@@ -149,7 +149,7 @@ const userCanInvokeTarget = async function (guildId, userId, targetId) {
     if (role.level > highestTargetLevel) highestTargetLevel = role.level
   })
 
-  return highestUserLevel > highestTargetLevel
+  return (highestUserLevel > highestTargetLevel) || userId == targetId
 }
 
 module.exports = {

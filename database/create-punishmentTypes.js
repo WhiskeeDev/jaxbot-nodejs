@@ -1,3 +1,5 @@
+const { DateTime } = require('luxon')
+
 const defaultTypes = [
   {
     tag: 'warn',
@@ -19,6 +21,32 @@ const defaultTypes = [
   }
 ]
 
+async function migrateOldModel (OldModel, PunishmentModel, type, titlecard = '[DB]') {
+  const existing = await OldModel.findAll()
+
+  existing.forEach(item => {
+    let endsAt
+
+    if (type === 'warn') {
+      endsAt = DateTime.fromJSDate(item.createdAt).plus({ weeks: 2 })
+    }
+
+    PunishmentModel.create({
+      reason: item.reason,
+      PunishmentTypeTag: type,
+      UserId: item.UserId,
+      StaffId: item.StaffId,
+      createdAt: item.createdAt,
+      endsAt
+    }).then(() => {
+      console.log(`${titlecard} Successfully migrated ${type} ${item.id} [${item.UserId} - ${item.reason}] to Punishment Model.`)
+
+      item.destroy()
+    })
+  })
+}
+
+
 module.exports = {
   createPunishmentTypes: async function (TypeModel, titlecard = '[DB]') {
     await Promise.all(defaultTypes.map(async type => {
@@ -31,5 +59,11 @@ module.exports = {
         }
       })
     }))
+  },
+  migrateWarns: async function (WarnModel, PunishmentModel, titlecard = '[DB]') {
+    migrateOldModel(WarnModel, PunishmentModel, 'warn', titlecard)
+  },
+  migrateBans: async function (BanModel, PunishmentModel, titlecard = '[DB]') {
+    migrateOldModel(BanModel, PunishmentModel, 'ban', titlecard)
   }
 }
