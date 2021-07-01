@@ -10,6 +10,7 @@ async function createDatabase () {
   console.log(`${titlecard} Initalizing`)
   const sequelize = new Sequelize(env.database_name || 'tophat_discord_bot', env.database_user, env.database_pass, {
     host: env.database_host,
+    port: env.database_port || '3306',
     dialect: 'mysql',
     logging: false,
     define: {
